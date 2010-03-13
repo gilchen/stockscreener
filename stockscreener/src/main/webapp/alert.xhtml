@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+<head>
+<title>Alert</title>
+</head>
+<body>
+<ui:composition template="/template.xhtml">
+	<ui:define name="navigation">
+		<ui:include src="navigation.xhtml" />
+	</ui:define>
+	
+	<ui:define name="body">
+		<h:form id="form">
+			<h:messages id="messages" errorClass="error" />
+			<h:panelGrid id="grid" columns="2">
+				<h:outputText value="Stock Code" />
+				<h:inputText id="stockCode" value="#{alertBean.stockCode}" required="true" />
+
+				<h:outputText value="Transaction Type" />
+				<h:selectOneListbox value="#{alertBean.trxType}" required="true">
+					<f:selectItem itemLabel="Buy" itemValue="Buy" />
+					<f:selectItem itemLabel="Sell" itemValue="Sell" />
+					<f:selectItem itemLabel="Virtual Buy" itemValue="Virtual Buy" />
+					<f:selectItem itemLabel="Virtual Sell" itemValue="Virtual Sell" />
+				</h:selectOneListbox>
+
+				<h:outputText value="Event Date (MM/dd/yyyy)" />
+				<h:inputText id="eventDate" value="#{alertBean.eventDate}" required="true">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" />
+				</h:inputText>
+
+				<h:outputText value="Opportunity Type" />
+				<h:selectOneListbox value="#{alertBean.opportunityType}" required="true">
+					<f:selectItem itemLabel="Short-Term" itemValue="Short-Term" />
+					<f:selectItem itemLabel="Intermediate-Term Bullish" itemValue="Intermediate-Term Bullish" />
+					<f:selectItem itemLabel="Long-Term" itemValue="Long-Term" />
+				</h:selectOneListbox>
+
+				<h:outputText value="Event Price" />
+				<h:inputText id="eventPrice" value="#{alertBean.eventPrice}" required="true">
+					<f:convertNumber type="number" />
+				</h:inputText>
+
+				<h:outputText value="Target Price" />
+				<h:inputText id="targetPrice" value="#{alertBean.targetPrice}" required="true" />
+
+				<h:outputText value="Event Type" />
+				<h:selectOneListbox value="#{alertBean.eventType}" required="true">
+					<f:selectItem itemLabel="Reversal of prior trend" itemValue="Reversal of prior trend" />
+					<f:selectItem itemLabel="Continuation of prior trend" itemValue="Continuation of prior trend" />
+					<f:selectItem itemLabel="Ascending Continuation Triangle" itemValue="Ascending Continuation Triangle" />
+					<f:selectItem itemLabel="Bottom Triangle" itemValue="Bottom Triangle" />
+					<f:selectItem itemLabel="Continuation Diamond (Bullish)" itemValue="Continuation Diamond (Bullish)" />
+					<f:selectItem itemLabel="Continuation Wedge (Bullish)" itemValue="Continuation Wedge (Bullish)" />
+					<f:selectItem itemLabel="Diamond Bottom" itemValue="Diamond Bottom" />
+					<f:selectItem itemLabel="Double Bottom" itemValue="Double Bottom" />
+					<f:selectItem itemLabel="Flag (Bullish)" itemValue="Flag (Bullish)" />
+					<f:selectItem itemLabel="Head and Shoulders Bottom" itemValue="Head and Shoulders Bottom" />
+					<f:selectItem itemLabel="Megaphone Bottom" itemValue="Megaphone Bottom" />
+					<f:selectItem itemLabel="Pennant (Bullish)" itemValue="Pennant (Bullish)" />
+					<f:selectItem itemLabel="Rounded Bottom" itemValue="Rounded Bottom" />
+					<f:selectItem itemLabel="Symmetrical Continuation Triangle (Bullish)" itemValue="Symmetrical Continuation Triangle (Bullish)" />
+					<f:selectItem itemLabel="Triple Bottom" itemValue="Triple Bottom" />
+					<f:selectItem itemLabel="Upside Breakout" itemValue="Upside Breakout" />
+					<f:selectItem itemLabel="Shailesh Own" itemValue="Shailesh Own" />
+				</h:selectOneListbox>
+
+				<h:outputText value="Quantity" />
+				<h:inputText id="qty" value="#{alertBean.qty}" required="true" maxlength="5">
+					<f:convertNumber type="number" integerOnly="true" />
+				</h:inputText>
+
+				<h:outputText value="Active" />
+				<h:selectOneListbox value="#{alertBean.isActive}" required="true">
+					<f:selectItem itemLabel="Yes" itemValue="Y" />
+					<f:selectItem itemLabel="No" itemValue="N" />
+				</h:selectOneListbox>
+
+				<h:commandButton value="Save" action="#{alertBean.save}" />
+			</h:panelGrid>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</body>
+</html>
