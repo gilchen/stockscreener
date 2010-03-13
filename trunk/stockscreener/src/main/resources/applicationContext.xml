@@ -21,4 +21,49 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
             </list>
         </property>
     </bean>
+    
+	<!-- 
+		Class.forName("com.mysql.jdbc.Driver").newInstance();
+		final Connection connection = DriverManager.getConnection("jdbc:mysql://10.12.84.67/ind_stocks?user=root&password=password");
+     -->
+     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://10.12.84.67/ind_stocks" />
+		<property name="username" value="root" />
+		<property name="password" value="password" />
+     </bean>
+     
+     <!-- bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+     	<property name="dataSource" ref="dataSource"></property>
+     </bean -->
+     
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="showSql" value="${show.sql}"/>
+                <property name="generateDdl" value="false"/>
+                <property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect"/>
+            </bean>
+        </property>
+        <property name="persistenceUnitName" value="ejb3Persistence" />
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    
+    <bean id="dao" abstract="true" />
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    	<!-- To be Autowired -->
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+    
+    <bean id="stockService" class="com.stocks.service.impl.StockServiceImpl">
+		<property name="alertDao" ref="alertDao" />
+    </bean>
+    
+    <bean id="alertDao" 
+    	class="com.stocks.dao.impl.AlertDaoImpl"
+    	parent="dao">
+    	<property name="emf" ref="entityManagerFactory" />
+    </bean>
+
 </beans>

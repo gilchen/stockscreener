@@ -9,12 +9,7 @@
 <body>
 <ui:composition template="/template.xhtml">
 	<ui:define name="navigation">
-		<h:form id="navForm">
-			<h:panelGrid id="grid" columns="1">
-				<h:commandLink value="Link1" />
-				<h:commandLink value="Link2" />
-			</h:panelGrid>
-		</h:form>
+		<ui:include src="navigation.xhtml" />
 	</ui:define>
 	
 	<ui:define name="body">

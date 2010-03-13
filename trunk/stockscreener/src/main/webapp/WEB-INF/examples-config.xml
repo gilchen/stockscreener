@@ -8,20 +8,26 @@
 
 	<application>
 		<view-handler>com.sun.facelets.FaceletViewHandler</view-handler>
+		<variable-resolver>org.springframework.web.jsf.DelegatingVariableResolver</variable-resolver>
 	</application>
 
 	<!-- managed beans of the simple hello world app -->
 	<managed-bean>
-		<managed-bean-name>helloWorldBacking</managed-bean-name>
-		<managed-bean-class>
-			com.stocks.HelloWorldBacking
-		</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
+		<managed-bean-name>alertBean</managed-bean-name>
+		<managed-bean-class>com.stocks.AlertBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>stockService</property-name>
+			<value>#{stockService}</value>
+		</managed-property>
 	</managed-bean>
 
 	<!-- navigation rules for helloWorld.jsp -->
 	<navigation-rule>
-		<from-view-id>/helloWorld.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>alert</from-outcome>
+			<to-view-id>/alert.xhtml</to-view-id>
+		</navigation-case>
 		<navigation-case>
 			<from-outcome>success</from-outcome>
 			<to-view-id>/page2.xhtml</to-view-id>
@@ -33,7 +39,7 @@
 		<from-view-id>/page2.xhtml</from-view-id>
 		<navigation-case>
 			<from-outcome>back</from-outcome>
-			<to-view-id>/helloWorld.xhtml</to-view-id>
+			<to-view-id>/main.xhtml</to-view-id>
 		</navigation-case>
 	</navigation-rule>
 </faces-config>
