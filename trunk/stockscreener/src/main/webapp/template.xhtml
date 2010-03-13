@@ -12,8 +12,19 @@
 <body>
 <table>
 <tr>
-	<td width="20%"><ui:insert name="navigation">Navigation Menu</ui:insert></td>
-	<td width="80%"><ui:insert name="body">Hello World Example!</ui:insert></td>
+	<td width="20%" valign="top"><ui:insert name="navigation">Navigation Menu</ui:insert></td>
+	<td width="80%" valign="top">
+		<table>
+		<tr>
+			<td height="10%" valign="top">
+				<h2><ui:insert name="heading">Page Heading</ui:insert></h2>
+			</td>
+		</tr>
+		<tr>
+			<td height="90%" valign="top"><ui:insert name="body">Page Body</ui:insert></td>
+		</tr>
+		</table>
+	</td>
 </tr>
 </table>
 </body>

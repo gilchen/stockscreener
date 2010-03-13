@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+<head>
+<title>Bse Icici Mapping</title>
+</head>
+<body>
+<ui:composition template="/template.xhtml">
+	<ui:define name="navigation">
+		<ui:include src="navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="heading">
+		<h:outputText value="Bse Icici Mapping" />
+	</ui:define>
+	
+	<ui:define name="body">
+		<h:form id="form">
+			<h:messages id="messages" errorClass="error" />
+			<h:panelGrid id="grid" columns="2">
+				<h:outputText value="Stock Code" />
+				<h:panelGroup>
+					<h:inputText id="stockCode" value="#{bseIciciMappingBean.stockCode}" required="true" />
+					<h:commandButton value="Get Bse Code" actionListener="#{bseIciciMappingBean.getBseScCode}" />
+				</h:panelGroup>
+
+				<h:outputText value="Sc Code" />
+				<h:inputText id="scCode" value="#{bseIciciMappingBean.scCode}" required="true" maxlength="10">
+					<f:convertNumber type="number" groupingUsed="false" integerOnly="true" />
+				</h:inputText>
+
+				<h:commandButton value="Save" action="#{bseIciciMappingBean.save}" />
+			</h:panelGrid>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</body>
+</html>

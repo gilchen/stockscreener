@@ -58,6 +58,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     
     <bean id="stockService" class="com.stocks.service.impl.StockServiceImpl">
 		<property name="alertDao" ref="alertDao" />
+		<property name="bseIciciMappingDao" ref="bseIciciMappingDao" />
     </bean>
     
     <bean id="alertDao" 
@@ -65,5 +66,12 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     	parent="dao">
     	<property name="emf" ref="entityManagerFactory" />
     </bean>
+    
+    <bean id="bseIciciMappingDao" 
+    	class="com.stocks.dao.impl.BseIciciMappingDaoImpl"
+    	parent="dao">
+    	<property name="emf" ref="entityManagerFactory" />
+    </bean>
+    
 
 </beans>

@@ -2,6 +2,9 @@ package com.stocks;
 
 import java.util.Date;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
 import com.stocks.model.Alert;
 import com.stocks.service.StockService;
 
@@ -15,6 +18,11 @@ public class AlertBean {
     private String eventType;
     private Integer qty;
     private String isActive;
+    
+    public AlertBean() {
+		this.setEventDate(new Date());
+		this.setIsActive("Y");
+	}
     
     // Services
     private StockService stockService;
@@ -95,6 +103,12 @@ public class AlertBean {
 		alert.setTargetPrice(getTargetPrice());
 		alert.setTrxType(getTrxType());
 		
-		getStockService().saveAlert(alert);
+		try {
+			getStockService().saveAlert(alert);
+			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Alert Saved", "Alert Saved"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), e.getMessage()));
+		}
 	}
 }

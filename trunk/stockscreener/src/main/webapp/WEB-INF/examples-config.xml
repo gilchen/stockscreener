@@ -21,6 +21,24 @@
 			<value>#{stockService}</value>
 		</managed-property>
 	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>bseIciciMappingBean</managed-bean-name>
+		<managed-bean-class>com.stocks.BseIciciMappingBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>stockService</property-name>
+			<value>#{stockService}</value>
+		</managed-property>
+	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>importDataBean</managed-bean-name>
+		<managed-bean-class>com.stocks.ImportDataBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>stockService</property-name>
+			<value>#{stockService}</value>
+		</managed-property>
+	</managed-bean>
 
 	<!-- navigation rules for helloWorld.jsp -->
 	<navigation-rule>
@@ -32,6 +50,15 @@
 			<from-outcome>success</from-outcome>
 			<to-view-id>/page2.xhtml</to-view-id>
 		</navigation-case>
+		<navigation-case>
+			<from-outcome>bse_icici_mapping</from-outcome>
+			<to-view-id>/bse_icici_mapping.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>import_data</from-outcome>
+			<to-view-id>/import_data.xhtml</to-view-id>
+		</navigation-case>
+		
 	</navigation-rule>
 
 	<!-- navigation rules for page2.jsp -->
