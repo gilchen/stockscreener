@@ -13,16 +13,12 @@
 	</ui:define>
 
 	<ui:define name="heading">
-		<h:outputText value="Import Data" />
+		<h:outputText value="Welcome to Stock Screener App." />
 	</ui:define>
+
 	
 	<ui:define name="body">
-		<h:form id="form">
-			<h:messages id="messages" errorClass="error" />
-			<h:panelGrid id="grid" columns="1">
-				<h:commandLink value="Bse Import" actionListener="#{importDataBean.importBse}" />
-			</h:panelGrid>
-		</h:form>
+		<h:outputText value="Click a link to the left." />
 	</ui:define>
 </ui:composition>
 </body>
