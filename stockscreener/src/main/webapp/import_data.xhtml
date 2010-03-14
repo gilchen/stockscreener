@@ -13,12 +13,24 @@
 	</ui:define>
 
 	<ui:define name="heading">
-		<h:outputText value="Welcome to Stock Screener App." />
+		<h:outputText value="Import Data" />
 	</ui:define>
 
 	
 	<ui:define name="body">
-		<h:outputText value="Click a link to the left." />
+		<h:form id="form">
+			<h:messages id="messages" errorClass="error" />
+			<h:panelGrid id="grid" columns="2">
+				<h:outputText value="Bse" />
+				<h:commandButton value="Import Bse" actionListener="#{importDataBean.importBse}" />
+
+				<h:outputText value="Nyse" />
+				<h:panelGroup>
+					<a href="http://www.eoddata.com/Download.aspx" target="_new">EODData</a> &nbsp;
+					<h:commandButton value="Import Nyse" actionListener="#{importDataBean.importNyse}" />
+				</h:panelGroup>
+			</h:panelGrid>
+		</h:form>
 	</ui:define>
 </ui:composition>
 </body>
