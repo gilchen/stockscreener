@@ -56,11 +56,25 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
     
+    <!-- Start: Spring Services -->
     <bean id="stockService" class="com.stocks.service.impl.StockServiceImpl">
 		<property name="alertDao" ref="alertDao" />
 		<property name="bseIciciMappingDao" ref="bseIciciMappingDao" />
+		<property name="keyValueDao" ref="keyValueDao" />
     </bean>
+
+    <bean id="stockImportService" class="com.stocks.service.impl.StockImportServiceImpl">
+		<property name="bseDao" ref="bseDao" />
+    </bean>
+
+    <bean id="bseImport" class="com.stocks.service.impl.BseImport">
+		<property name="downloadFolder" value="${bse.download.folder}" />
+		<property name="stockImportService" ref="stockImportService" />
+		<property name="stockService" ref="stockService" />
+    </bean>
+    <!-- End: Spring Services -->
     
+    <!-- Start: DAO -->
     <bean id="alertDao" 
     	class="com.stocks.dao.impl.AlertDaoImpl"
     	parent="dao">
@@ -73,5 +87,17 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     	<property name="emf" ref="entityManagerFactory" />
     </bean>
     
+	<bean id="bseDao"
+		class="com.stocks.dao.impl.BseDaoImpl"
+		parent="dao">
+		<property name="emf" ref="entityManagerFactory" />
+    </bean>
 
+	<bean id="keyValueDao"
+		class="com.stocks.dao.impl.KeyValueDaoImpl"
+		parent="dao">
+		<property name="emf" ref="entityManagerFactory" />
+    </bean>
+    <!-- End: DAO -->
+    
 </beans>

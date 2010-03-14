@@ -35,8 +35,8 @@
 		<managed-bean-class>com.stocks.ImportDataBean</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
-			<property-name>stockService</property-name>
-			<value>#{stockService}</value>
+			<property-name>bseImport</property-name>
+			<value>#{bseImport}</value>
 		</managed-property>
 	</managed-bean>
 

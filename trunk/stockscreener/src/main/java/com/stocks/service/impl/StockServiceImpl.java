@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.stocks.dao.AlertDao;
 import com.stocks.dao.BseIciciMappingDao;
+import com.stocks.dao.KeyValueDao;
 import com.stocks.model.Alert;
 import com.stocks.model.BseIciciMapping;
+import com.stocks.model.KeyValue;
 import com.stocks.service.StockService;
 import com.stocks.util.Utility;
 
@@ -24,6 +26,7 @@ public class StockServiceImpl implements StockService {
 
     private AlertDao alertDao;
     private BseIciciMappingDao bseIciciMappingDao;
+    private KeyValueDao keyValueDao;
     
 	public AlertDao getAlertDao() {
 		return alertDao;
@@ -43,6 +46,15 @@ public class StockServiceImpl implements StockService {
 		this.bseIciciMappingDao = bseIciciMappingDao;
 	}
 
+	public KeyValueDao getKeyValueDao() {
+		return keyValueDao;
+	}
+
+	@Required
+	public void setKeyValueDao(KeyValueDao keyValueDao) {
+		this.keyValueDao = keyValueDao;
+	}
+
 	public List<Alert> getAllAlerts() {
 		return getAlertDao().findAll();
 	}
@@ -56,6 +68,15 @@ public class StockServiceImpl implements StockService {
 	public void saveBseIciciMapping(BseIciciMapping bseIciciMapping) throws Exception {
     	getBseIciciMappingDao().save(bseIciciMapping);
 	}
+
+    public KeyValue getKeyValue(String key) {
+    	return getKeyValueDao().read(key);
+    }
+    
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void saveKeyValue(KeyValue keyValue) throws Exception {
+    	getKeyValueDao().save(keyValue);
+    }
     
     public Integer getBseScCode(final String stockCode) throws Exception {
 		String url = ICICI_GET_QUOTE_URL +stockCode;
