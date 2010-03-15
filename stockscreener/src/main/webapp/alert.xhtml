@@ -33,7 +33,7 @@
 
 				<h:outputText value="Event Date (MM/dd/yyyy)" />
 				<h:inputText id="eventDate" value="#{alertBean.eventDate}" required="true">
-					<f:convertDateTime type="date" pattern="MM/dd/yyyy" />
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
 				</h:inputText>
 
 				<h:outputText value="Opportunity Type" />
@@ -74,7 +74,7 @@
 
 				<h:outputText value="Quantity" />
 				<h:inputText id="qty" value="#{alertBean.qty}" required="true" maxlength="5">
-					<f:convertNumber type="number" integerOnly="true" />
+					<f:convertNumber type="number" groupingUsed="false" integerOnly="true" />
 				</h:inputText>
 
 				<h:outputText value="Active" />

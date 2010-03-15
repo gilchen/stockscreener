@@ -13,6 +13,12 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
+    <context:annotation-config/>
+
+    <context:component-scan base-package="com.stocks"/>
+
+	<tx:annotation-driven />
+
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -49,10 +55,12 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
         <property name="dataSource" ref="dataSource" />
     </bean>
     
+    <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
+    
     <bean id="dao" abstract="true" />
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-    	<!-- To be Autowired -->
+    	<!-- EntityManager is Autoinjected by PersistenceAnnotationBeanPostProcessor -->
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
     
@@ -63,14 +71,16 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		<property name="keyValueDao" ref="keyValueDao" />
     </bean>
 
-    <bean id="stockImportService" class="com.stocks.service.impl.StockImportServiceImpl">
+    <bean id="bseImportService" class="com.stocks.service.impl.BseImportServiceImpl">
+		<property name="downloadFolder" value="${bse.download.folder}" />
+		<property name="stockService" ref="stockService" />
 		<property name="bseDao" ref="bseDao" />
     </bean>
 
-    <bean id="bseImport" class="com.stocks.service.impl.BseImport">
-		<property name="downloadFolder" value="${bse.download.folder}" />
-		<property name="stockImportService" ref="stockImportService" />
+    <bean id="nyseImportService" class="com.stocks.service.impl.NyseImportServiceImpl">
+		<property name="downloadFolder" value="${nyse.download.folder}" />
 		<property name="stockService" ref="stockService" />
+		<property name="nyseDao" ref="nyseDao" />
     </bean>
     <!-- End: Spring Services -->
     
@@ -78,25 +88,26 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     <bean id="alertDao" 
     	class="com.stocks.dao.impl.AlertDaoImpl"
     	parent="dao">
-    	<property name="emf" ref="entityManagerFactory" />
     </bean>
     
     <bean id="bseIciciMappingDao" 
     	class="com.stocks.dao.impl.BseIciciMappingDaoImpl"
     	parent="dao">
-    	<property name="emf" ref="entityManagerFactory" />
     </bean>
     
 	<bean id="bseDao"
 		class="com.stocks.dao.impl.BseDaoImpl"
 		parent="dao">
-		<property name="emf" ref="entityManagerFactory" />
+    </bean>
+
+	<bean id="nyseDao"
+		class="com.stocks.dao.impl.NyseDaoImpl"
+		parent="dao">
     </bean>
 
 	<bean id="keyValueDao"
 		class="com.stocks.dao.impl.KeyValueDaoImpl"
 		parent="dao">
-		<property name="emf" ref="entityManagerFactory" />
     </bean>
     <!-- End: DAO -->
     

@@ -10,17 +10,6 @@ import com.stocks.model.Bse;
 import com.stocks.model.BsePK;
 
 public class BseDaoImpl extends AbstractDao implements BseDao {
-	private EntityManagerFactory emf;
-	
-	public EntityManagerFactory getEmf() {
-		return emf;
-	}
-
-	public void setEmf(EntityManagerFactory emf) {
-		this.emf = emf;
-		entityManager = emf.createEntityManager();
-	}
-
 	public void delete(Bse bse) {
 		entityManager.remove(bse);
 	}
@@ -35,13 +24,9 @@ public class BseDaoImpl extends AbstractDao implements BseDao {
 
 	public void save(Bse bse) {
 		try{
-			entityManager.getTransaction().begin();
 			entityManager.persist(bse);
-			entityManager.flush();
-			entityManager.getTransaction().commit();
 		}
 		catch(Exception e){
-			entityManager.getTransaction().rollback();
 			throw new RuntimeException(e);
 		}
 	}

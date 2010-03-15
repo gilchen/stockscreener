@@ -35,8 +35,16 @@
 		<managed-bean-class>com.stocks.ImportDataBean</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
-			<property-name>bseImport</property-name>
-			<value>#{bseImport}</value>
+			<property-name>bseImportService</property-name>
+			<value>#{bseImportService}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>nyseImportService</property-name>
+			<value>#{nyseImportService}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>stockService</property-name>
+			<value>#{stockService}</value>
 		</managed-property>
 	</managed-bean>
 
