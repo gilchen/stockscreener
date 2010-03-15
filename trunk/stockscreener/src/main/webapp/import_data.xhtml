@@ -20,14 +20,20 @@
 	<ui:define name="body">
 		<h:form id="form">
 			<h:messages id="messages" errorClass="error" />
-			<h:panelGrid id="grid" columns="2">
-				<h:outputText value="Bse" />
+			<h:panelGrid id="grid" columns="3">
+				<h:outputText value="Bse - Last imported on " />
+				<h:outputText value="#{importDataBean.lastBseImport}">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:outputText>
 				<h:commandButton value="Import Bse" actionListener="#{importDataBean.importBse}" />
 
-				<h:outputText value="Nyse" />
+				<h:outputText value="Nyse - Last imported on " />
+				<h:outputText value="#{importDataBean.lastNyseImport}">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:outputText>
 				<h:panelGroup>
-					<a href="http://www.eoddata.com/Download.aspx" target="_new">EODData</a> &nbsp;
 					<h:commandButton value="Import Nyse" actionListener="#{importDataBean.importNyse}" />
+					&nbsp; <a href="http://www.eoddata.com/Download.aspx" target="_new">EODData</a>
 				</h:panelGroup>
 			</h:panelGrid>
 		</h:form>

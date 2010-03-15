@@ -9,17 +9,6 @@ import com.stocks.dao.KeyValueDao;
 import com.stocks.model.KeyValue;
 
 public class KeyValueDaoImpl extends AbstractDao implements KeyValueDao {
-	private EntityManagerFactory emf;
-	
-	public EntityManagerFactory getEmf() {
-		return emf;
-	}
-
-	public void setEmf(EntityManagerFactory emf) {
-		this.emf = emf;
-		entityManager = emf.createEntityManager();
-	}
-
 	public List<KeyValue> findAll() {
 		throw new RuntimeException("Not Implemented.");
 	}
@@ -34,15 +23,10 @@ public class KeyValueDaoImpl extends AbstractDao implements KeyValueDao {
 
 	public void save(KeyValue keyValue) {
 		try{
-			entityManager.getTransaction().begin();
 			entityManager.merge(keyValue);
-			entityManager.flush();
-			entityManager.getTransaction().commit();
-			System.out.println( "KeyValue Saved." );
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			entityManager.getTransaction().rollback();
 			throw new RuntimeException(e);
 		}
 	}

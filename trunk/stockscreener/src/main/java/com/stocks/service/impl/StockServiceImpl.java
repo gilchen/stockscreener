@@ -20,14 +20,14 @@ import com.stocks.util.Utility;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class StockServiceImpl implements StockService {
 	public static final String ICICI_GET_QUOTE_URL = "http://getquote.icicidirect.com/trading/equity/trading_stock_quote.asp?Symbol=";
-	
+
 	@Autowired(required = true)
     private PlatformTransactionManager transactionManager;
 
     private AlertDao alertDao;
     private BseIciciMappingDao bseIciciMappingDao;
     private KeyValueDao keyValueDao;
-    
+
 	public AlertDao getAlertDao() {
 		return alertDao;
 	}
