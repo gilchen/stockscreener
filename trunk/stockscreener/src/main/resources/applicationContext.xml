@@ -69,6 +69,8 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		<property name="alertDao" ref="alertDao" />
 		<property name="bseIciciMappingDao" ref="bseIciciMappingDao" />
 		<property name="keyValueDao" ref="keyValueDao" />
+		<property name="bseDao" ref="bseDao" />
+		<property name="nyseDao" ref="nyseDao" />
     </bean>
 
     <bean id="bseImportService" class="com.stocks.service.impl.BseImportServiceImpl">
@@ -83,6 +85,13 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		<property name="nyseDao" ref="nyseDao" />
     </bean>
     <!-- End: Spring Services -->
+    
+    <!-- Start: Commands -->
+    <bean id="stockBoxCommand" class="com.stocks.command.StockBoxCommand">
+		<property name="stockService" ref="stockService" />
+		<property name="reportFolder" value="${report.folder}" />
+    </bean>
+    <!-- End: Commands -->
     
     <!-- Start: DAO -->
     <bean id="alertDao" 

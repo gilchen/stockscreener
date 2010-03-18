@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -13,7 +15,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 @Entity
 @Table(name = "nyse")
-//@IdClass(BsePK.class)
+@NamedQueries({
+	@NamedQuery(name = "stockBySymbolAndTradeDate", query = "select a from Nyse a where a.nysePK.symbol = :symbol and a.nysePK.tradeDate > :tradeDate order by a.nysePK.tradeDate asc"),
+	@NamedQuery(name = "allSymbols", query = "select a.nysePK.symbol from Nyse a where a.nysePK.tradeDate = (select max(b.nysePK.tradeDate) from Nyse b)")
+})
 public class Nyse implements Serializable{
     private final static long serialVersionUID = 2l;
 

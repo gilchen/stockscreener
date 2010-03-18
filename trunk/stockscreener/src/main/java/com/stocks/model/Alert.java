@@ -5,9 +5,12 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
@@ -26,8 +29,9 @@ public class Alert implements Serializable{
     @Column(name = "ALERT_ID")
     private Long alertId;
 
-    @Column(name = "STOCK_CODE", length = 10)
-    private String stockCode;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "STOCK_CODE", insertable = true, updatable = false)
+    private BseIciciMapping bseIciciMapping;
     
     @Column(name = "TRX_TYPE", length = 20)
     private String trxType;
@@ -61,12 +65,12 @@ public class Alert implements Serializable{
 		this.alertId = alertId;
 	}
 
-	public String getStockCode() {
-		return stockCode;
+	public BseIciciMapping getBseIciciMapping() {
+		return bseIciciMapping;
 	}
 
-	public void setStockCode(String stockCode) {
-		this.stockCode = stockCode;
+	public void setBseIciciMapping(BseIciciMapping bseIciciMapping) {
+		this.bseIciciMapping = bseIciciMapping;
 	}
 
 	public String getTrxType() {

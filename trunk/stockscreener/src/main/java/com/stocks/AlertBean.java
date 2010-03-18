@@ -99,7 +99,7 @@ public class AlertBean {
 		alert.setIsActive(getIsActive());
 		alert.setOpportunityType(getOpportunityType());
 		alert.setQty(getQty());
-		alert.setStockCode(getStockCode());
+		alert.setBseIciciMapping( getStockService().getBseIciciMapping(getStockCode()) );
 		alert.setTargetPrice(getTargetPrice());
 		alert.setTrxType(getTrxType());
 		

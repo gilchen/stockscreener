@@ -1,5 +1,6 @@
 package com.stocks.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +10,15 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.stocks.dao.AlertDao;
+import com.stocks.dao.BseDao;
 import com.stocks.dao.BseIciciMappingDao;
 import com.stocks.dao.KeyValueDao;
+import com.stocks.dao.NyseDao;
 import com.stocks.model.Alert;
+import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
 import com.stocks.model.KeyValue;
+import com.stocks.model.Nyse;
 import com.stocks.service.StockService;
 import com.stocks.util.Utility;
 
@@ -25,6 +30,8 @@ public class StockServiceImpl implements StockService {
     private PlatformTransactionManager transactionManager;
 
     private AlertDao alertDao;
+    private BseDao bseDao;
+    private NyseDao nyseDao;
     private BseIciciMappingDao bseIciciMappingDao;
     private KeyValueDao keyValueDao;
 
@@ -36,7 +43,25 @@ public class StockServiceImpl implements StockService {
 	public void setAlertDao(AlertDao alertDao) {
 		this.alertDao = alertDao;
 	}
-	
+
+	public BseDao getBseDao() {
+		return bseDao;
+	}
+
+	@Required
+	public void setBseDao(BseDao bseDao) {
+		this.bseDao = bseDao;
+	}
+
+	public NyseDao getNyseDao() {
+		return nyseDao;
+	}
+
+	@Required
+	public void setNyseDao(NyseDao nyseDao) {
+		this.nyseDao = nyseDao;
+	}
+
 	public BseIciciMappingDao getBseIciciMappingDao() {
 		return bseIciciMappingDao;
 	}
@@ -64,10 +89,34 @@ public class StockServiceImpl implements StockService {
 		getAlertDao().save(alert);
 	}
     
+    public List<Bse> findStockByScCodeAndTradeDate(Integer scCode, Date tradeDate) {
+    	return getBseDao().findStockByScCodeAndTradeDate(scCode, tradeDate);
+    }
+    
+    public List<Bse> findStockByScCode(Integer scCode) {
+    	return getBseDao().findStockByScCode(scCode);
+    }
+    
+    public List<Integer> getAllScCodes(){
+    	return getBseDao().getAllScCodes();
+    }
+    
+    public List<Nyse> findStockBySymbolAndTradeDate(String symbol, Date tradeDate) {
+    	return getNyseDao().findStockBySymbolAndTradeDate(symbol, tradeDate);
+    }
+    
+    public List<String> getAllSymbols() {
+    	return getNyseDao().getAllSymbols();
+    }
+    
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void saveBseIciciMapping(BseIciciMapping bseIciciMapping) throws Exception {
     	getBseIciciMappingDao().save(bseIciciMapping);
 	}
+    
+    public BseIciciMapping getBseIciciMapping(String stockCode) {
+    	return getBseIciciMappingDao().read(stockCode);
+    }
 
     public KeyValue getKeyValue(String key) {
     	return getKeyValueDao().read(key);

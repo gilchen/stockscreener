@@ -47,6 +47,15 @@
 			<value>#{stockService}</value>
 		</managed-property>
 	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>commandBean</managed-bean-name>
+		<managed-bean-class>com.stocks.CommandBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>stockBoxCommand</property-name>
+			<value>#{stockBoxCommand}</value>
+		</managed-property>
+	</managed-bean>
 
 	<!-- navigation rules for helloWorld.jsp -->
 	<navigation-rule>

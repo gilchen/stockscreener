@@ -16,6 +16,9 @@ public class NysePK implements Serializable {
 	@Column(name="SYMBOL", nullable=false, length=30)
 	private String symbol;
 
+	public NysePK() {
+	}
+	
 	public NysePK(final Date tradeDate, final String symbol) {
 		this.tradeDate = tradeDate;
 		this.symbol = symbol;
