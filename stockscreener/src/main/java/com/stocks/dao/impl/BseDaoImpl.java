@@ -1,8 +1,9 @@
 package com.stocks.dao.impl;
 
+import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 
 import com.stocks.dao.AbstractDao;
 import com.stocks.dao.BseDao;
@@ -16,6 +17,23 @@ public class BseDaoImpl extends AbstractDao implements BseDao {
 
 	public List<Bse> findAll() {
 		throw new RuntimeException("Not Implemented.");
+	}
+	
+	public List<Bse> findStockByScCodeAndTradeDate(final Integer scCode, final Date tradeDate){
+		Query query = entityManager.createNamedQuery("stockByScCodeAndTradeDate");
+		query.setParameter("scCode", scCode);
+		query.setParameter("tradeDate", tradeDate);
+		return query.getResultList();
+	}
+	
+	public List<Bse> findStockByScCode(Integer scCode) {
+		Query query = entityManager.createNamedQuery("stockByScCode");
+		query.setParameter("scCode", scCode);
+		return query.getResultList();
+	}
+	
+	public List<Integer> getAllScCodes() {
+		return entityManager.createNamedQuery("allScCodes").getResultList();
 	}
 
 	public Bse read(BsePK bsePK) {

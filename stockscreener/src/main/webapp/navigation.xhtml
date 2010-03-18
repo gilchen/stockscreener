@@ -14,7 +14,7 @@
 			<h:commandLink value="Enter New Alert" action="alert" immediate="true" />
 			<h:commandLink value="Define Bse Icici Mapping" action="bse_icici_mapping" immediate="true" />
 			<h:commandLink value="Import Data" action="import_data" immediate="true" />
-			<h:commandLink value="Link4" />
+			<h:commandLink value="Generate Report Command" actionListener="#{commandBean.executeStockBoxCommand}" />
 		</h:panelGrid>
 	</h:form>
 </f:view>
