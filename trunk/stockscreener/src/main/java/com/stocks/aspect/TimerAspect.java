@@ -30,7 +30,7 @@ public class TimerAspect {
 	@After("executePointcut()")
 	public void after(){
 		System.out.println( "After: Command Completed." );
-		this.getTimer().purge();
+		this.getPercentCompleteReporter().cancel();
 	}
 
 	public Timer getTimer() {

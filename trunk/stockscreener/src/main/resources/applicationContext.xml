@@ -112,7 +112,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 	<bean id="reportChain" class="org.apache.commons.chain.impl.ChainBase">
 		<constructor-arg type="java.util.Collection">
 			<list value-type="org.apache.commons.chain.Command">
-				<ref bean="bseReportCommand" />
+				<!-- ref bean="bseReportCommand" / -->
 				<ref bean="nyseReportCommand" />
 				<ref bean="bseAlertReportCommand" />
 			</list>
