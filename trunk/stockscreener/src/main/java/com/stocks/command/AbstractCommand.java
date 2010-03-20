@@ -7,6 +7,7 @@ import org.apache.commons.chain.Command;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.stocks.service.StockService;
+import com.stocks.util.PercentCompleteReporter;
 
 public abstract class AbstractCommand implements Command{
 	protected static final String GOOGLE_CHART_URL = "http://~NUM.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:~DATA&chg=0,2,1,0&chds=~MIN,~MAX"; //&chtt=~TITLE
@@ -21,7 +22,8 @@ public abstract class AbstractCommand implements Command{
 	}
 	
 	private StockService stockService;
-	private String reportFolder;
+	private String reportPath;
+	private PercentCompleteReporter percentCompleteReporter;
 	
 	public StockService getStockService() {
 		return stockService;
@@ -32,13 +34,23 @@ public abstract class AbstractCommand implements Command{
 		this.stockService = stockService;
 	}
 
-	public String getReportFolder() {
-		return reportFolder;
+	public String getReportPath() {
+		return reportPath;
 	}
 
 	@Required
-	public void setReportFolder(String reportFolder) {
-		this.reportFolder = reportFolder;
+	public void setReportPath(String reportPath) {
+		this.reportPath = reportPath;
+	}
+
+	public PercentCompleteReporter getPercentCompleteReporter() {
+		return percentCompleteReporter;
+	}
+
+	@Required
+	public void setPercentCompleteReporter(
+			PercentCompleteReporter percentCompleteReporter) {
+		this.percentCompleteReporter = percentCompleteReporter;
 	}
 
 }
