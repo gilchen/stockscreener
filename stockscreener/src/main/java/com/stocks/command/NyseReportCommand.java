@@ -16,7 +16,7 @@ public class NyseReportCommand extends AbstractCommand {
 	private static final int MAX_TRADING_SESSIONS_EXPECTED = 4; //Integer.MAX_VALUE;
 
 	public boolean execute(Context context) throws Exception {
-		System.out.println( "execute() Called." );
+		System.out.println( "Executing NyseReportCommand..." );
 		processNyse();
 		return Command.CONTINUE_PROCESSING;
 	}

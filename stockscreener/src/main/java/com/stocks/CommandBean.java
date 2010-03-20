@@ -5,20 +5,9 @@ import javax.faces.event.ActionEvent;
 import org.apache.commons.chain.Chain;
 import org.apache.commons.chain.impl.ContextBase;
 
-import com.stocks.command.StockBoxCommand;
-
 public class CommandBean {
-//    private StockBoxCommand stockBoxCommand;
     private Chain reportChain;
 
-//	public StockBoxCommand getStockBoxCommand() {
-//		return stockBoxCommand;
-//	}
-//
-//	public void setStockBoxCommand(StockBoxCommand stockBoxCommand) {
-//		this.stockBoxCommand = stockBoxCommand;
-//	}
-    
 	public Chain getReportChain() {
 		return reportChain;
 	}
@@ -27,12 +16,10 @@ public class CommandBean {
 		this.reportChain = reportChain;
 	}
 
-	public void executeStockBoxCommand(ActionEvent ae){
+	public void executeReportChain(ActionEvent ae){
 		try{
-			System.out.println( "executeStockBoxCommand" );
+			System.out.println( "executeReportChain." );
 			reportChain.execute(new ContextBase());
-			//boolean returnCode = getStockBoxCommand().execute(new ContextBase());
-			//System.out.println( "returnCode: " +returnCode );
 		}
 		catch(Exception e){
 			e.printStackTrace();
