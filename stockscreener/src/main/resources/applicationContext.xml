@@ -127,7 +127,11 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     
     <!-- Start: AOP -->
     <bean id="timer" class="java.util.Timer" />
-    <bean id="percentCompleteReporter" class="com.stocks.util.PercentCompleteReporter" />
+    <bean id="percentCompleteReporter" class="com.stocks.util.PercentCompleteReporter">
+    	<property name="percentComplete">
+    		<value type="java.lang.Double">0</value>
+    	</property>
+    </bean>
     <!-- bean id="timerAspect" class="com.stocks.aspect.TimerAspect">
     	<property name="timer" ref="timer" />
     	<property name="percentCompleteReporter" ref="percentCompleteReporter" />
