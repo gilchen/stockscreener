@@ -89,8 +89,6 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     <!-- End: Spring Services -->
     
     <!-- Start: Commands -->
-    <bean id="timer" class="java.util.Timer" />
-
     <bean id="abstractCommand" class="com.stocks.command.AbstractCommand" abstract="true">
 		<property name="stockService" ref="stockService" />
 		<property name="reportPath" value="${report.folder}/default.html" />
@@ -112,25 +110,28 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 	<bean id="reportChain" class="org.apache.commons.chain.impl.ChainBase">
 		<constructor-arg type="java.util.Collection">
 			<list value-type="org.apache.commons.chain.Command">
+				<bean class="com.stocks.command.SchedulePercentCompleteReporterTimerTaskCommand">
+					<property name="timer" ref="timer" />
+					<property name="percentCompleteReporter" ref="percentCompleteReporter" />
+				</bean>
 				<!-- ref bean="bseReportCommand" / -->
 				<ref bean="nyseReportCommand" />
 				<ref bean="bseAlertReportCommand" />
+				<bean class="com.stocks.command.CancelPercentCompleteReporterTimerTaskCommand">
+					<property name="percentCompleteReporter" ref="percentCompleteReporter" />
+				</bean>
 			</list>
 		</constructor-arg>
-	</bean>    
-    
-    <bean id="stockBoxCommand" class="com.stocks.command.StockBoxCommand">
-		<property name="stockService" ref="stockService" />
-		<property name="reportFolder" value="${report.folder}" />
-    </bean>
+	</bean>
     <!-- End: Commands -->
     
     <!-- Start: AOP -->
+    <bean id="timer" class="java.util.Timer" />
     <bean id="percentCompleteReporter" class="com.stocks.util.PercentCompleteReporter" />
-    <bean id="timerAspect" class="com.stocks.aspect.TimerAspect">
+    <!-- bean id="timerAspect" class="com.stocks.aspect.TimerAspect">
     	<property name="timer" ref="timer" />
     	<property name="percentCompleteReporter" ref="percentCompleteReporter" />
-    </bean>
+    </bean -->
     <!-- End: AOP -->
     
     <!-- Start: DAO -->

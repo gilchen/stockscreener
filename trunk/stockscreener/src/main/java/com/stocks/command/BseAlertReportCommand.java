@@ -15,7 +15,7 @@ import com.stocks.model.Bse;
 public class BseAlertReportCommand extends AbstractCommand {
 
 	public boolean execute(Context context) throws Exception {
-		System.out.println( "execute() Called." );
+		System.out.println( "Executing BseAlertReportCommand..." );
 		processBseAlerts();
 		return Command.CONTINUE_PROCESSING;
 	}
