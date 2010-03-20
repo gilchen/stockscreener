@@ -51,17 +51,9 @@
 		<managed-bean-name>commandBean</managed-bean-name>
 		<managed-bean-class>com.stocks.CommandBean</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
-		<!-- managed-property>
-			<property-name>stockBoxCommand</property-name>
-			<value>#{stockBoxCommand}</value>
-		</managed-property -->
 		<managed-property>
 			<property-name>reportChain</property-name>
 			<value>#{reportChain}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>chainContext</property-name>
-			<value>#{chainContext}</value>
 		</managed-property>
 	</managed-bean>
 

@@ -9,43 +9,43 @@ import java.util.List;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 
-import com.stocks.model.Bse;
+import com.stocks.model.Nyse;
 
-public class BseReportCommand extends AbstractCommand {
+public class NyseReportCommand extends AbstractCommand {
 	private static final int MIN_TRADING_SESSIONS_EXPECTED = 3;
 	private static final int MAX_TRADING_SESSIONS_EXPECTED = 4; //Integer.MAX_VALUE;
 
 	public boolean execute(Context context) throws Exception {
 		System.out.println( "execute() Called." );
-		processBse();
+		processNyse();
 		return Command.CONTINUE_PROCESSING;
 	}
 
-	private void processBse() throws Exception{
-		final String STOCK_EXCHANGE = "BOM";
+	private void processNyse() throws Exception{
+		final String STOCK_EXCHANGE = "NYSE";
 		PrintWriter report = new PrintWriter( getReportPath() );
 		report.println( "<html><body><pre>" );
-		report.println( "********************* BSE *********************" );
+		report.println( "********************* NYSE *********************" );
 
-		List<Integer> scCodes = getStockService().getAllScCodes();
+		List<String> symbols = getStockService().getAllSymbols();
 		List<Double> cClose = new ArrayList<Double>();
 
 		double ctr = 0.0;
-		for( final Integer scCode : scCodes ){
+		for( final String symbol : symbols ){
 			cClose.clear();
-			List<Bse> bseList = getStockService().findStockByScCodeAndTradeDate(scCode, tradeDateParam);
+			List<Nyse> nyseList = getStockService().findStockBySymbolAndTradeDate(symbol, tradeDateParam);
 			
-			for( final Bse bse : bseList ){
-				cClose.add( bse.getClose() );
+			for( final Nyse nyse : nyseList ){
+				cClose.add( nyse.getClose() );
 			}
 
 			try{
-				//checkQualification("BOM", scCode, cClose.toArray(new Double[]{}));
-				checkQualificationConstantUpwardMovement(STOCK_EXCHANGE, report, scCode, cClose.toArray(new Double[]{}), false);
+				//checkQualification("NYSE", scCode, cClose.toArray(new Double[]{}));
+				checkQualificationConstantUpwardMovement(STOCK_EXCHANGE, report, symbol, cClose.toArray(new Double[]{}), true);
 			}
 			catch(Exception e){
 			}
-			getPercentCompleteReporter().setPercentComplete( (++ctr / scCodes.size()) * 100.00 );
+			getPercentCompleteReporter().setPercentComplete( (++ctr / symbols.size()) * 100.00 );
 			//System.out.print(".");
 		}
 		report.println( "- End of Report.</pre></body></html>" );

@@ -90,27 +90,31 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     
     <!-- Start: Commands -->
     <bean id="timer" class="java.util.Timer" />
-    <bean id="chainContext" class="org.apache.commons.chain.impl.ContextBase">
-    	<constructor-arg type="java.util.Map">
-    		<map>
-    			<entry key="timer" value-ref="timer" />
-    		</map>
-    	</constructor-arg>
-    </bean>
 
     <bean id="abstractCommand" class="com.stocks.command.AbstractCommand" abstract="true">
 		<property name="stockService" ref="stockService" />
-		<property name="reportFolder" value="${report.folder}" />
+		<property name="reportPath" value="${report.folder}/default.html" />
+		<property name="percentCompleteReporter" ref="percentCompleteReporter" />
     </bean>
 
-	<bean id="bseReportCommand" class="com.stocks.command.BseReportCommand" parent="abstractCommand" />
+	<bean id="bseReportCommand" class="com.stocks.command.BseReportCommand" parent="abstractCommand">
+		<property name="reportPath" value="${report.folder}/bseReportCommand.html" />
+	</bean>
+
+	<bean id="nyseReportCommand" class="com.stocks.command.NyseReportCommand" parent="abstractCommand">
+		<property name="reportPath" value="${report.folder}/nyseReportCommand.html" />
+	</bean>
+
+	<bean id="bseAlertReportCommand" class="com.stocks.command.BseAlertReportCommand" parent="abstractCommand">
+		<property name="reportPath" value="${report.folder}/bseAlertReportCommand.html" />
+	</bean>
 	
 	<bean id="reportChain" class="org.apache.commons.chain.impl.ChainBase">
 		<constructor-arg type="java.util.Collection">
 			<list value-type="org.apache.commons.chain.Command">
 				<ref bean="bseReportCommand" />
-				<!-- bean class="BseReport2" / -->
-				<!-- bean class="BseReport3" / -->
+				<ref bean="nyseReportCommand" />
+				<ref bean="bseAlertReportCommand" />
 			</list>
 		</constructor-arg>
 	</bean>    
@@ -122,7 +126,11 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     <!-- End: Commands -->
     
     <!-- Start: AOP -->
-    <bean id="timerAspect" class="com.stocks.aspect.TimerAspect" />
+    <bean id="percentCompleteReporter" class="com.stocks.util.PercentCompleteReporter" />
+    <bean id="timerAspect" class="com.stocks.aspect.TimerAspect">
+    	<property name="timer" ref="timer" />
+    	<property name="percentCompleteReporter" ref="percentCompleteReporter" />
+    </bean>
     <!-- End: AOP -->
     
     <!-- Start: DAO -->

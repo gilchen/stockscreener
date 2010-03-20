@@ -10,7 +10,6 @@ import com.stocks.command.StockBoxCommand;
 public class CommandBean {
 //    private StockBoxCommand stockBoxCommand;
     private Chain reportChain;
-    private ContextBase chainContext;
 
 //	public StockBoxCommand getStockBoxCommand() {
 //		return stockBoxCommand;
@@ -28,18 +27,10 @@ public class CommandBean {
 		this.reportChain = reportChain;
 	}
 
-	public ContextBase getChainContext() {
-		return chainContext;
-	}
-
-	public void setChainContext(ContextBase chainContext) {
-		this.chainContext = chainContext;
-	}
-	
 	public void executeStockBoxCommand(ActionEvent ae){
 		try{
-			System.out.println( "executeStockBoxCommand. chainContext: " +chainContext );
-			reportChain.execute(chainContext);
+			System.out.println( "executeStockBoxCommand" );
+			reportChain.execute(new ContextBase());
 			//boolean returnCode = getStockBoxCommand().execute(new ContextBase());
 			//System.out.println( "returnCode: " +returnCode );
 		}
