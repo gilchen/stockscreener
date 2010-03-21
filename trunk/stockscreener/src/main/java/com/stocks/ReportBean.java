@@ -80,4 +80,13 @@ public class ReportBean{
 			setContent( e.getMessage() );
 		}
 	}
+	
+	public void getNyseNPercentCorrectionInMMonthsReport(ActionEvent ae){
+		try {
+			Report report = getStockService().getReport(Report.ReportName.NyseNPercentCorrectionInMMonthsReportCommand.toString());
+			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
 }

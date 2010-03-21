@@ -20,6 +20,12 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 		throw new RuntimeException("Not Implemented.");
 	}
 
+	public List<Nyse> findStockBySymbol(final String symbol){
+		Query query = entityManager.createNamedQuery("stockBySymbol");
+		query.setParameter("symbol", symbol);
+		return query.getResultList();
+	}
+
 	public List<Nyse> findStockBySymbolAndTradeDate(final String symbol, final Date tradeDate){
 		Query query = entityManager.createNamedQuery("stockBySymbolAndTradeDate");
 		query.setParameter("symbol", symbol);

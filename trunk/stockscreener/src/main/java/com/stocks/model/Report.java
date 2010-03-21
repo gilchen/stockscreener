@@ -18,7 +18,12 @@ import org.apache.commons.lang.builder.ToStringStyle;
 public class Report implements Serializable{
     private final static long serialVersionUID = 2l;
     
-    public enum ReportName {BseAlertReportCommand, BseReportCommand, NyseReportCommand};
+    public enum ReportName {
+    	BseAlertReportCommand, 
+    	BseReportCommand, 
+    	NyseReportCommand, 
+    	NyseNPercentCorrectionInMMonthsReportCommand
+    };
 
     @Id
     @Column(name="REPORT_NAME", length=50)
