@@ -96,15 +96,15 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     </bean>
 
 	<bean id="bseReportCommand" class="com.stocks.command.BseReportCommand" parent="abstractCommand">
-		<property name="reportPath" value="${report.folder}/bseReportCommand.html" />
+		<property name="reportPath" value="${report.folder}bseReportCommand.html" />
 	</bean>
 
 	<bean id="nyseReportCommand" class="com.stocks.command.NyseReportCommand" parent="abstractCommand">
-		<property name="reportPath" value="${report.folder}/nyseReportCommand.html" />
+		<property name="reportPath" value="${report.folder}nyseReportCommand.html" />
 	</bean>
 
 	<bean id="bseAlertReportCommand" class="com.stocks.command.BseAlertReportCommand" parent="abstractCommand">
-		<property name="reportPath" value="${report.folder}/bseAlertReportCommand.html" />
+		<property name="reportPath" value="${report.folder}bseAlertReportCommand.html" />
 	</bean>
 	
 	<bean id="reportChain" class="org.apache.commons.chain.impl.ChainBase">
