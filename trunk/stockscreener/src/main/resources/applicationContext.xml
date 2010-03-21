@@ -114,7 +114,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 					<property name="timer" ref="timer" />
 					<property name="percentCompleteReporter" ref="percentCompleteReporter" />
 				</bean>
-				<!-- ref bean="bseReportCommand" / -->
+				<ref bean="bseReportCommand" />
 				<ref bean="nyseReportCommand" />
 				<ref bean="bseAlertReportCommand" />
 				<bean class="com.stocks.command.CancelPercentCompleteReporterTimerTaskCommand">

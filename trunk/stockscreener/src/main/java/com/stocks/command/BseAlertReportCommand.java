@@ -1,9 +1,11 @@
 package com.stocks.command;
 
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.chain.Command;
@@ -24,7 +26,7 @@ public class BseAlertReportCommand extends AbstractCommand {
 		final String STOCK_EXCHANGE = "BOM";
 		PrintWriter report = new PrintWriter( getReportPath() );
 		report.println( "<html><body><pre>" );
-		report.println( "********************* BSE *********************" );
+		report.println( "<B>Bse Alerts Report - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>" );
 
 		List<Alert> alertList = getStockService().getAllAlerts();
 		List<Double> cClose = new ArrayList<Double>();

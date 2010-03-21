@@ -15,6 +15,6 @@ public class PercentCompleteReporter extends TimerTask{
 
 	@Override
 	public void run() {
-		System.out.println( Math.round(percentComplete) +"% completed." );
+		System.out.println( "\t" +Math.round(percentComplete) +"% completed." );
 	}
 }

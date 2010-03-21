@@ -56,6 +56,23 @@
 			<value>#{reportChain}</value>
 		</managed-property>
 	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>reportsBean</managed-bean-name>
+		<managed-bean-class>com.stocks.ReportsBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>bseAlertReportCommand</property-name>
+			<value>#{bseAlertReportCommand}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>bseReportCommand</property-name>
+			<value>#{bseReportCommand}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>nyseReportCommand</property-name>
+			<value>#{nyseReportCommand}</value>
+		</managed-property>
+	</managed-bean>
 
 	<!-- navigation rules for helloWorld.jsp -->
 	<navigation-rule>

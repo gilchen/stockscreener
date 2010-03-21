@@ -1,9 +1,11 @@
 package com.stocks.command;
 
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.chain.Command;
@@ -20,12 +22,12 @@ public class BseReportCommand extends AbstractCommand {
 		processBse();
 		return Command.CONTINUE_PROCESSING;
 	}
-
+	
 	private void processBse() throws Exception{
 		final String STOCK_EXCHANGE = "BOM";
 		PrintWriter report = new PrintWriter( getReportPath() );
 		report.println( "<html><body><pre>" );
-		report.println( "********************* BSE *********************" );
+		report.println( "<B>Bse Report (Constant Upward Movement) - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>" );
 
 		List<Integer> scCodes = getStockService().getAllScCodes();
 		List<Double> cClose = new ArrayList<Double>();

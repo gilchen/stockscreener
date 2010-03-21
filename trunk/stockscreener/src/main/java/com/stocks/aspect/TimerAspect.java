@@ -12,6 +12,9 @@ import com.stocks.util.PercentCompleteReporter;
 
 @Aspect
 public class TimerAspect {
+	
+	//******************************* NOT BEING USED ********************************* //
+	
 	private Timer timer;
 	private PercentCompleteReporter percentCompleteReporter;
 
