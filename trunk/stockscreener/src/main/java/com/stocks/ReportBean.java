@@ -1,5 +1,7 @@
 package com.stocks;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.chain.Chain;
@@ -44,9 +46,11 @@ public class ReportBean{
 	public void executeReportChain(ActionEvent ae){
 		try{
 			reportChain.execute(new ContextBase());
+			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Reports generated successfully.", "Reports generated successfully."));
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, e.getMessage(), e.getMessage()));
 		}
 	}
 
