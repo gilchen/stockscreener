@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+<head>
+<title>Hello World</title>
+</head>
+<body>
+<ui:composition template="/template.xhtml">
+	<ui:define name="navigation">
+		<ui:include src="navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="heading">
+		<h:outputText value="Reports" />
+	</ui:define>
+
+	
+	<ui:define name="body">
+		<h:form id="form">
+			<h:messages id="messages" errorClass="error" />
+			<h:commandLink value="Generate Report Command" actionListener="#{reportBean.executeReportChain}" />
+			<br />
+			<h:commandLink value="View BseAlertReportCommand, " actionListener="#{reportBean.getBseAlertReport}" />
+			<h:commandLink value="View BseReportCommand, " actionListener="#{reportBean.getBseReport}" />
+			<h:commandLink value="View NyseReportCommand" actionListener="#{reportBean.getNyseReport}" />
+			<br />
+			<h:outputText value="#{reportBean.content}" escape="false" />
+		</h:form>
+	</ui:define>
+</ui:composition>
+</body>
+</html>

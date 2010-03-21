@@ -73,6 +73,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		<property name="keyValueDao" ref="keyValueDao" />
 		<property name="bseDao" ref="bseDao" />
 		<property name="nyseDao" ref="nyseDao" />
+		<property name="reportDao" ref="reportDao" />
     </bean>
 
     <bean id="bseImportService" class="com.stocks.service.impl.BseImportServiceImpl">
@@ -91,22 +92,15 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     <!-- Start: Commands -->
     <bean id="abstractCommand" class="com.stocks.command.AbstractCommand" abstract="true">
 		<property name="stockService" ref="stockService" />
-		<property name="reportPath" value="${report.folder}/default.html" />
 		<property name="percentCompleteReporter" ref="percentCompleteReporter" />
     </bean>
 
-	<bean id="bseReportCommand" class="com.stocks.command.BseReportCommand" parent="abstractCommand">
-		<property name="reportPath" value="${report.folder}bseReportCommand.html" />
-	</bean>
+	<bean id="bseReportCommand" class="com.stocks.command.BseReportCommand" parent="abstractCommand" />
 
-	<bean id="nyseReportCommand" class="com.stocks.command.NyseReportCommand" parent="abstractCommand">
-		<property name="reportPath" value="${report.folder}nyseReportCommand.html" />
-	</bean>
+	<bean id="nyseReportCommand" class="com.stocks.command.NyseReportCommand" parent="abstractCommand" />
 
-	<bean id="bseAlertReportCommand" class="com.stocks.command.BseAlertReportCommand" parent="abstractCommand">
-		<property name="reportPath" value="${report.folder}bseAlertReportCommand.html" />
-	</bean>
-	
+	<bean id="bseAlertReportCommand" class="com.stocks.command.BseAlertReportCommand" parent="abstractCommand" />
+
 	<bean id="reportChain" class="org.apache.commons.chain.impl.ChainBase">
 		<constructor-arg type="java.util.Collection">
 			<list value-type="org.apache.commons.chain.Command">
@@ -141,28 +135,28 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     <!-- Start: DAO -->
     <bean id="alertDao" 
     	class="com.stocks.dao.impl.AlertDaoImpl"
-    	parent="dao">
-    </bean>
+    	parent="dao" />
     
     <bean id="bseIciciMappingDao" 
     	class="com.stocks.dao.impl.BseIciciMappingDaoImpl"
-    	parent="dao">
-    </bean>
+    	parent="dao" />
     
 	<bean id="bseDao"
 		class="com.stocks.dao.impl.BseDaoImpl"
-		parent="dao">
-    </bean>
+		parent="dao" />
 
 	<bean id="nyseDao"
 		class="com.stocks.dao.impl.NyseDaoImpl"
-		parent="dao">
-    </bean>
+		parent="dao" />
 
 	<bean id="keyValueDao"
 		class="com.stocks.dao.impl.KeyValueDaoImpl"
-		parent="dao">
-    </bean>
-    <!-- End: DAO -->
+		parent="dao" />
     
+    <bean id="reportDao"
+    	class="com.stocks.dao.impl.ReportDaoImpl"
+    	parent="dao">
+    <!-- End: DAO -->
+    </bean>
+
 </beans>

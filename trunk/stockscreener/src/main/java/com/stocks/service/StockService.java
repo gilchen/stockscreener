@@ -8,6 +8,7 @@ import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
 import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
+import com.stocks.model.Report;
 
 public interface StockService {
 	void saveAlert(Alert alert) throws Exception;
@@ -26,4 +27,7 @@ public interface StockService {
 
 	KeyValue getKeyValue(String key);
 	void saveKeyValue(KeyValue keyValue) throws Exception;
+	
+	void saveReport(Report report) throws Exception;
+	Report getReport(String reportName) throws Exception;
 }

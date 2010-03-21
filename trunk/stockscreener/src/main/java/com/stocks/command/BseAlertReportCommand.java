@@ -1,6 +1,5 @@
 package com.stocks.command;
 
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +12,7 @@ import org.apache.commons.chain.Context;
 
 import com.stocks.model.Alert;
 import com.stocks.model.Bse;
+import com.stocks.model.Report;
 
 public class BseAlertReportCommand extends AbstractCommand {
 
@@ -24,9 +24,9 @@ public class BseAlertReportCommand extends AbstractCommand {
 
 	private void processBseAlerts() throws Exception{
 		final String STOCK_EXCHANGE = "BOM";
-		PrintWriter report = new PrintWriter( getReportPath() );
-		report.println( "<html><body><pre>" );
-		report.println( "<B>Bse Alerts Report - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>" );
+		StringBuffer sb = new StringBuffer();
+		sb.append( "<pre>" );
+		sb.append( "<B>Bse Alerts Report - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>" );
 
 		List<Alert> alertList = getStockService().getAllAlerts();
 		List<Double> cClose = new ArrayList<Double>();
@@ -44,9 +44,7 @@ public class BseAlertReportCommand extends AbstractCommand {
 			}
 			
 			if( index > 0 ){
-				StringBuffer sb = new StringBuffer();
 				sb.append( String.format("%s", alert) );
-				report.println( sb );
 				// http://chart.apis.google.com/chart?cht=lc&chs=200x100&chd=t:40,60,60,45,47,75,70,72&chxt=x,y&chxr=1,0,75
 				String url = GOOGLE_CHART_RECOMMENDED_BUY_URL;
 
@@ -61,14 +59,15 @@ public class BseAlertReportCommand extends AbstractCommand {
 				url = url.replace("~RECOMMENDED_BUY_INDEX",  String.valueOf(index) );
 				url = url.replace("~RECOMMENDED_BUY_PRICE",  alert.getEventPrice().toString() );
 
-				report.println( "<a href=\"http://www.google.com/finance?q=" +STOCK_EXCHANGE+ ":" +alert.getBseIciciMapping().getScCode()+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>" );
+				sb.append( "<a href=\"http://www.google.com/finance?q=" +STOCK_EXCHANGE+ ":" +alert.getBseIciciMapping().getScCode()+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>" );
 			}
 			
 			getPercentCompleteReporter().setPercentComplete( (++ctr / alertList.size()) * 100.00 );
 		}
 
-		report.println( "- End of Report.</pre></body></html>" );
-		report.close();
-	}	
+		sb.append( "- End of Report.</pre>" );
+		final Report report = new Report( this.getClass().getName(), sb.toString());
+		getStockService().saveReport(report);
+	}
 	
 }

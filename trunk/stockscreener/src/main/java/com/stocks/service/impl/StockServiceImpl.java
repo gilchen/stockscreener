@@ -14,11 +14,13 @@ import com.stocks.dao.BseDao;
 import com.stocks.dao.BseIciciMappingDao;
 import com.stocks.dao.KeyValueDao;
 import com.stocks.dao.NyseDao;
+import com.stocks.dao.ReportDao;
 import com.stocks.model.Alert;
 import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
 import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
+import com.stocks.model.Report;
 import com.stocks.service.StockService;
 import com.stocks.util.Utility;
 
@@ -34,6 +36,7 @@ public class StockServiceImpl implements StockService {
     private NyseDao nyseDao;
     private BseIciciMappingDao bseIciciMappingDao;
     private KeyValueDao keyValueDao;
+    private ReportDao reportDao;
 
 	public AlertDao getAlertDao() {
 		return alertDao;
@@ -78,6 +81,15 @@ public class StockServiceImpl implements StockService {
 	@Required
 	public void setKeyValueDao(KeyValueDao keyValueDao) {
 		this.keyValueDao = keyValueDao;
+	}
+	
+	public ReportDao getReportDao() {
+		return reportDao;
+	}
+
+	@Required
+	public void setReportDao(ReportDao reportDao) {
+		this.reportDao = reportDao;
 	}
 
 	public List<Alert> getAllAlerts() {
@@ -126,6 +138,16 @@ public class StockServiceImpl implements StockService {
     public void saveKeyValue(KeyValue keyValue) throws Exception {
     	getKeyValueDao().save(keyValue);
     }
+    
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void saveReport(Report report) throws Exception {
+    	getReportDao().save(report);
+    }
+    
+    public Report getReport(String reportName) throws Exception {
+    	return getReportDao().read(reportName);
+    }
+    
     
     public Integer getBseScCode(final String stockCode) throws Exception {
 		String url = ICICI_GET_QUOTE_URL +stockCode;
