@@ -18,7 +18,6 @@ public class CommandBean {
 
 	public void executeReportChain(ActionEvent ae){
 		try{
-			System.out.println( "executeReportChain." );
 			reportChain.execute(new ContextBase());
 		}
 		catch(Exception e){

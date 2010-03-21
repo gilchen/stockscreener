@@ -18,10 +18,12 @@
 
 	<ui:define name="body">
 		<h:form id="form">
-			<h:messages id="messages" errorClass="error" />
 			<h:panelGrid id="grid" columns="2">
 				<h:outputText value="Stock Code" />
 				<h:inputText id="stockCode" value="#{alertBean.stockCode}" required="true" />
+
+				<h:messages id="messages" errorClass="error" />
+				<h:outputText value="" />
 
 				<h:outputText value="Transaction Type" />
 				<h:selectOneListbox value="#{alertBean.trxType}" required="true">
@@ -86,6 +88,9 @@
 				<h:commandButton value="Save" action="#{alertBean.save}" />
 			</h:panelGrid>
 		</h:form>
+		<script>
+			setTimeout("document.getElementById('form:stockCode').focus()", 1000);
+		</script>
 	</ui:define>
 </ui:composition>
 </body>

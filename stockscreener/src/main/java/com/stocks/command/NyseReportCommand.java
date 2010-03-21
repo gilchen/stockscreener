@@ -1,9 +1,11 @@
 package com.stocks.command;
 
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.chain.Command;
@@ -25,7 +27,7 @@ public class NyseReportCommand extends AbstractCommand {
 		final String STOCK_EXCHANGE = "NYSE";
 		PrintWriter report = new PrintWriter( getReportPath() );
 		report.println( "<html><body><pre>" );
-		report.println( "********************* NYSE *********************" );
+		report.println( "<B>Nyse Report (Constant Upward Movement) - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>" );
 
 		List<String> symbols = getStockService().getAllSymbols();
 		List<Double> cClose = new ArrayList<Double>();
