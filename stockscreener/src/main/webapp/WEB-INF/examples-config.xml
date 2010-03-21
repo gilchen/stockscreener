@@ -48,29 +48,16 @@
 		</managed-property>
 	</managed-bean>
 	<managed-bean>
-		<managed-bean-name>commandBean</managed-bean-name>
-		<managed-bean-class>com.stocks.CommandBean</managed-bean-class>
+		<managed-bean-name>reportBean</managed-bean-name>
+		<managed-bean-class>com.stocks.ReportBean</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>stockService</property-name>
+			<value>#{stockService}</value>
+		</managed-property>
 		<managed-property>
 			<property-name>reportChain</property-name>
 			<value>#{reportChain}</value>
-		</managed-property>
-	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>reportsBean</managed-bean-name>
-		<managed-bean-class>com.stocks.ReportsBean</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-		<managed-property>
-			<property-name>bseAlertReportCommand</property-name>
-			<value>#{bseAlertReportCommand}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>bseReportCommand</property-name>
-			<value>#{bseReportCommand}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>nyseReportCommand</property-name>
-			<value>#{nyseReportCommand}</value>
 		</managed-property>
 	</managed-bean>
 
@@ -91,6 +78,10 @@
 		<navigation-case>
 			<from-outcome>import_data</from-outcome>
 			<to-view-id>/import_data.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>report</from-outcome>
+			<to-view-id>/report.xhtml</to-view-id>
 		</navigation-case>
 		
 	</navigation-rule>

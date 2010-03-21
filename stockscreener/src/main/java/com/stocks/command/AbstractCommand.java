@@ -22,7 +22,6 @@ public abstract class AbstractCommand implements Command{
 	}
 	
 	private StockService stockService;
-	private String reportPath;
 	private PercentCompleteReporter percentCompleteReporter;
 	
 	public StockService getStockService() {
@@ -32,15 +31,6 @@ public abstract class AbstractCommand implements Command{
 	@Required
 	public void setStockService(StockService stockService) {
 		this.stockService = stockService;
-	}
-
-	public String getReportPath() {
-		return reportPath;
-	}
-
-	@Required
-	public void setReportPath(String reportPath) {
-		this.reportPath = reportPath;
 	}
 
 	public PercentCompleteReporter getPercentCompleteReporter() {

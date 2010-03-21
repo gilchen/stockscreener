@@ -1,6 +1,5 @@
 package com.stocks.command;
 
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +11,7 @@ import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 
 import com.stocks.model.Nyse;
+import com.stocks.model.Report;
 
 public class NyseReportCommand extends AbstractCommand {
 	private static final int MIN_TRADING_SESSIONS_EXPECTED = 3;
@@ -25,9 +25,9 @@ public class NyseReportCommand extends AbstractCommand {
 
 	private void processNyse() throws Exception{
 		final String STOCK_EXCHANGE = "NYSE";
-		PrintWriter report = new PrintWriter( getReportPath() );
-		report.println( "<html><body><pre>" );
-		report.println( "<B>Nyse Report (Constant Upward Movement) - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>" );
+		StringBuffer sb = new StringBuffer();
+		sb.append( "<pre>" );
+		sb.append( "<B>Nyse Report (Constant Upward Movement) - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>" );
 
 		List<String> symbols = getStockService().getAllSymbols();
 		List<Double> cClose = new ArrayList<Double>();
@@ -43,21 +43,20 @@ public class NyseReportCommand extends AbstractCommand {
 
 			try{
 				//checkQualification("NYSE", scCode, cClose.toArray(new Double[]{}));
-				checkQualificationConstantUpwardMovement(STOCK_EXCHANGE, report, symbol, cClose.toArray(new Double[]{}), true);
+				checkQualificationConstantUpwardMovement(STOCK_EXCHANGE, sb, symbol, cClose.toArray(new Double[]{}), true);
 			}
 			catch(Exception e){
 			}
 			getPercentCompleteReporter().setPercentComplete( (++ctr / symbols.size()) * 100.00 );
 			//System.out.print(".");
 		}
-		report.println( "- End of Report.</pre></body></html>" );
-		report.close();
+		sb.append( "- End of Report.</pre>" );
+		final Report report = new Report( this.getClass().getName(), sb.toString());
+		getStockService().saveReport(report);
 	}
 	
-	private static void checkQualificationConstantUpwardMovement(final String stockExchange, final PrintWriter report, final Object scCode, final Double[] cClose, final boolean filterOutPennyStocks) throws Exception{
+	private static void checkQualificationConstantUpwardMovement(final String stockExchange, final StringBuffer sb, final Object scCode, final Double[] cClose, final boolean filterOutPennyStocks) throws Exception{
 		boolean qualified = true;
-
-		StringBuffer sb = new StringBuffer();
 		int i=0;
 		
 		double prevClosePrice = Double.MAX_VALUE;
@@ -111,7 +110,6 @@ public class NyseReportCommand extends AbstractCommand {
 
 		if( qualified && numberOfTradingSessions >= MIN_TRADING_SESSIONS_EXPECTED && numberOfTradingSessions <= MAX_TRADING_SESSIONS_EXPECTED ){
 			sb.append( String.format("scCode: %s, qualified: %b, Trading Sessions:\t%d", scCode, qualified, numberOfTradingSessions) );
-			report.println( sb );
 			// http://chart.apis.google.com/chart?cht=lc&chs=200x100&chd=t:40,60,60,45,47,75,70,72&chxt=x,y&chxr=1,0,75
 			String url = GOOGLE_CHART_URL;
 
@@ -123,10 +121,8 @@ public class NyseReportCommand extends AbstractCommand {
 			final List<Double> cCloseList = Arrays.asList(cClose);
 			url = url.replace("~MIN", Collections.min(cCloseList).toString());
 			url = url.replace("~MAX", Collections.max(cCloseList).toString());
-			report.println( "<a href=\"http://www.google.com/finance?q=" +stockExchange+ ":" +scCode+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>" );
+			sb.append( "<a href=\"http://www.google.com/finance?q=" +stockExchange+ ":" +scCode+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>" );
 		}
-		//System.out.println( sb );
-		//System.out.println( String.format("qualified: %b, boxIndex: %d, Trading Sessions:\t%d", qualified, boxIndex, numberOfTradingSessions) );
 	}
-	
+
 }
