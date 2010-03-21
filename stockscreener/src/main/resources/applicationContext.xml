@@ -155,8 +155,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     
     <bean id="reportDao"
     	class="com.stocks.dao.impl.ReportDaoImpl"
-    	parent="dao">
+    	parent="dao" />
     <!-- End: DAO -->
-    </bean>
 
 </beans>
