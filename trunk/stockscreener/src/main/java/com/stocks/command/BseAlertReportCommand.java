@@ -66,7 +66,7 @@ public class BseAlertReportCommand extends AbstractCommand {
 		}
 
 		sb.append( "- End of Report.</pre>" );
-		final Report report = new Report( this.getClass().getName(), sb.toString());
+		final Report report = new Report( Report.ReportName.BseAlertReportCommand.toString(), sb.toString());
 		getStockService().saveReport(report);
 	}
 	

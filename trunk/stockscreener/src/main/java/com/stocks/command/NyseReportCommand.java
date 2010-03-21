@@ -51,7 +51,7 @@ public class NyseReportCommand extends AbstractCommand {
 			//System.out.print(".");
 		}
 		sb.append( "- End of Report.</pre>" );
-		final Report report = new Report( this.getClass().getName(), sb.toString());
+		final Report report = new Report( Report.ReportName.NyseReportCommand.toString(), sb.toString());
 		getStockService().saveReport(report);
 	}
 	
