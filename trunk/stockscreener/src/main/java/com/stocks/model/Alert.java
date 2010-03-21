@@ -1,6 +1,7 @@
 package com.stocks.model;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -156,8 +157,13 @@ public class Alert implements Serializable{
     }
 
     public String toString() {
-        return ToStringBuilder
-                .reflectionToString(this, ToStringStyle.SIMPLE_STYLE);
+        return getBseIciciMapping().getStockCode() +", "+
+        	getTrxType() +", "+
+        	new SimpleDateFormat("MMM dd, yyyy").format(getEventDate()) +", "+
+        	getOpportunityType() +", "+
+        	getEventPrice() +", "+
+        	getTargetPrice() +", "+
+        	getEventType();
     }
 
 }
