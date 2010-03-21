@@ -26,8 +26,8 @@ public class BseReportCommand extends AbstractCommand {
 	private void processBse() throws Exception{
 		final String STOCK_EXCHANGE = "BOM";
 		StringBuffer sb = new StringBuffer();
-		sb.append( "<pre>" );
-		sb.append( "<B>Bse Report (Constant Upward Movement) - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>" );
+		sb.append( "<pre>\n" );
+		sb.append( "<B>Bse Report (Constant Upward Movement) - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>\n" );
 
 		List<Integer> scCodes = getStockService().getAllScCodes();
 		List<Double> cClose = new ArrayList<Double>();
@@ -50,7 +50,7 @@ public class BseReportCommand extends AbstractCommand {
 			getPercentCompleteReporter().setPercentComplete( (++ctr / scCodes.size()) * 100.00 );
 			//System.out.print(".");
 		}
-		sb.append( "- End of Report.</pre>" );
+		sb.append( "- End of Report.</pre>\n" );
 		final Report report = new Report( Report.ReportName.BseReportCommand.toString(), sb.toString());
 		getStockService().saveReport(report);
 	}
@@ -109,7 +109,7 @@ public class BseReportCommand extends AbstractCommand {
 		// End: Second Check
 
 		if( qualified && numberOfTradingSessions >= MIN_TRADING_SESSIONS_EXPECTED && numberOfTradingSessions <= MAX_TRADING_SESSIONS_EXPECTED ){
-			sb.append( String.format("scCode: %s, qualified: %b, Trading Sessions:\t%d", scCode, qualified, numberOfTradingSessions) );
+			sb.append( String.format("scCode: %s, qualified: %b, Trading Sessions:\t%d%n", scCode, qualified, numberOfTradingSessions) );
 			// http://chart.apis.google.com/chart?cht=lc&chs=200x100&chd=t:40,60,60,45,47,75,70,72&chxt=x,y&chxr=1,0,75
 			String url = GOOGLE_CHART_URL;
 
@@ -121,7 +121,7 @@ public class BseReportCommand extends AbstractCommand {
 			final List<Double> cCloseList = Arrays.asList(cClose);
 			url = url.replace("~MIN", Collections.min(cCloseList).toString());
 			url = url.replace("~MAX", Collections.max(cCloseList).toString());
-			sb.append( "<a href=\"http://www.google.com/finance?q=" +stockExchange+ ":" +scCode+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>" );
+			sb.append( "<a href=\"http://www.google.com/finance?q=" +stockExchange+ ":" +scCode+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>\n" );
 		}
 	}
 	

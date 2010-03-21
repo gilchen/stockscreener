@@ -25,8 +25,8 @@ public class BseAlertReportCommand extends AbstractCommand {
 	private void processBseAlerts() throws Exception{
 		final String STOCK_EXCHANGE = "BOM";
 		StringBuffer sb = new StringBuffer();
-		sb.append( "<pre>" );
-		sb.append( "<B>Bse Alerts Report - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>" );
+		sb.append( "<pre>\n" );
+		sb.append( "<B>Bse Alerts Report - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>\n" );
 
 		List<Alert> alertList = getStockService().getAllAlerts();
 		List<Double> cClose = new ArrayList<Double>();
@@ -44,7 +44,7 @@ public class BseAlertReportCommand extends AbstractCommand {
 			}
 			
 			if( index > 0 ){
-				sb.append( String.format("%s", alert) );
+				sb.append( String.format("%s%n", alert) );
 				// http://chart.apis.google.com/chart?cht=lc&chs=200x100&chd=t:40,60,60,45,47,75,70,72&chxt=x,y&chxr=1,0,75
 				String url = GOOGLE_CHART_RECOMMENDED_BUY_URL;
 
@@ -59,13 +59,13 @@ public class BseAlertReportCommand extends AbstractCommand {
 				url = url.replace("~RECOMMENDED_BUY_INDEX",  String.valueOf(index) );
 				url = url.replace("~RECOMMENDED_BUY_PRICE",  alert.getEventPrice().toString() );
 
-				sb.append( "<a href=\"http://www.google.com/finance?q=" +STOCK_EXCHANGE+ ":" +alert.getBseIciciMapping().getScCode()+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>" );
+				sb.append( "<a href=\"http://www.google.com/finance?q=" +STOCK_EXCHANGE+ ":" +alert.getBseIciciMapping().getScCode()+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>\n" );
 			}
 			
 			getPercentCompleteReporter().setPercentComplete( (++ctr / alertList.size()) * 100.00 );
 		}
 
-		sb.append( "- End of Report.</pre>" );
+		sb.append( "- End of Report.</pre>\n" );
 		final Report report = new Report( Report.ReportName.BseAlertReportCommand.toString(), sb.toString());
 		getStockService().saveReport(report);
 	}
