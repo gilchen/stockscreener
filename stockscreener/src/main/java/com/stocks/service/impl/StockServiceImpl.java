@@ -113,6 +113,10 @@ public class StockServiceImpl implements StockService {
     	return getBseDao().getAllScCodes();
     }
     
+    public List<Nyse> findStockBySymbol(String symbol) {
+    	return getNyseDao().findStockBySymbol(symbol);
+    }
+
     public List<Nyse> findStockBySymbolAndTradeDate(String symbol, Date tradeDate) {
     	return getNyseDao().findStockBySymbolAndTradeDate(symbol, tradeDate);
     }

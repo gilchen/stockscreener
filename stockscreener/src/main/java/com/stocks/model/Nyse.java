@@ -16,6 +16,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 @Entity
 @Table(name = "nyse")
 @NamedQueries({
+	@NamedQuery(name = "stockBySymbol", query = "select a from Nyse a where a.nysePK.symbol = :symbol order by a.nysePK.tradeDate asc"),
 	@NamedQuery(name = "stockBySymbolAndTradeDate", query = "select a from Nyse a where a.nysePK.symbol = :symbol and a.nysePK.tradeDate > :tradeDate order by a.nysePK.tradeDate asc"),
 	@NamedQuery(name = "allSymbols", query = "select a.nysePK.symbol from Nyse a where a.nysePK.tradeDate = (select max(b.nysePK.tradeDate) from Nyse b)")
 })

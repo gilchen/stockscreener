@@ -18,6 +18,7 @@ public interface StockService {
 	public List<Bse> findStockByScCode(final Integer scCode);
 	public List<Integer> getAllScCodes();
 	
+	public List<Nyse> findStockBySymbol(final String symbol);
 	public List<Nyse> findStockBySymbolAndTradeDate(final String symbol, final Date tradeDate);
 	public List<String> getAllSymbols();
 
