@@ -52,7 +52,7 @@ public class NyseNPercentCorrectionInMMonthsReportCommand extends AbstractComman
 			//System.out.print(".");
 		}
 		sb.append( "- End of Report.</pre>\n" );
-		final Report report = new Report( Report.ReportName.NyseReportCommand.toString(), sb.toString());
+		final Report report = new Report( Report.ReportName.NyseNPercentCorrectionInMMonthsReportCommand.toString(), sb.toString());
 		getStockService().saveReport(report);
 	}
 	
