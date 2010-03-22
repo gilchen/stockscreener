@@ -14,9 +14,14 @@ import com.stocks.model.Nyse;
 import com.stocks.model.Report;
 
 public class NyseNPercentCorrectionInMMonthsReportCommand extends AbstractCommand {
-	private static final Double FROM_PERCENT = 25d;
-	private static final Double TO_PERCENT = 50d;
-	private static final int CORRECTION_MONTHS = 6;
+	private static final double FROM_PERCENT = 5d;
+	private static final double TO_PERCENT = 10d;
+	private static final double CORRECTION_MONTHS = 1d;
+
+//	public static void main(String args[]) throws Exception{
+//		Double[] arr = new Double[]{39.00, 38.90, 38.80, 38.70, 38.60, 38.50, 38.40, 38.30, 38.20, 38.10, 38.00, 37.90, 37.80, 37.70, 37.60, 37.50, 37.40, 37.30, 37.20, 37.10, 37.00, 36.90, 36.80, 36.70, 36.60, 36.50, 36.40, 36.30, 36.20, 36.10, 36.00, 35.90, 35.80, 35.70, 35.60, 35.50, 35.40, 35.30, 35.20};
+//		checkQualificationNPercentCorrectionInMMonths("NYSE", new StringBuffer(), "C", arr);
+//	}
 
 	public boolean execute(Context context) throws Exception {
 		System.out.println( "Executing NyseNPercentCorrectionInMMonthsReportCommand..." );
@@ -28,7 +33,7 @@ public class NyseNPercentCorrectionInMMonthsReportCommand extends AbstractComman
 		final String STOCK_EXCHANGE = "NYSE";
 		StringBuffer sb = new StringBuffer();
 		sb.append( "<pre>\n" );
-		sb.append( "<B>Nyse Report (" +FROM_PERCENT+" - " +TO_PERCENT+ " percent Correction in " +CORRECTION_MONTHS+ " Months) - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>\n" );
+		sb.append( String.format("<B>Nyse Report (%s - %s percent Correction in %s Months) - Generated on %s</B>%n", FROM_PERCENT, TO_PERCENT, CORRECTION_MONTHS, new SimpleDateFormat("MMM dd, yyyy").format(new Date())));
 
 		List<String> symbols = getStockService().getAllSymbols();
 		List<Double> cClose = new ArrayList<Double>();
@@ -58,16 +63,13 @@ public class NyseNPercentCorrectionInMMonthsReportCommand extends AbstractComman
 	
 	private static void checkQualificationNPercentCorrectionInMMonths(final String stockExchange, final StringBuffer sb, final Object scCode, final Double[] cClose) throws Exception{
 		boolean qualified = true;
-		int i=0;
-		
-		double prevClosePrice = Double.MAX_VALUE;
-		
+
 		// Start: First Check - weekly avg price M Months ago
-		int tradingSessionIndex = CORRECTION_MONTHS * 20;
+		int tradingSessionIndex = (int) Math.round(CORRECTION_MONTHS * 20.0);
 		Double avgPriceMMonthsAgo = null;
-		if( cClose.length < tradingSessionIndex ){
+		if( tradingSessionIndex < cClose.length ){
 			List<Double> list = Arrays.asList(cClose);
-			list = list.subList(tradingSessionIndex, tradingSessionIndex-5);
+			list = list.subList(tradingSessionIndex-5, tradingSessionIndex);
 			Double min = Collections.min(list);
 			Double max = Collections.max(list);
 			avgPriceMMonthsAgo = (min + max)/2;
@@ -95,7 +97,7 @@ public class NyseNPercentCorrectionInMMonthsReportCommand extends AbstractComman
 		// End: Second Check
 
 		if( qualified ){
-			sb.append( String.format("scCode: %s, qualified: %b, From Percent: %d, To Percent: %d, Months: %d%n", scCode, qualified, FROM_PERCENT, TO_PERCENT, CORRECTION_MONTHS) );
+			sb.append( String.format("scCode: %s, qualified: %b, From Percent: %s, To Percent: %s, Months: %s%n", scCode, qualified, FROM_PERCENT, TO_PERCENT, CORRECTION_MONTHS) );
 			// http://chart.apis.google.com/chart?cht=lc&chs=200x100&chd=t:40,60,60,45,47,75,70,72&chxt=x,y&chxr=1,0,75
 			String url = GOOGLE_CHART_URL;
 
