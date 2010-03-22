@@ -69,10 +69,16 @@ public class NyseNPercentCorrectionInMMonthsReportCommand extends AbstractComman
 		Double avgPriceMMonthsAgo = null;
 		if( tradingSessionIndex < cClose.length ){
 			List<Double> list = Arrays.asList(cClose);
-			list = list.subList(tradingSessionIndex-5, tradingSessionIndex);
-			Double min = Collections.min(list);
-			Double max = Collections.max(list);
-			avgPriceMMonthsAgo = (min + max)/2;
+			int startIndex = cClose.length - tradingSessionIndex - 5;
+			int endIndex = cClose.length - tradingSessionIndex;
+			if( startIndex >= 0 ){
+				list = list.subList(startIndex, endIndex);
+				Double min = Collections.min(list);
+				Double max = Collections.max(list);
+				avgPriceMMonthsAgo = (min + max)/2;
+			}else{
+				qualified = false;
+			}
 		}else{
 			qualified = false;
 		}
