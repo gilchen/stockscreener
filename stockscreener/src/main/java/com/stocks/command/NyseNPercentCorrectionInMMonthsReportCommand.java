@@ -14,9 +14,9 @@ import com.stocks.model.Nyse;
 import com.stocks.model.Report;
 
 public class NyseNPercentCorrectionInMMonthsReportCommand extends AbstractCommand {
-	private static final double FROM_PERCENT = 5d;
-	private static final double TO_PERCENT = 10d;
-	private static final double CORRECTION_MONTHS = 1d;
+	private static final double FROM_PERCENT = 20d;
+	private static final double TO_PERCENT = 30d;
+	private static final double CORRECTION_MONTHS = 3d;
 
 //	public static void main(String args[]) throws Exception{
 //		Double[] arr = new Double[]{39.00, 38.90, 38.80, 38.70, 38.60, 38.50, 38.40, 38.30, 38.20, 38.10, 38.00, 37.90, 37.80, 37.70, 37.60, 37.50, 37.40, 37.30, 37.20, 37.10, 37.00, 36.90, 36.80, 36.70, 36.60, 36.50, 36.40, 36.30, 36.20, 36.10, 36.00, 35.90, 35.80, 35.70, 35.60, 35.50, 35.40, 35.30, 35.20};
@@ -96,8 +96,6 @@ public class NyseNPercentCorrectionInMMonthsReportCommand extends AbstractComman
 			
 			if( !(lastClose >= toPercentPrice && lastClose <= fromPercentPrice) ){
 				qualified = false;
-			}else{
-				System.out.println( "Qualified. Avg: " +avgPriceMMonthsAgo+ ", fromPC: " +fromPercentPrice+ ", toPercent: " +toPercentPrice );
 			}
 		}
 		// End: Second Check
