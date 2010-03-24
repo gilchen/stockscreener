@@ -19,7 +19,7 @@
 	
 	<ui:define name="body">
 		<h:form id="form">
-			<h:messages id="messages" errorClass="error" />
+			<h:messages id="messages" errorClass="error" infoClass="success" />
 			<h:commandLink value="Generate Report Command" actionListener="#{reportBean.executeReportChain}" />
 			<br />
 			<h:commandLink value="View BseAlertReportCommand, " actionListener="#{reportBean.getBseAlertReport}" />
