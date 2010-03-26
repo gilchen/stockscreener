@@ -11,7 +11,8 @@
 <f:view>
 	<h:form id="navForm">
 		<h:panelGrid id="grid" columns="1">
-			<h:commandLink value="Enter New Alert" action="alert" immediate="true" />
+			<h:commandLink value="Enter New Bse Alert" action="alert" actionListener="#{alertBean.setAlertForBse}" immediate="true" />
+			<h:commandLink value="Enter New Nyse Alert" action="alert" actionListener="#{alertBean.setAlertForNyse}" immediate="true" />
 			<h:commandLink value="Define Bse Icici Mapping" action="bse_icici_mapping" immediate="true" />
 			<h:commandLink value="Import Data" action="import_data" immediate="true" />
 			<h:commandLink value="Reports" action="report" />
