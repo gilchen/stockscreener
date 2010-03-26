@@ -13,6 +13,7 @@ import com.stocks.dao.AlertDao;
 import com.stocks.dao.BseDao;
 import com.stocks.dao.BseIciciMappingDao;
 import com.stocks.dao.KeyValueDao;
+import com.stocks.dao.NyseAlertDao;
 import com.stocks.dao.NyseDao;
 import com.stocks.dao.ReportDao;
 import com.stocks.model.Alert;
@@ -20,6 +21,7 @@ import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
 import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
+import com.stocks.model.NyseAlert;
 import com.stocks.model.Report;
 import com.stocks.service.StockService;
 import com.stocks.util.Utility;
@@ -32,6 +34,7 @@ public class StockServiceImpl implements StockService {
     private PlatformTransactionManager transactionManager;
 
     private AlertDao alertDao;
+    private NyseAlertDao nyseAlertDao;
     private BseDao bseDao;
     private NyseDao nyseDao;
     private BseIciciMappingDao bseIciciMappingDao;
@@ -45,6 +48,15 @@ public class StockServiceImpl implements StockService {
 	@Required
 	public void setAlertDao(AlertDao alertDao) {
 		this.alertDao = alertDao;
+	}
+
+	public NyseAlertDao getNyseAlertDao() {
+		return nyseAlertDao;
+	}
+
+	@Required
+	public void setNyseAlertDao(NyseAlertDao nyseAlertDao) {
+		this.nyseAlertDao = nyseAlertDao;
 	}
 
 	public BseDao getBseDao() {
@@ -100,7 +112,16 @@ public class StockServiceImpl implements StockService {
 	public void saveAlert(Alert alert) throws Exception {
 		getAlertDao().save(alert);
 	}
-    
+
+	public List<NyseAlert> getAllNyseAlerts() {
+		return getNyseAlertDao().findAll();
+	}
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+	public void saveNyseAlert(NyseAlert nyseAlert) throws Exception {
+		getNyseAlertDao().save(nyseAlert);
+	}
+
     public List<Bse> findStockByScCodeAndTradeDate(Integer scCode, Date tradeDate) {
     	return getBseDao().findStockByScCodeAndTradeDate(scCode, tradeDate);
     }

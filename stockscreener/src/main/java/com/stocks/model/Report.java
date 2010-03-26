@@ -20,6 +20,7 @@ public class Report implements Serializable{
     
     public enum ReportName {
     	BseAlertReportCommand, 
+    	NyseAlertReportCommand,
     	BseReportCommand, 
     	NyseReportCommand, 
     	NyseNPercentCorrectionInMMonthsReportCommand

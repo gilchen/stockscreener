@@ -13,13 +13,13 @@
 	</ui:define>
 	
 	<ui:define name="heading">
-		<h:outputText value="Alert" />
+		<h:outputText value="#{alertBean.alertFor} Alert" />
 	</ui:define>
 
 	<ui:define name="body">
 		<h:form id="form">
 			<h:panelGrid id="grid" columns="2">
-				<h:outputText value="Stock Code" />
+				<h:outputText value="Stock Code/Symbol" />
 				<h:inputText id="stockCode" value="#{alertBean.stockCode}" required="true" />
 
 				<h:messages id="messages" errorClass="error" infoClass="success" />
@@ -71,6 +71,7 @@
 					<f:selectItem itemLabel="Symmetrical Continuation Triangle (Bullish)" itemValue="Symmetrical Continuation Triangle (Bullish)" />
 					<f:selectItem itemLabel="Triple Bottom" itemValue="Triple Bottom" />
 					<f:selectItem itemLabel="Upside Breakout" itemValue="Upside Breakout" />
+					<f:selectItem itemLabel="SmarTrend" itemValue="SmarTrend" />
 					<f:selectItem itemLabel="Shailesh Own" itemValue="Shailesh Own" />
 				</h:selectOneListbox>
 

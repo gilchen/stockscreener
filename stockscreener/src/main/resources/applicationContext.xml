@@ -69,6 +69,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     <!-- Start: Spring Services -->
     <bean id="stockService" class="com.stocks.service.impl.StockServiceImpl">
 		<property name="alertDao" ref="alertDao" />
+		<property name="nyseAlertDao" ref="nyseAlertDao" />
 		<property name="bseIciciMappingDao" ref="bseIciciMappingDao" />
 		<property name="keyValueDao" ref="keyValueDao" />
 		<property name="bseDao" ref="bseDao" />
@@ -101,6 +102,8 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 
 	<bean id="bseAlertReportCommand" class="com.stocks.command.BseAlertReportCommand" parent="abstractCommand" />
 
+	<bean id="nyseAlertReportCommand" class="com.stocks.command.NyseAlertReportCommand" parent="abstractCommand" />
+
 	<bean id="nyseNPercentCorrectionInMMonthsReportCommand" class="com.stocks.command.NyseNPercentCorrectionInMMonthsReportCommand" parent="abstractCommand" />
 
 
@@ -114,7 +117,8 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 				<ref bean="bseReportCommand" />
 				<ref bean="nyseReportCommand" />
 				<ref bean="bseAlertReportCommand" />
-				<!-- ref bean="nyseNPercentCorrectionInMMonthsReportCommand" / -->
+				<ref bean="nyseAlertReportCommand" />
+				<ref bean="nyseNPercentCorrectionInMMonthsReportCommand" />
 				<bean class="com.stocks.command.CancelPercentCompleteReporterTimerTaskCommand">
 					<property name="percentCompleteReporter" ref="percentCompleteReporter" />
 				</bean>
@@ -139,6 +143,10 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     <!-- Start: DAO -->
     <bean id="alertDao" 
     	class="com.stocks.dao.impl.AlertDaoImpl"
+    	parent="dao" />
+
+    <bean id="nyseAlertDao" 
+    	class="com.stocks.dao.impl.NyseAlertDaoImpl"
     	parent="dao" />
     
     <bean id="bseIciciMappingDao" 

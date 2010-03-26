@@ -63,6 +63,15 @@ public class ReportBean{
 		}
 	}
 
+	public void getNyseAlertReport(ActionEvent ae){
+		try {
+			Report report = getStockService().getReport(Report.ReportName.NyseAlertReportCommand.toString());
+			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
+
 	public void getBseReport(ActionEvent ae){
 		try {
 			Report report = getStockService().getReport(Report.ReportName.BseReportCommand.toString());

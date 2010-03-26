@@ -8,12 +8,16 @@ import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
 import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
+import com.stocks.model.NyseAlert;
 import com.stocks.model.Report;
 
 public interface StockService {
 	void saveAlert(Alert alert) throws Exception;
 	List<Alert> getAllAlerts();
-	
+
+	void saveNyseAlert(NyseAlert nyseAlert) throws Exception;
+	List<NyseAlert> getAllNyseAlerts();
+
 	public List<Bse> findStockByScCodeAndTradeDate(final Integer scCode, final Date tradeDate);
 	public List<Bse> findStockByScCode(final Integer scCode);
 	public List<Integer> getAllScCodes();
