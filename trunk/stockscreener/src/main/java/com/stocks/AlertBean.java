@@ -1,10 +1,13 @@
 package com.stocks;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
 
 import com.stocks.model.Alert;
 import com.stocks.model.NyseAlert;
@@ -111,6 +114,15 @@ public class AlertBean {
 	}
 	public void setStockService(StockService stockService) {
 		this.stockService = stockService;
+	}
+	
+	public List<SelectItem> getEventTypes(){
+		List<SelectItem> selectItemList = new ArrayList<SelectItem>();
+		final String items[] = new String[]{"Reversal of prior trend", "Continuation of prior trend", "Ascending Continuation Triangle", "Bottom Triangle", "Continuation Diamond (Bullish)", "Continuation Wedge (Bullish)", "Diamond Bottom", "Double Bottom", "Flag (Bullish)", "Head and Shoulders Bottom", "Megaphone Bottom", "Pennant (Bullish)", "Rounded Bottom", "Symmetrical Continuation Triangle (Bullish)", "Triple Bottom", "Upside Breakout", "SmarTrend", "Shailesh Own", "Neelam Own"};
+		for( final String item : items ){
+			selectItemList.add( new SelectItem( item, item ) );
+		}
+		return selectItemList;
 	}
 
 	// Bean Actions

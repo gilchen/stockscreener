@@ -22,11 +22,26 @@
 			<h:messages id="messages" errorClass="error" infoClass="success" />
 			<h:commandLink value="Generate Report Command" actionListener="#{reportBean.executeReportChain}" />
 			<br />
-			<h:commandLink value="View Bse Alert, " actionListener="#{reportBean.getBseAlertReport}" />
-			<h:commandLink value="View Nyse Alert, " actionListener="#{reportBean.getNyseAlertReport}" />
-			<h:commandLink value="View Bse, " actionListener="#{reportBean.getBseReport}" />
-			<h:commandLink value="View Nyse" actionListener="#{reportBean.getNyseReport}" />
-			<h:commandLink value="View NyseNPercentCorrectionInMMonths" actionListener="#{reportBean.getNyseNPercentCorrectionInMMonthsReport}" />
+			<ol>
+				<li>
+					<h:commandLink value="View Bse Alert" actionListener="#{reportBean.getBseAlertReport}" />
+					<h:selectOneListbox value="#{reportBean.filterBseEventType}" size="1">
+						<f:selectItems value="#{alertBean.eventTypes}" />
+					</h:selectOneListbox>
+					<h:commandLink value="Filter" actionListener="#{reportBean.filterBseAlertReport}" />
+				</li>
+				<li>
+					<h:commandLink value="View Nyse Alert" actionListener="#{reportBean.getNyseAlertReport}" />
+					&nbsp;
+					<h:selectOneListbox value="#{reportBean.filterNyseEventType}" size="1">
+						<f:selectItems value="#{alertBean.eventTypes}" />
+					</h:selectOneListbox>
+					<h:commandLink value="Filter" actionListener="#{reportBean.filterNyseAlertReport}" />
+				</li>
+				<li><h:commandLink value="View Bse" actionListener="#{reportBean.getBseReport}" /></li>
+				<li><h:commandLink value="View Nyse" actionListener="#{reportBean.getNyseReport}" /></li>
+				<li><h:commandLink value="View NyseNPercentCorrectionInMMonths" actionListener="#{reportBean.getNyseNPercentCorrectionInMMonthsReport}" /></li>
+			</ol>
 			<br />
 			<h:outputText value="#{reportBean.content}" escape="false" />
 		</h:form>

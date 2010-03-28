@@ -1,5 +1,8 @@
 package com.stocks;
 
+import java.io.LineNumberReader;
+import java.io.StringReader;
+
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -14,6 +17,8 @@ public class ReportBean{
 	private StockService stockService;
 	private String content;
     private Chain reportChain;
+    private String filterBseEventType;
+    private String filterNyseEventType;
 
 	public Chain getReportChain() {
 		return reportChain;
@@ -33,6 +38,22 @@ public class ReportBean{
 	
 	public String getContent() {
 		return content;
+	}
+
+	public String getFilterBseEventType() {
+		return filterBseEventType;
+	}
+
+	public void setFilterBseEventType(String filterBseEventType) {
+		this.filterBseEventType = filterBseEventType;
+	}
+
+	public String getFilterNyseEventType() {
+		return filterNyseEventType;
+	}
+
+	public void setFilterNyseEventType(String filterNyseEventType) {
+		this.filterNyseEventType = filterNyseEventType;
 	}
 
 	public void setContent(String content) {
@@ -94,6 +115,44 @@ public class ReportBean{
 		try {
 			Report report = getStockService().getReport(Report.ReportName.NyseNPercentCorrectionInMMonthsReportCommand.toString());
 			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
+
+	public void filterBseAlertReport(ActionEvent ae){
+		System.out.println( "FilterEventType: " +getFilterBseEventType() );
+		try {
+			Report report = getStockService().getReport(Report.ReportName.BseAlertReportCommand.toString());
+			LineNumberReader reader = new LineNumberReader( new StringReader(report.getContent()) );
+			String line = null;
+			StringBuffer sb = new StringBuffer( "<pre>" );
+			while( (line = reader.readLine()) != null ){
+				if( line.contains( getFilterBseEventType() ) ){
+					sb.append( line +"\n"+ reader.readLine()+"\n" );
+				}
+			}
+			sb.append("</pre>");
+			setContent( sb.toString() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
+
+	public void filterNyseAlertReport(ActionEvent ae){
+		System.out.println( "FilterEventType: " +getFilterNyseEventType() );
+		try {
+			Report report = getStockService().getReport(Report.ReportName.NyseAlertReportCommand.toString());
+			LineNumberReader reader = new LineNumberReader( new StringReader(report.getContent()) );
+			String line = null;
+			StringBuffer sb = new StringBuffer( "<pre>" );
+			while( (line = reader.readLine()) != null ){
+				if( line.contains( getFilterNyseEventType() ) ){
+					sb.append( line +"\n"+ reader.readLine()+"\n" );
+				}
+			}
+			sb.append("</pre>");
+			setContent( sb.toString() );
 		} catch (Exception e) {
 			setContent( e.getMessage() );
 		}
