@@ -55,24 +55,7 @@
 
 				<h:outputText value="Event Type" />
 				<h:selectOneListbox value="#{alertBean.eventType}" required="true" size="10">
-					<f:selectItem itemLabel="Reversal of prior trend" itemValue="Reversal of prior trend" />
-					<f:selectItem itemLabel="Continuation of prior trend" itemValue="Continuation of prior trend" />
-					<f:selectItem itemLabel="Ascending Continuation Triangle" itemValue="Ascending Continuation Triangle" />
-					<f:selectItem itemLabel="Bottom Triangle" itemValue="Bottom Triangle" />
-					<f:selectItem itemLabel="Continuation Diamond (Bullish)" itemValue="Continuation Diamond (Bullish)" />
-					<f:selectItem itemLabel="Continuation Wedge (Bullish)" itemValue="Continuation Wedge (Bullish)" />
-					<f:selectItem itemLabel="Diamond Bottom" itemValue="Diamond Bottom" />
-					<f:selectItem itemLabel="Double Bottom" itemValue="Double Bottom" />
-					<f:selectItem itemLabel="Flag (Bullish)" itemValue="Flag (Bullish)" />
-					<f:selectItem itemLabel="Head and Shoulders Bottom" itemValue="Head and Shoulders Bottom" />
-					<f:selectItem itemLabel="Megaphone Bottom" itemValue="Megaphone Bottom" />
-					<f:selectItem itemLabel="Pennant (Bullish)" itemValue="Pennant (Bullish)" />
-					<f:selectItem itemLabel="Rounded Bottom" itemValue="Rounded Bottom" />
-					<f:selectItem itemLabel="Symmetrical Continuation Triangle (Bullish)" itemValue="Symmetrical Continuation Triangle (Bullish)" />
-					<f:selectItem itemLabel="Triple Bottom" itemValue="Triple Bottom" />
-					<f:selectItem itemLabel="Upside Breakout" itemValue="Upside Breakout" />
-					<f:selectItem itemLabel="SmarTrend" itemValue="SmarTrend" />
-					<f:selectItem itemLabel="Shailesh Own" itemValue="Shailesh Own" />
+					<f:selectItems value="#{alertBean.eventTypes}" />
 				</h:selectOneListbox>
 
 				<h:outputText value="Quantity" />
