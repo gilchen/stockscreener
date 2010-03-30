@@ -7,6 +7,8 @@ import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
 
 import com.stocks.model.Alert;
@@ -26,6 +28,8 @@ public class AlertBean {
     
     //
     private String alertFor;
+    private DataModel dmBseAlerts;
+    private DataModel dmNyseAlerts;
 
     // Services
     private StockService stockService;
@@ -109,6 +113,22 @@ public class AlertBean {
 		this.alertFor = alertFor;
 	}
 
+	public DataModel getDmBseAlerts() {
+		return dmBseAlerts;
+	}
+
+	public void setDmBseAlerts(DataModel dmBseAlerts) {
+		this.dmBseAlerts = dmBseAlerts;
+	}
+
+	public DataModel getDmNyseAlerts() {
+		return dmNyseAlerts;
+	}
+
+	public void setDmNyseAlerts(DataModel dmNyseAlerts) {
+		this.dmNyseAlerts = dmNyseAlerts;
+	}
+
 	public StockService getStockService() {
 		return stockService;
 	}
@@ -173,5 +193,36 @@ public class AlertBean {
 	
 	public void setAlertForNyse(ActionEvent ae){
 		this.setAlertFor("NYSE");
+	}
+	
+	public List<Alert> getAllBseAlerts(){
+		return getStockService().getAllBseAlerts();
+	}
+	
+	public void loadAllAlerts(ActionEvent ae){
+		this.setDmBseAlerts( new ListDataModel(getStockService().getAllBseAlerts()) );
+		this.setDmNyseAlerts( new ListDataModel(getStockService().getAllNyseAlerts()) );
+	}
+	
+	public void deactivateBseAlert(ActionEvent ae){
+		Alert alert = (Alert) getDmBseAlerts().getRowData();
+		alert.setIsActive("N");
+		try {
+			getStockService().saveAlert(alert);
+			loadAllAlerts(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void deactivateNyseAlert(ActionEvent ae){
+		NyseAlert nyseAlert = (NyseAlert) getDmNyseAlerts().getRowData();
+		nyseAlert.setIsActive("N");
+		try {
+			getStockService().saveNyseAlert(nyseAlert);
+			loadAllAlerts(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

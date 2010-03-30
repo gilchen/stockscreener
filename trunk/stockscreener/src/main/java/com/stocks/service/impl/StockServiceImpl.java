@@ -104,7 +104,7 @@ public class StockServiceImpl implements StockService {
 		this.reportDao = reportDao;
 	}
 
-	public List<Alert> getAllAlerts() {
+	public List<Alert> getAllBseAlerts() {
 		return getAlertDao().findAll();
 	}
 

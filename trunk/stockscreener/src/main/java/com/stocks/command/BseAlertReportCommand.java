@@ -28,7 +28,7 @@ public class BseAlertReportCommand extends AbstractCommand {
 		sb.append( "<pre>\n" );
 		sb.append( "<B>Bse Alerts Report - Generated on " +new SimpleDateFormat("MMM dd, yyyy").format(new Date())+ "</B>\n" );
 
-		List<Alert> alertList = getStockService().getAllAlerts();
+		List<Alert> alertList = getStockService().getAllBseAlerts();
 		List<Double> cClose = new ArrayList<Double>();
 
 		double ctr = 0.0;

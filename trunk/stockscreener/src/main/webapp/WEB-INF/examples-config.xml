@@ -64,6 +64,10 @@
 	<!-- navigation rules for helloWorld.jsp -->
 	<navigation-rule>
 		<navigation-case>
+			<from-outcome>view_alerts</from-outcome>
+			<to-view-id>/view_alerts.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
 			<from-outcome>alert</from-outcome>
 			<to-view-id>/alert.xhtml</to-view-id>
 		</navigation-case>

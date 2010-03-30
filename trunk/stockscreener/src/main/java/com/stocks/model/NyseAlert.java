@@ -22,7 +22,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 @Entity
 @Table(name = "nyse_alert")
-@NamedQuery(name = "allNyseAlerts", query = "select a from NyseAlert a order by a.eventDate")
+@NamedQuery(name = "allNyseAlerts", query = "select a from NyseAlert a where a.isActive='Y' order by a.symbol")
 public class NyseAlert implements Serializable{
     private final static long serialVersionUID = 2l;
     @Id

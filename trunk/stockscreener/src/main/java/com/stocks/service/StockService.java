@@ -13,7 +13,7 @@ import com.stocks.model.Report;
 
 public interface StockService {
 	void saveAlert(Alert alert) throws Exception;
-	List<Alert> getAllAlerts();
+	List<Alert> getAllBseAlerts();
 
 	void saveNyseAlert(NyseAlert nyseAlert) throws Exception;
 	List<NyseAlert> getAllNyseAlerts();
