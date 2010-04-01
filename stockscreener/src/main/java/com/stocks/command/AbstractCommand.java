@@ -11,7 +11,8 @@ import com.stocks.util.PercentCompleteReporter;
 
 public abstract class AbstractCommand implements Command{
 	protected static final String GOOGLE_CHART_URL = "http://~NUM.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:~DATA&chg=0,2,1,0&chds=~MIN,~MAX"; //&chtt=~TITLE
-	protected static final String GOOGLE_CHART_RECOMMENDED_BUY_URL = "http://~NUM.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:~DATA&chg=0,2,1,0&chds=~MIN,~MAX&chm=A~RECOMMENDED_BUY_PRICE,,0,~RECOMMENDED_BUY_INDEX,9";
+	protected static final String GOOGLE_CHART_RECOMMENDED_BUY_URL = "http://~NUM.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:~DATA&chg=0,2,1,0&chds=~MIN,~MAX&chm=";
+	protected static final String GOOGLE_CHART_CHM_PARAM_VALUE = "A~RECOMMENDED_BUY_PRICE,,0,~RECOMMENDED_BUY_INDEX,9";
 
 	protected static Date tradeDateParam = null;
 	protected static int NUM = 0;
