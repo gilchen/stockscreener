@@ -105,4 +105,34 @@ public class Nyse implements Serializable{
                 .reflectionToString(this, ToStringStyle.SIMPLE_STYLE);
     }
 
+	@Override
+    public boolean equals(final Object o) {
+        if (this == o){
+        	return true;
+        }
+        if (o == null || getClass() != o.getClass()){
+        	return false;
+        }
+
+        final NysePK nysePK = ((Nyse)o).getNysePK();
+        if ( nysePK == null){
+        	return false;
+        }
+
+        if (!getNysePK().getTradeDate().equals(nysePK.getTradeDate())){
+        	return false;
+        }
+        if (!getNysePK().getSymbol().equals(nysePK.getSymbol())){
+        	return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getNysePK().getTradeDate().hashCode();
+        result = 31 * result + getNysePK().getSymbol().hashCode();
+        return result;
+    }
 }
