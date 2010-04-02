@@ -58,25 +58,31 @@ public class NyseImportServiceImpl implements ImportService{
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void importData() throws Exception{
-		KeyValue keyValue = getStockService().getKeyValue( NYSE_IMPORT_KEY );
-		
+		importForStockExchange( NYSE_IMPORT_KEY, "NYSE" );
+		importForStockExchange( NASDAQ_IMPORT_KEY, "NASDAQ" );
+		importForStockExchange( AMEX_IMPORT_KEY, "AMEX" );
+	}
+	
+	private void importForStockExchange(final String key, final String stockExchange) throws Exception{
+		KeyValue keyValue = getStockService().getKeyValue( key );
+
 		SimpleDateFormat sdf = new SimpleDateFormat("ddMMyy");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime( sdf.parse( keyValue.getV() ) );
 		
 		while( calendar.before( Calendar.getInstance() ) ){
 			calendar.add(Calendar.DAY_OF_MONTH, 1);
-			if( importFile(calendar) ){
+			if( importFile(calendar, stockExchange) ){
 				keyValue.setV(new SimpleDateFormat("ddMMyy").format(calendar.getTime()));
 				getStockService().saveKeyValue(keyValue);
 			}
 		}
 	}
 	
-	public boolean importFile(final Calendar calendar) throws Exception {
+	public boolean importFile(final Calendar calendar, final String stockExchange) throws Exception {
 		boolean dataImported = false;
 		// NYSE_20091202.csv
-		final String fileName = "NYSE_" +new SimpleDateFormat("yyyyMMdd").format(calendar.getTime()) +".csv";
+		final String fileName = stockExchange +"_" +new SimpleDateFormat("yyyyMMdd").format(calendar.getTime()) +".csv";
 		final String sPath = getDownloadFolder() +"/"+ fileName;
 
 		if( new File(sPath).exists() ){
@@ -100,7 +106,7 @@ public class NyseImportServiceImpl implements ImportService{
 				
 				getNyseDao().save(nyse);
 			}
-			System.out.println( "Data imported for " +calendar.getTime() );
+			System.out.println( stockExchange + " Data imported for " +calendar.getTime() );
 		}else{
 			System.out.println( "No data for " +calendar.getTime() );
 		}
