@@ -20,6 +20,8 @@ public class ImportDataBean{
 
     private Date lastBseImport;
     private Date lastNyseImport;
+    private Date lastNasdaqImport;
+    private Date lastAmexImport;
     
     // Getter / Setters
 	public StockService getStockService() {
@@ -71,6 +73,30 @@ public class ImportDataBean{
 
 	public void setLastNyseImport(Date lastNyseImport) {
 		this.lastNyseImport = lastNyseImport;
+	}
+	
+	public Date getLastNasdaqImport() throws Exception{
+		final String lastNasdaqImport = getStockService().getKeyValue(ImportService.NASDAQ_IMPORT_KEY).getV();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("ddMMyy");
+		
+		return sdf.parse(lastNasdaqImport);
+	}
+
+	public void setLastNasdaqImport(Date lastNasdaqImport) {
+		this.lastNasdaqImport = lastNasdaqImport;
+	}
+
+	public Date getLastAmexImport() throws Exception{
+		final String lastAmexImport = getStockService().getKeyValue(ImportService.AMEX_IMPORT_KEY).getV();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("ddMMyy");
+		
+		return sdf.parse(lastAmexImport);
+	}
+
+	public void setLastAmexImport(Date lastAmexImport) {
+		this.lastAmexImport = lastAmexImport;
 	}
 
 	// Bean Actions
