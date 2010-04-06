@@ -22,6 +22,15 @@
 		</managed-property>
 	</managed-bean>
 	<managed-bean>
+		<managed-bean-name>alertSearchBean</managed-bean-name>
+		<managed-bean-class>com.stocks.AlertSearchBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>stockService</property-name>
+			<value>#{stockService}</value>
+		</managed-property>
+	</managed-bean>
+	<managed-bean>
 		<managed-bean-name>bseIciciMappingBean</managed-bean-name>
 		<managed-bean-class>com.stocks.BseIciciMappingBean</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
