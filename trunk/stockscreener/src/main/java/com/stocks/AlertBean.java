@@ -22,14 +22,13 @@ public class AlertBean {
     private String opportunityType;
     private Double eventPrice;
     private String targetPrice;
+    private Double sltp;
     private String eventType;
     private Integer qty;
     private String isActive;
     
     //
     private String alertFor;
-    private DataModel dmBseAlerts;
-    private DataModel dmNyseAlerts;
 
     // Services
     private StockService stockService;
@@ -45,6 +44,7 @@ public class AlertBean {
     	this.setOpportunityType(null);
     	this.setEventPrice(null);
     	this.setTargetPrice(null);
+    	this.setSltp(null);
     	this.setEventType(null);
     	this.setQty(1);
     	this.setIsActive("Y");
@@ -87,6 +87,15 @@ public class AlertBean {
 	public void setTargetPrice(String targetPrice) {
 		this.targetPrice = targetPrice;
 	}
+	
+	public Double getSltp() {
+		return sltp;
+	}
+
+	public void setSltp(Double sltp) {
+		this.sltp = sltp;
+	}
+
 	public String getEventType() {
 		return eventType;
 	}
@@ -111,22 +120,6 @@ public class AlertBean {
 	}
 	public void setAlertFor(String alertFor) {
 		this.alertFor = alertFor;
-	}
-
-	public DataModel getDmBseAlerts() {
-		return dmBseAlerts;
-	}
-
-	public void setDmBseAlerts(DataModel dmBseAlerts) {
-		this.dmBseAlerts = dmBseAlerts;
-	}
-
-	public DataModel getDmNyseAlerts() {
-		return dmNyseAlerts;
-	}
-
-	public void setDmNyseAlerts(DataModel dmNyseAlerts) {
-		this.dmNyseAlerts = dmNyseAlerts;
 	}
 
 	public StockService getStockService() {
@@ -159,6 +152,7 @@ public class AlertBean {
 			alert.setQty(getQty());
 			alert.setBseIciciMapping( getStockService().getBseIciciMapping(getStockCode()) );
 			alert.setTargetPrice(getTargetPrice());
+			alert.setSltp(getSltp());
 			alert.setTrxType(getTrxType());
 		}else if( getAlertFor().equals("NYSE") ){
 			nyseAlert = new NyseAlert();
@@ -170,6 +164,7 @@ public class AlertBean {
 			nyseAlert.setQty(getQty());
 			nyseAlert.setSymbol( getStockCode() );
 			nyseAlert.setTargetPrice(getTargetPrice());
+			nyseAlert.setSltp(getSltp());
 			nyseAlert.setTrxType(getTrxType());
 		}
 		
@@ -193,36 +188,5 @@ public class AlertBean {
 	
 	public void setAlertForNyse(ActionEvent ae){
 		this.setAlertFor("NYSE");
-	}
-	
-	public List<Alert> getAllBseAlerts(){
-		return getStockService().getAllBseAlerts();
-	}
-	
-	public void loadAllAlerts(ActionEvent ae){
-		this.setDmBseAlerts( new ListDataModel(getStockService().getAllBseAlerts()) );
-		this.setDmNyseAlerts( new ListDataModel(getStockService().getAllNyseAlerts()) );
-	}
-	
-	public void deactivateBseAlert(ActionEvent ae){
-		Alert alert = (Alert) getDmBseAlerts().getRowData();
-		alert.setIsActive("N");
-		try {
-			getStockService().saveAlert(alert);
-			loadAllAlerts(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void deactivateNyseAlert(ActionEvent ae){
-		NyseAlert nyseAlert = (NyseAlert) getDmNyseAlerts().getRowData();
-		nyseAlert.setIsActive("N");
-		try {
-			getStockService().saveNyseAlert(nyseAlert);
-			loadAllAlerts(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 }

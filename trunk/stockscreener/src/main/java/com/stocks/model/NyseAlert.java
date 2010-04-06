@@ -6,23 +6,22 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 @Entity
 @Table(name = "nyse_alert")
-@NamedQuery(name = "allNyseAlerts", query = "select a from NyseAlert a where a.isActive='Y' order by a.symbol")
+@NamedQueries({
+	@NamedQuery(name = "allNyseAlerts", query = "select a from NyseAlert a where a.isActive='Y' order by a.symbol"),
+	@NamedQuery(name = "allNyseAlertsByTrxType", query = "select a from NyseAlert a where a.isActive='Y' and a.trxType=:trxType order by a.symbol")
+})
 public class NyseAlert implements Serializable{
     private final static long serialVersionUID = 2l;
     @Id
@@ -48,6 +47,9 @@ public class NyseAlert implements Serializable{
     @Column(name = "TARGET_PRICE", length = 20)
     private String targetPrice;
 
+    @Column(name = "SLTP")
+    private Double sltp;
+    
     @Column(name = "EVENT_TYPE", length = 20)
     private String eventType;
 
@@ -113,6 +115,14 @@ public class NyseAlert implements Serializable{
 		this.targetPrice = targetPrice;
 	}
 
+	public Double getSltp() {
+		return sltp;
+	}
+
+	public void setSltp(Double sltp) {
+		this.sltp = sltp;
+	}
+
 	public String getEventType() {
 		return eventType;
 	}
@@ -162,6 +172,7 @@ public class NyseAlert implements Serializable{
         	getOpportunityType() +", "+
         	getEventPrice() +", "+
         	getTargetPrice() +", "+
+        	getSltp() +", "+
         	getEventType();
     }
 

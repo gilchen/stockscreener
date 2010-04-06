@@ -12,17 +12,19 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 @Entity
 @Table(name = "alert")
-@NamedQuery(name = "allAlerts", query = "select a from Alert a where a.isActive='Y' order by a.bseIciciMapping.stockCode")
+@NamedQueries({
+	@NamedQuery(name = "allAlerts", query = "select a from Alert a where a.isActive='Y' order by a.bseIciciMapping.stockCode"),
+	@NamedQuery(name = "alertsByTrxType", query = "select a from Alert a where a.isActive='Y' and a.trxType=:trxType order by a.bseIciciMapping.stockCode")
+})
 public class Alert implements Serializable{
     private final static long serialVersionUID = 2l;
     @Id
@@ -48,6 +50,9 @@ public class Alert implements Serializable{
 
     @Column(name = "TARGET_PRICE", length = 20)
     private String targetPrice;
+    
+    @Column(name = "SLTP")
+    private Double sltp;
 
     @Column(name = "EVENT_TYPE", length = 20)
     private String eventType;
@@ -114,6 +119,14 @@ public class Alert implements Serializable{
 		this.targetPrice = targetPrice;
 	}
 
+	public Double getSltp() {
+		return sltp;
+	}
+
+	public void setSltp(Double sltp) {
+		this.sltp = sltp;
+	}
+
 	public String getEventType() {
 		return eventType;
 	}
@@ -163,6 +176,7 @@ public class Alert implements Serializable{
         	getOpportunityType() +", "+
         	getEventPrice() +", "+
         	getTargetPrice() +", "+
+        	getSltp() +", "+
         	getEventType();
     }
 

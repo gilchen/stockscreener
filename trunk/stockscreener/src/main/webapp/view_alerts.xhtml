@@ -18,109 +18,131 @@
 
 	<ui:define name="body">
 		<h:form id="form">
-			<h:outputText value="Bse Alerts" />
-			<h:dataTable value="#{alertBean.dmBseAlerts}" var="alert" border="1">
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Stock Code" />
-					</f:facet>
-					<h:outputText value="#{alert.bseIciciMapping.stockCode}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Trx Type" />
-					</f:facet>
-					<h:outputText value="#{alert.trxType}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Event Date" />
-					</f:facet>
-					<h:outputText value="#{alert.eventDate}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Opportunity Type" />
-					</f:facet>
-					<h:outputText value="#{alert.opportunityType}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Event Price" />
-					</f:facet>
-					<h:outputText value="#{alert.eventPrice}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Target Price" />
-					</f:facet>
-					<h:outputText value="#{alert.targetPrice}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Event Type" />
-					</f:facet>
-					<h:outputText value="#{alert.eventType}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Deactivate" />
-					</f:facet>
-					<h:commandLink value="Deactivate" actionListener="#{alertBean.deactivateBseAlert}" />
-				</h:column>
-			</h:dataTable>
+			<h:outputText value="Search" />
+			<h:panelGrid id="searchGrid" columns="5">
+				<h:outputText value="Stock Exchange" />
+				<h:selectOneListbox value="#{alertSearchBean.stockExchange}" required="true">
+					<f:selectItem itemLabel="BSE" itemValue="BSE" />
+					<f:selectItem itemLabel="NYSE" itemValue="NYSE" />
+				</h:selectOneListbox>
 
-			<h:outputText value="Nyse Alerts" />
-			<h:dataTable value="#{alertBean.dmNyseAlerts}" var="alert" border="1">
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Symbol" />
-					</f:facet>
-					<h:outputText value="#{alert.symbol}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Trx Type" />
-					</f:facet>
-					<h:outputText value="#{alert.trxType}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Event Date" />
-					</f:facet>
-					<h:outputText value="#{alert.eventDate}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Opportunity Type" />
-					</f:facet>
-					<h:outputText value="#{alert.opportunityType}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Event Price" />
-					</f:facet>
-					<h:outputText value="#{alert.eventPrice}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Target Price" />
-					</f:facet>
-					<h:outputText value="#{alert.targetPrice}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Event Type" />
-					</f:facet>
-					<h:outputText value="#{alert.eventType}" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">
-						<h:outputText value="Deactivate" />
-					</f:facet>
-					<h:commandLink value="Deactivate" actionListener="#{alertBean.deactivateNyseAlert}" />
-				</h:column>
-			</h:dataTable>
+				<h:outputText value="Trx Type" />
+				<h:selectOneListbox value="#{alertSearchBean.trxType}" required="true">
+					<f:selectItem itemLabel="Buy" itemValue="Buy" />
+					<f:selectItem itemLabel="Sell" itemValue="Sell" />
+					<f:selectItem itemLabel="Virtual Buy" itemValue="Virtual Buy" />
+					<f:selectItem itemLabel="Virtual Sell" itemValue="Virtual Sell" />
+				</h:selectOneListbox>
+				<h:commandButton value="Go" actionListener="#{alertSearchBean.search}" />
+			</h:panelGrid>
+
+			<h:panelGroup rendered="#{alertSearchBean.stockExchange == 'BSE'}">
+				<h:outputText value="Bse Alerts" />
+				<h:dataTable value="#{alertSearchBean.dmBseAlerts}" var="alert" border="1">
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Stock Code" />
+						</f:facet>
+						<h:outputText value="#{alert.bseIciciMapping.stockCode}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Trx Type" />
+						</f:facet>
+						<h:outputText value="#{alert.trxType}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Event Date" />
+						</f:facet>
+						<h:outputText value="#{alert.eventDate}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Opportunity Type" />
+						</f:facet>
+						<h:outputText value="#{alert.opportunityType}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Event Price" />
+						</f:facet>
+						<h:outputText value="#{alert.eventPrice}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Target Price" />
+						</f:facet>
+						<h:outputText value="#{alert.targetPrice}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Event Type" />
+						</f:facet>
+						<h:outputText value="#{alert.eventType}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Deactivate" />
+						</f:facet>
+						<h:commandLink value="Deactivate" actionListener="#{alertBean.deactivateBseAlert}" />
+					</h:column>
+				</h:dataTable>
+			</h:panelGroup>
+
+			<h:panelGroup rendered="#{alertSearchBean.stockExchange == 'NYSE'}">
+				<h:outputText value="Nyse Alerts" />
+				<h:dataTable value="#{alertSearchBean.dmNyseAlerts}" var="alert" border="1">
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Symbol" />
+						</f:facet>
+						<h:outputText value="#{alert.symbol}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Trx Type" />
+						</f:facet>
+						<h:outputText value="#{alert.trxType}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Event Date" />
+						</f:facet>
+						<h:outputText value="#{alert.eventDate}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Opportunity Type" />
+						</f:facet>
+						<h:outputText value="#{alert.opportunityType}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Event Price" />
+						</f:facet>
+						<h:outputText value="#{alert.eventPrice}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Target Price" />
+						</f:facet>
+						<h:outputText value="#{alert.targetPrice}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Event Type" />
+						</f:facet>
+						<h:outputText value="#{alert.eventType}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Deactivate" />
+						</f:facet>
+						<h:commandLink value="Deactivate" actionListener="#{alertBean.deactivateNyseAlert}" />
+					</h:column>
+				</h:dataTable>
+			</h:panelGroup>
 
 		</h:form>
 	</ui:define>

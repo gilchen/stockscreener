@@ -107,6 +107,10 @@ public class StockServiceImpl implements StockService {
 	public List<Alert> getAllBseAlerts() {
 		return getAlertDao().findAll();
 	}
+	
+	public List<Alert> getAllBseAlertsByTrxType(final String trxType){
+		return getAlertDao().findAlertsByTrxType(trxType);
+	}
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void saveAlert(Alert alert) throws Exception {
@@ -115,6 +119,10 @@ public class StockServiceImpl implements StockService {
 
 	public List<NyseAlert> getAllNyseAlerts() {
 		return getNyseAlertDao().findAll();
+	}
+	
+	public List<NyseAlert> getAllNyseAlertsByTrxType(String trxType) {
+		return getNyseAlertDao().findAlertsByTrxType(trxType);
 	}
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)

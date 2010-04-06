@@ -14,9 +14,11 @@ import com.stocks.model.Report;
 public interface StockService {
 	void saveAlert(Alert alert) throws Exception;
 	List<Alert> getAllBseAlerts();
+	List<Alert> getAllBseAlertsByTrxType(final String trxType);
 
 	void saveNyseAlert(NyseAlert nyseAlert) throws Exception;
 	List<NyseAlert> getAllNyseAlerts();
+	List<NyseAlert> getAllNyseAlertsByTrxType(final String trxType);
 
 	public List<Bse> findStockByScCodeAndTradeDate(final Integer scCode, final Date tradeDate);
 	public List<Bse> findStockByScCode(final Integer scCode);
