@@ -4,12 +4,15 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 
+import com.stocks.model.Alert;
+import com.stocks.model.NyseAlert;
 import com.stocks.service.StockService;
 
 public class AlertSearchBean {
     private String trxType;
     private String stockExchange;
 
+    private AlertBean alertBean;
     private DataModel dmBseAlerts;
     private DataModel dmNyseAlerts;
 
@@ -17,12 +20,14 @@ public class AlertSearchBean {
     private StockService stockService;
     
     public AlertSearchBean() {
-    	clear();
+    	clear(null);
 	}
 
-    public void clear(){
+    public void clear(ActionEvent ae){
     	this.setTrxType(null);
     	this.setStockExchange(null);
+    	this.setDmBseAlerts(null);
+    	this.setDmNyseAlerts(null);
     }
     
     // Getter / Setters
@@ -39,6 +44,14 @@ public class AlertSearchBean {
 
 	public void setStockExchange(String stockExchange) {
 		this.stockExchange = stockExchange;
+	}
+
+	public AlertBean getAlertBean() {
+		return alertBean;
+	}
+
+	public void setAlertBean(AlertBean alertBean) {
+		this.alertBean = alertBean;
 	}
 
 	public DataModel getDmBseAlerts() {
@@ -70,6 +83,40 @@ public class AlertSearchBean {
 		}else if( getStockExchange().equals("NYSE") ){
 			this.setDmNyseAlerts( new ListDataModel(getStockService().getAllNyseAlertsByTrxType( getTrxType()) ) );
 		}
+	}
+	
+	public void editAlert(ActionEvent ae){
+		AlertBean ab = this.getAlertBean();
+		Alert alert = (Alert) getDmBseAlerts().getRowData();
+		ab.setAlertId(alert.getAlertId());
+		ab.setStockCode(alert.getBseIciciMapping().getStockCode());
+		ab.setTrxType(alert.getTrxType());
+		ab.setEventDate(alert.getEventDate());
+		ab.setOpportunityType(alert.getOpportunityType());
+		ab.setEventPrice(alert.getEventPrice());
+		ab.setTargetPrice(alert.getTargetPrice());
+		ab.setSltp(alert.getSltp());
+		ab.setEventType(alert.getEventType());
+		ab.setQty(alert.getQty());
+		ab.setIsActive(alert.getIsActive());
+		ab.setAlertFor("BSE");
+	}
+
+	public void editNyseAlert(ActionEvent ae){
+		AlertBean ab = this.getAlertBean();
+		NyseAlert alert = (NyseAlert) getDmNyseAlerts().getRowData();
+		ab.setAlertId(alert.getAlertId());
+		ab.setStockCode(alert.getSymbol());
+		ab.setTrxType(alert.getTrxType());
+		ab.setEventDate(alert.getEventDate());
+		ab.setOpportunityType(alert.getOpportunityType());
+		ab.setEventPrice(alert.getEventPrice());
+		ab.setTargetPrice(alert.getTargetPrice());
+		ab.setSltp(alert.getSltp());
+		ab.setEventType(alert.getEventType());
+		ab.setQty(alert.getQty());
+		ab.setIsActive(alert.getIsActive());
+		ab.setAlertFor("NYSE");
 	}
 	
 //	public void deactivateBseAlert(ActionEvent ae){

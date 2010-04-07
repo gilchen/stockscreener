@@ -16,6 +16,7 @@ import com.stocks.model.NyseAlert;
 import com.stocks.service.StockService;
 
 public class AlertBean {
+	private Long alertId;
     private String stockCode;
     private String trxType;
     private Date eventDate;
@@ -38,6 +39,7 @@ public class AlertBean {
 	}
 
     public void clear(){
+    	this.setAlertId(null);
     	this.setStockCode(null);
     	this.setTrxType(null);
     	this.setEventDate(new Date());
@@ -51,6 +53,12 @@ public class AlertBean {
     }
     
     // Getter / Setters
+	public Long getAlertId() {
+		return alertId;
+	}
+	public void setAlertId(Long alertId) {
+		this.alertId = alertId;
+	}
     public String getStockCode() {
 		return stockCode;
 	}
@@ -144,6 +152,7 @@ public class AlertBean {
 		NyseAlert nyseAlert = null;
 		if( getAlertFor().equals("BSE") ){
 			alert = new Alert();
+			alert.setAlertId(getAlertId());
 			alert.setEventDate(getEventDate());
 			alert.setEventPrice(getEventPrice());
 			alert.setEventType(getEventType());
@@ -156,6 +165,7 @@ public class AlertBean {
 			alert.setTrxType(getTrxType());
 		}else if( getAlertFor().equals("NYSE") ){
 			nyseAlert = new NyseAlert();
+			nyseAlert.setAlertId(getAlertId());
 			nyseAlert.setEventDate(getEventDate());
 			nyseAlert.setEventPrice(getEventPrice());
 			nyseAlert.setEventType(getEventType());
@@ -184,9 +194,11 @@ public class AlertBean {
 	
 	public void setAlertForBse(ActionEvent ae){
 		this.setAlertFor("BSE");
+		clear();
 	}
 	
 	public void setAlertForNyse(ActionEvent ae){
 		this.setAlertFor("NYSE");
+		clear();
 	}
 }
