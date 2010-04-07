@@ -26,6 +26,10 @@
 		<managed-bean-class>com.stocks.AlertSearchBean</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
+			<property-name>alertBean</property-name>
+			<value>#{alertBean}</value>
+		</managed-property>
+		<managed-property>
 			<property-name>stockService</property-name>
 			<value>#{stockService}</value>
 		</managed-property>

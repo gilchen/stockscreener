@@ -35,7 +35,7 @@
 				</h:selectOneListbox>
 				<h:commandButton value="Go" actionListener="#{alertSearchBean.search}" />
 			</h:panelGrid>
-
+			<hr />
 			<h:panelGroup rendered="#{alertSearchBean.stockExchange == 'BSE'}">
 				<h:outputText value="Bse Alerts" />
 				<h:dataTable value="#{alertSearchBean.dmBseAlerts}" var="alert" border="1">
@@ -77,15 +77,21 @@
 					</h:column>
 					<h:column>
 						<f:facet name="header">
+							<h:outputText value="SLTP" />
+						</f:facet>
+						<h:outputText value="#{alert.sltp}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
 							<h:outputText value="Event Type" />
 						</f:facet>
 						<h:outputText value="#{alert.eventType}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="Deactivate" />
+							<h:outputText value="Edit" />
 						</f:facet>
-						<h:commandLink value="Deactivate" actionListener="#{alertBean.deactivateBseAlert}" />
+						<h:commandLink value="Edit" actionListener="#{alertSearchBean.editAlert}" action="alert" />
 					</h:column>
 				</h:dataTable>
 			</h:panelGroup>
@@ -131,15 +137,21 @@
 					</h:column>
 					<h:column>
 						<f:facet name="header">
+							<h:outputText value="SLTP" />
+						</f:facet>
+						<h:outputText value="#{alert.sltp}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
 							<h:outputText value="Event Type" />
 						</f:facet>
 						<h:outputText value="#{alert.eventType}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="Deactivate" />
+							<h:outputText value="Edit" />
 						</f:facet>
-						<h:commandLink value="Deactivate" actionListener="#{alertBean.deactivateNyseAlert}" />
+						<h:commandLink value="Edit" actionListener="#{alertSearchBean.editNyseAlert}" action="alert" />
 					</h:column>
 				</h:dataTable>
 			</h:panelGroup>
