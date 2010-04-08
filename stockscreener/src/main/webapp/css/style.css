@@ -1,3 +1,14 @@
+body, td{
+	font-family: Arial;
+	font-size: 10pt;
+	vertical-align:top;
+}
+
+.navBg{
+	background-color:#EAE9E1;
+	white-space:nowrap
+}
+
 .error{
 	color: red;
 	font-weight:bold;

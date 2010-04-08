@@ -106,54 +106,65 @@
 
 			<h:panelGroup rendered="#{alertSearchBean.stockExchange == 'NYSE'}">
 				<h:outputText value="Nyse Alerts" />
-				<h:dataTable value="#{alertSearchBean.dmNyseAlerts}" var="alert" border="1">
+				<h:dataTable value="#{alertSearchBean.dmNyseAlertResults}" var="alertResult" border="1">
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="Symbol" />
 						</f:facet>
-						<h:outputText value="#{alert.symbol}" />
+						<h:outputText value="#{alertResult.nyseAlert.symbol}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="Trx Type" />
 						</f:facet>
-						<h:outputText value="#{alert.trxType}" />
+						<h:outputText value="#{alertResult.nyseAlert.trxType}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="Event Date" />
 						</f:facet>
-						<h:outputText value="#{alert.eventDate}" />
+						<h:outputText value="#{alertResult.nyseAlert.eventDate}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="Opportunity Type" />
 						</f:facet>
-						<h:outputText value="#{alert.opportunityType}" />
+						<h:outputText value="#{alertResult.nyseAlert.opportunityType}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="Event Price" />
 						</f:facet>
-						<h:outputText value="#{alert.eventPrice}" />
+						<h:outputText value="#{alertResult.nyseAlert.eventPrice}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="Target Price" />
 						</f:facet>
-						<h:outputText value="#{alert.targetPrice}" />
+						<h:outputText value="#{alertResult.nyseAlert.targetPrice}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="SLTP" />
 						</f:facet>
-						<h:outputText value="#{alert.sltp}" />
+						<h:outputText value="#{alertResult.nyseAlert.sltp}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="Event Type" />
 						</f:facet>
-						<h:outputText value="#{alert.eventType}" />
+						<h:outputText value="#{alertResult.nyseAlert.eventType}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="CMP" />
+						</f:facet>
+						<h:panelGroup>
+							<h:graphicImage value="images/up.jpg" rendered="#{alertResult.nyse.close &gt; alertResult.nyseAlert.eventPrice}" />
+							<h:graphicImage value="images/down.jpg" rendered="#{alertResult.nyse.close &lt; alertResult.nyseAlert.eventPrice}" />
+
+							<h:outputText value="#{alertResult.nyse.close} (#{alertResult.percentChange})" />
+						</h:panelGroup>
 					</h:column>
 					<h:column>
 						<f:facet name="header">

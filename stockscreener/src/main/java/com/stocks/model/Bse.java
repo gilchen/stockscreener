@@ -2,6 +2,7 @@ package com.stocks.model;
 
 import java.io.Serializable;
 
+
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -181,6 +182,37 @@ public class Bse implements Serializable{
 	public String toString() {
         return ToStringBuilder
                 .reflectionToString(this, ToStringStyle.SIMPLE_STYLE);
+    }
+
+	@Override
+    public boolean equals(final Object o) {
+        if (this == o){
+        	return true;
+        }
+        if (o == null || getClass() != o.getClass()){
+        	return false;
+        }
+
+        final BsePK bsePK = ((Bse)o).getBsePK();
+        if ( bsePK == null){
+        	return false;
+        }
+
+        if (!getBsePK().getTradeDate().equals(bsePK.getTradeDate())){
+        	return false;
+        }
+        if (!getBsePK().getScCode().equals(bsePK.getScCode())){
+        	return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getBsePK().getTradeDate().hashCode();
+        result = 31 * result + getBsePK().getScCode().hashCode();
+        return result;
     }
 
 }

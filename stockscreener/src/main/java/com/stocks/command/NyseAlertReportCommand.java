@@ -49,7 +49,8 @@ public class NyseAlertReportCommand extends AbstractCommand {
 		double ctr = 0.0;
 		for( final List<NyseAlert> nyseAlerts : mSymbolNyseAlert.values() ){
 			cClose.clear();
-			List<Nyse> nyseList = getStockService().findStockBySymbol(nyseAlerts.get(0).getSymbol());
+			//List<Nyse> nyseList = getStockService().findStockBySymbol(nyseAlerts.get(0).getSymbol());
+			List<Nyse> nyseList = getStockService().findStockBySymbolAndTradeDate(nyseAlerts.get(0).getSymbol(), tradeDateParam);
 			for(final Nyse nyse : nyseList){
 				cClose.add( nyse.getClose() );
 			}
@@ -96,15 +97,19 @@ public class NyseAlertReportCommand extends AbstractCommand {
 					4	Take a SLTP		75.32
 					5	Pull SLTP - Min		17.42
 					6	Divide 5) by 3)		0.815161441
+					7	Convert to 0 if 6) is less than zero (when SLTP is below min).
 					*/
 					Double sltpLine = (nyseAlert.getSltp() - min) / diff;
+					if( sltpLine < 0.0 ){
+						sltpLine = 0.0;
+					}
 					String chmHLine = GOOGLE_CHART_CHM_SLTP;
 					chmHLine = chmHLine.replace("~VAL_BETWEEN_ZERO_AND_ONE", sltpLine.toString());
 					sbChmSltp.append( chmHLine );
 				}
 			}
 
-			sb.append( String.format("%s%n", nyseAlerts.get(0)) );
+			sb.append( String.format("%s%n", nyseAlertsToString(nyseAlerts) ) );
 			// http://chart.apis.google.com/chart?cht=lc&chs=200x100&chd=t:40,60,60,45,47,75,70,72&chxt=x,y&chxr=1,0,75
 			String url = GOOGLE_CHART_RECOMMENDED_BUY_URL;
 
@@ -135,5 +140,4 @@ public class NyseAlertReportCommand extends AbstractCommand {
 		final Report report = new Report( Report.ReportName.NyseAlertReportCommand.toString(), sb.toString());
 		getStockService().saveReport(report);
 	}
-	
 }
