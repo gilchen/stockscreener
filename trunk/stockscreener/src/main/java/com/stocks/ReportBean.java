@@ -121,7 +121,6 @@ public class ReportBean{
 	}
 
 	public void filterBseAlertReport(ActionEvent ae){
-		System.out.println( "FilterEventType: " +getFilterBseEventType() );
 		try {
 			Report report = getStockService().getReport(Report.ReportName.BseAlertReportCommand.toString());
 			LineNumberReader reader = new LineNumberReader( new StringReader(report.getContent()) );
@@ -140,7 +139,6 @@ public class ReportBean{
 	}
 
 	public void filterNyseAlertReport(ActionEvent ae){
-		System.out.println( "FilterEventType: " +getFilterNyseEventType() );
 		try {
 			Report report = getStockService().getReport(Report.ReportName.NyseAlertReportCommand.toString());
 			LineNumberReader reader = new LineNumberReader( new StringReader(report.getContent()) );

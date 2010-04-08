@@ -5,6 +5,7 @@ import java.util.List;
 import com.stocks.dao.AbstractDao;
 import com.stocks.dao.NyseAlertDao;
 import com.stocks.model.NyseAlert;
+import com.stocks.search.NyseAlertResult;
 
 public class NyseAlertDaoImpl extends AbstractDao implements NyseAlertDao {
 	public void delete(NyseAlert nyseAlert) {
@@ -19,6 +20,10 @@ public class NyseAlertDaoImpl extends AbstractDao implements NyseAlertDao {
 		return entityManager.createNamedQuery("allNyseAlertsByTrxType").setParameter("trxType", trxType).getResultList();
 	}
 
+	public List<NyseAlertResult> findAlertResultsByTrxType(String trxType) {
+		return entityManager.createNamedQuery("allNyseAlertResultsByTrxType").setParameter("trxType", trxType).getResultList();
+	}
+	
 	public NyseAlert read(Long id) {
 		return get(NyseAlert.class, id);
 	}

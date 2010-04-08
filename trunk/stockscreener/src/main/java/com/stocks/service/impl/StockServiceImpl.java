@@ -23,6 +23,7 @@ import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
 import com.stocks.model.NyseAlert;
 import com.stocks.model.Report;
+import com.stocks.search.NyseAlertResult;
 import com.stocks.service.StockService;
 import com.stocks.util.Utility;
 
@@ -123,6 +124,10 @@ public class StockServiceImpl implements StockService {
 	
 	public List<NyseAlert> getAllNyseAlertsByTrxType(String trxType) {
 		return getNyseAlertDao().findAlertsByTrxType(trxType);
+	}
+	
+	public List<NyseAlertResult> getAllNyseAlertResultsByTrxType(String trxType) {
+		return getNyseAlertDao().findAlertResultsByTrxType(trxType);
 	}
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
