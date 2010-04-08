@@ -1,17 +1,22 @@
 package com.stocks;
 
+import java.io.LineNumberReader;
+import java.io.StringReader;
+
 import javax.faces.event.ActionEvent;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 
 import com.stocks.model.Alert;
 import com.stocks.model.NyseAlert;
+import com.stocks.model.Report;
 import com.stocks.service.StockService;
 
 public class AlertSearchBean {
     private String trxType;
     private String stockExchange;
-
+    private String graphHtmlContent;
+    
     private AlertBean alertBean;
     private DataModel dmBseAlerts;
     private DataModel dmNyseAlerts;
@@ -26,6 +31,7 @@ public class AlertSearchBean {
     public void clear(ActionEvent ae){
     	this.setTrxType(null);
     	this.setStockExchange(null);
+    	this.setGraphHtmlContent(null);
     	this.setDmBseAlerts(null);
     	this.setDmNyseAlerts(null);
     }
@@ -44,6 +50,14 @@ public class AlertSearchBean {
 
 	public void setStockExchange(String stockExchange) {
 		this.stockExchange = stockExchange;
+	}
+
+	public String getGraphHtmlContent() {
+		return graphHtmlContent;
+	}
+
+	public void setGraphHtmlContent(String graphHtmlContent) {
+		this.graphHtmlContent = graphHtmlContent;
 	}
 
 	public AlertBean getAlertBean() {
@@ -118,27 +132,47 @@ public class AlertSearchBean {
 		ab.setIsActive(alert.getIsActive());
 		ab.setAlertFor("NYSE");
 	}
+
+	public void viewGraph(ActionEvent ae){
+		Alert alert = (Alert) getDmBseAlerts().getRowData();
+		final String stockCode = alert.getBseIciciMapping().getStockCode() +",";
+		try {
+			Report report = getStockService().getReport(Report.ReportName.BseAlertReportCommand.toString());
+			LineNumberReader reader = new LineNumberReader( new StringReader(report.getContent()) );
+			String line = null;
+			StringBuffer sb = new StringBuffer( "<pre>" );
+			while( (line = reader.readLine()) != null ){
+				if( line.contains( stockCode ) ){
+					sb.append( line +"\n"+ reader.readLine()+"\n" );
+					break;
+				}
+			}
+			sb.append("</pre>");
+			setGraphHtmlContent( sb.toString() );
+		} catch (Exception e) {
+			setGraphHtmlContent( e.getMessage() );
+		}
+	}
 	
-//	public void deactivateBseAlert(ActionEvent ae){
-//		Alert alert = (Alert) getDmBseAlerts().getRowData();
-//		alert.setIsActive("N");
-//		try {
-//			getStockService().saveAlert(alert);
-//			loadAllAlerts(null);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
-//
-//	public void deactivateNyseAlert(ActionEvent ae){
-//		NyseAlert nyseAlert = (NyseAlert) getDmNyseAlerts().getRowData();
-//		nyseAlert.setIsActive("N");
-//		try {
-//			getStockService().saveNyseAlert(nyseAlert);
-//			loadAllAlerts(null);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	public void viewNyseGraph(ActionEvent ae){
+		NyseAlert nyseAlert = (NyseAlert) getDmNyseAlerts().getRowData();
+		final String symbol = nyseAlert.getSymbol() +",";
+		try {
+			Report report = getStockService().getReport(Report.ReportName.NyseAlertReportCommand.toString());
+			LineNumberReader reader = new LineNumberReader( new StringReader(report.getContent()) );
+			String line = null;
+			StringBuffer sb = new StringBuffer( "<pre>" );
+			while( (line = reader.readLine()) != null ){
+				if( line.contains( symbol ) ){
+					sb.append( line +"\n"+ reader.readLine()+"\n" );
+					break;
+				}
+			}
+			sb.append("</pre>");
+			setGraphHtmlContent( sb.toString() );
+		} catch (Exception e) {
+			setGraphHtmlContent( e.getMessage() );
+		}
+	}
 
 }

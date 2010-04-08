@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Table(name = "alert")
 @NamedQueries({
 	@NamedQuery(name = "allAlerts", query = "select a from Alert a where a.isActive='Y' order by a.bseIciciMapping.stockCode"),
-	@NamedQuery(name = "alertsByTrxType", query = "select a from Alert a where a.isActive='Y' and a.trxType=:trxType order by a.bseIciciMapping.stockCode")
+	@NamedQuery(name = "alertsByTrxType", query = "select a from Alert a where a.isActive='Y' and a.trxType=:trxType order by a.bseIciciMapping.stockCode, a.eventDate")
 })
 public class Alert implements Serializable{
     private final static long serialVersionUID = 2l;
@@ -176,7 +176,7 @@ public class Alert implements Serializable{
         	getOpportunityType() +", "+
         	getEventPrice() +", "+
         	getTargetPrice() +", "+
-        	getSltp() +", "+
+        	(getSltp() == null ? "" : getSltp()+"(SL), ") +
         	getEventType();
     }
 

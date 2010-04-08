@@ -13,12 +13,11 @@
 	</ui:define>
 	
 	<ui:define name="heading">
-		<h:outputText value="Alert Listing" />
+		<h:outputText value="Alert Search" />
 	</ui:define>
 
 	<ui:define name="body">
 		<h:form id="form">
-			<h:outputText value="Search" />
 			<h:panelGrid id="searchGrid" columns="5">
 				<h:outputText value="Stock Exchange" />
 				<h:selectOneListbox value="#{alertSearchBean.stockExchange}" required="true">
@@ -36,6 +35,9 @@
 				<h:commandButton value="Go" actionListener="#{alertSearchBean.search}" />
 			</h:panelGrid>
 			<hr />
+			
+			<h:outputText value="#{alertSearchBean.graphHtmlContent}" escape="false" />
+			
 			<h:panelGroup rendered="#{alertSearchBean.stockExchange == 'BSE'}">
 				<h:outputText value="Bse Alerts" />
 				<h:dataTable value="#{alertSearchBean.dmBseAlerts}" var="alert" border="1">
@@ -92,6 +94,12 @@
 							<h:outputText value="Edit" />
 						</f:facet>
 						<h:commandLink value="Edit" actionListener="#{alertSearchBean.editAlert}" action="alert" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Graph" />
+						</f:facet>
+						<h:commandLink value="Graph" actionListener="#{alertSearchBean.viewGraph}" />
 					</h:column>
 				</h:dataTable>
 			</h:panelGroup>
@@ -152,6 +160,12 @@
 							<h:outputText value="Edit" />
 						</f:facet>
 						<h:commandLink value="Edit" actionListener="#{alertSearchBean.editNyseAlert}" action="alert" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Graph" />
+						</f:facet>
+						<h:commandLink value="Graph" actionListener="#{alertSearchBean.viewNyseGraph}" />
 					</h:column>
 				</h:dataTable>
 			</h:panelGroup>

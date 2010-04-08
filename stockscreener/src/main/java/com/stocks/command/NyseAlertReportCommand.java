@@ -60,6 +60,10 @@ public class NyseAlertReportCommand extends AbstractCommand {
 			}
 			
 			StringBuffer sbChm = new StringBuffer();
+			StringBuffer sbChmSltp = new StringBuffer();
+			Double min = Collections.min(cClose);
+			Double max = Collections.max(cClose);
+			Double diff = max - min;
 			for( final NyseAlert nyseAlert : nyseAlerts ){
 				Nyse nyse = new Nyse();
 				NysePK nysePK = new NysePK();
@@ -82,6 +86,22 @@ public class NyseAlertReportCommand extends AbstractCommand {
 						nyse.getNysePK().setTradeDate( tradeDate );
 					}
 				}
+				
+				if( nyseAlert.getSltp() != null ){
+					/*
+					Steps for getting sltp value between zero and 1.
+					1	Find Min		57.9
+					2	Find Max		79.27
+					3	Pull Max - Min		21.37
+					4	Take a SLTP		75.32
+					5	Pull SLTP - Min		17.42
+					6	Divide 5) by 3)		0.815161441
+					*/
+					Double sltpLine = (nyseAlert.getSltp() - min) / diff;
+					String chmHLine = GOOGLE_CHART_CHM_SLTP;
+					chmHLine = chmHLine.replace("~VAL_BETWEEN_ZERO_AND_ONE", sltpLine.toString());
+					sbChmSltp.append( chmHLine );
+				}
 			}
 
 			sb.append( String.format("%s%n", nyseAlerts.get(0)) );
@@ -100,6 +120,9 @@ public class NyseAlertReportCommand extends AbstractCommand {
 			// sbChm can be blank if insufficient data is available for the stock.
 			if( sbChm.length() > 0 ){
 				url += sbChm.substring(0, sbChm.length()-1);
+			}
+			if( sbChmSltp.length() > 0 ){
+				url += sbChmSltp.toString();
 			}
 
 			sb.append( "<a href=\"http://www.google.com/finance?q=" +STOCK_EXCHANGE+ ":" +nyseAlerts.get(0).getSymbol()+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>\n" );
