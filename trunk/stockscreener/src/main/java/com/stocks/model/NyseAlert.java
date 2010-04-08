@@ -20,7 +20,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Table(name = "nyse_alert")
 @NamedQueries({
 	@NamedQuery(name = "allNyseAlerts", query = "select a from NyseAlert a where a.isActive='Y' order by a.symbol"),
-	@NamedQuery(name = "allNyseAlertsByTrxType", query = "select a from NyseAlert a where a.isActive='Y' and a.trxType=:trxType order by a.symbol")
+	@NamedQuery(name = "allNyseAlertsByTrxType", query = "select a from NyseAlert a where a.isActive='Y' and a.trxType=:trxType order by a.symbol, a.eventDate")
 })
 public class NyseAlert implements Serializable{
     private final static long serialVersionUID = 2l;
@@ -172,7 +172,7 @@ public class NyseAlert implements Serializable{
         	getOpportunityType() +", "+
         	getEventPrice() +", "+
         	getTargetPrice() +", "+
-        	getSltp() +", "+
+        	(getSltp() == null ? "" : getSltp()+"(SL), ") +
         	getEventType();
     }
 
