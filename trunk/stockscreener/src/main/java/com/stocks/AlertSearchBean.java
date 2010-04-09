@@ -10,6 +10,7 @@ import javax.faces.model.ListDataModel;
 import com.stocks.model.Alert;
 import com.stocks.model.NyseAlert;
 import com.stocks.model.Report;
+import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
 import com.stocks.service.StockService;
 
@@ -19,7 +20,7 @@ public class AlertSearchBean {
     private String graphHtmlContent;
     
     private AlertBean alertBean;
-    private DataModel dmBseAlerts;
+    private DataModel dmBseAlertResults;
     private DataModel dmNyseAlertResults;
 
     // Services
@@ -33,7 +34,7 @@ public class AlertSearchBean {
     	this.setTrxType(null);
     	this.setStockExchange(null);
     	this.setGraphHtmlContent(null);
-    	this.setDmBseAlerts(null);
+    	this.setDmBseAlertResults(null);
     	this.setDmNyseAlertResults(null);
     }
     
@@ -69,12 +70,12 @@ public class AlertSearchBean {
 		this.alertBean = alertBean;
 	}
 
-	public DataModel getDmBseAlerts() {
-		return dmBseAlerts;
+	public DataModel getDmBseAlertResults() {
+		return dmBseAlertResults;
 	}
 
-	public void setDmBseAlerts(DataModel dmBseAlerts) {
-		this.dmBseAlerts = dmBseAlerts;
+	public void setDmBseAlertResults(DataModel dmBseAlertResults) {
+		this.dmBseAlertResults = dmBseAlertResults;
 	}
 
 	public DataModel getDmNyseAlertResults() {
@@ -94,7 +95,7 @@ public class AlertSearchBean {
 	
 	public void search(ActionEvent ae){
 		if( getStockExchange().equals("BSE") ){
-			this.setDmBseAlerts( new ListDataModel( getStockService().getAllBseAlertsByTrxType( getTrxType()) ) );
+			this.setDmBseAlertResults( new ListDataModel( getStockService().getAllAlertResultsByTrxType( getTrxType()) ) );
 		}else if( getStockExchange().equals("NYSE") ){
 			this.setDmNyseAlertResults( new ListDataModel(getStockService().getAllNyseAlertResultsByTrxType( getTrxType()) ) );
 		}
@@ -102,7 +103,7 @@ public class AlertSearchBean {
 	
 	public void editAlert(ActionEvent ae){
 		AlertBean ab = this.getAlertBean();
-		Alert alert = (Alert) getDmBseAlerts().getRowData();
+		Alert alert = ((AlertResult) getDmBseAlertResults().getRowData()).getAlert();
 		ab.setAlertId(alert.getAlertId());
 		ab.setStockCode(alert.getBseIciciMapping().getStockCode());
 		ab.setTrxType(alert.getTrxType());
@@ -135,7 +136,7 @@ public class AlertSearchBean {
 	}
 
 	public void viewGraph(ActionEvent ae){
-		Alert alert = (Alert) getDmBseAlerts().getRowData();
+		Alert alert = ((AlertResult) getDmBseAlertResults().getRowData()).getAlert();
 		final String stockCode = alert.getBseIciciMapping().getStockCode() +",";
 		try {
 			Report report = getStockService().getReport(Report.ReportName.BseAlertReportCommand.toString());

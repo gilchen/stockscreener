@@ -32,7 +32,6 @@ public class NyseAlertResult implements Serializable {
 	}
 	
 	public Double getPercentChange(){
-		//alertResult.nyse.close - alertResult.nyseAlert.eventPrice / (alertResult.nyseAlert.eventPrice * 100)
 		double diff = nyse.getClose() - nyseAlert.getEventPrice();
 		double percentChange = (diff / nyseAlert.getEventPrice()) * 100;
 		BigDecimal bd = new BigDecimal( percentChange );

@@ -181,10 +181,12 @@ public class AlertBean {
 		try {
 			if( getAlertFor().equals("BSE") ){
 				getStockService().saveAlert(alert);
-				FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Alert Saved", "Alert Saved"));
+				final String msg = "Alert Saved for " +getStockCode();
+				FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, msg, msg));
 			}else if( getAlertFor().equals("NYSE") ){
 				getStockService().saveNyseAlert(nyseAlert);
-				FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Nyse Alert Saved", "Nyse Alert Saved"));
+				final String msg = "Nyse Alert Saved for " +getStockCode();
+				FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, msg, msg));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
