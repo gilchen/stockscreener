@@ -2,11 +2,10 @@ package com.stocks.dao.impl;
 
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import com.stocks.dao.AbstractDao;
 import com.stocks.dao.AlertDao;
 import com.stocks.model.Alert;
+import com.stocks.search.AlertResult;
 
 public class AlertDaoImpl extends AbstractDao implements AlertDao {
 	public void delete(Alert alert) {
@@ -17,8 +16,8 @@ public class AlertDaoImpl extends AbstractDao implements AlertDao {
 		return entityManager.createNamedQuery("allAlerts").getResultList();
 	}
 	
-	public List<Alert> findAlertsByTrxType(final String trxType){
-		return entityManager.createNamedQuery("alertsByTrxType").setParameter("trxType", trxType).getResultList();
+	public List<AlertResult> findAlertResultsByTrxType(String trxType) {
+		return entityManager.createNamedQuery("allAlertResultsByTrxType").setParameter("trxType", trxType).getResultList();
 	}
 
 	public Alert read(Long id) {

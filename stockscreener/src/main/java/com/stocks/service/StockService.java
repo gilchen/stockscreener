@@ -10,16 +10,16 @@ import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
 import com.stocks.model.NyseAlert;
 import com.stocks.model.Report;
+import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
 
 public interface StockService {
 	void saveAlert(Alert alert) throws Exception;
 	List<Alert> getAllBseAlerts();
-	List<Alert> getAllBseAlertsByTrxType(final String trxType);
+	List<AlertResult> getAllAlertResultsByTrxType(final String trxType);
 
 	void saveNyseAlert(NyseAlert nyseAlert) throws Exception;
 	List<NyseAlert> getAllNyseAlerts();
-	List<NyseAlert> getAllNyseAlertsByTrxType(final String trxType);
 	List<NyseAlertResult> getAllNyseAlertResultsByTrxType(final String trxType);
 
 	public List<Bse> findStockByScCodeAndTradeDate(final Integer scCode, final Date tradeDate);
