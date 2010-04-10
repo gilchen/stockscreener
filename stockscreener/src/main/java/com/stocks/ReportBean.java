@@ -2,30 +2,60 @@ package com.stocks;
 
 import java.io.LineNumberReader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
 
-import org.apache.commons.chain.Chain;
+import org.apache.commons.chain.Command;
 import org.apache.commons.chain.impl.ContextBase;
 
+import com.stocks.command.AbstractCommand;
+import com.stocks.command.ChainBase;
 import com.stocks.model.Report;
 import com.stocks.service.StockService;
 
 public class ReportBean{    
 	private StockService stockService;
 	private String content;
-    private Chain reportChain;
+    private ChainBase reportChain;
+    private List<String> commandsToExecute;
     private String filterBseEventType;
     private String filterNyseEventType;
 
-	public Chain getReportChain() {
+	public ChainBase getReportChain() {
 		return reportChain;
 	}
 
-	public void setReportChain(Chain reportChain) {
+	public void setReportChain(ChainBase reportChain) {
 		this.reportChain = reportChain;
+	}
+	
+	public List<SelectItem> getCommands(){
+		final List<SelectItem> list = new ArrayList<SelectItem>();
+		Command[] commands = getReportChain().getCommands();
+		for(final Command command : commands){
+			list.add( new SelectItem( command.toString(), command.toString() ) );
+		}
+		return list;
+	}
+
+	public void setCommands(List<SelectItem> list){
+		// do nothing
+	}
+	
+	public List<String> getCommandsToExecute() {
+		return commandsToExecute;
+	}
+
+	public void setCommandsToExecute(List<String> commandsToExecute) {
+		this.commandsToExecute = commandsToExecute;
 	}
 
 	public StockService getStockService() {
@@ -65,8 +95,10 @@ public class ReportBean{
 	}
 
 	public void executeReportChain(ActionEvent ae){
+		Map<String, Collection<String>> commandsMap = new HashMap<String, Collection<String>>();
+		commandsMap.put(AbstractCommand.COMMANDS_TO_EXECUTE, this.getCommandsToExecute());
 		try{
-			reportChain.execute(new ContextBase());
+			reportChain.execute(new ContextBase( commandsMap ));
 			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Reports generated successfully.", "Reports generated successfully."));
 		}
 		catch(Exception e){

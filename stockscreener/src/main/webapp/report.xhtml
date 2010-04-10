@@ -21,6 +21,9 @@
 		<h:form id="form">
 			<h:messages id="messages" errorClass="error" infoClass="success" />
 			<h:commandLink value="Generate Report Command" actionListener="#{reportBean.executeReportChain}" />
+			<h:selectManyListbox value="#{reportBean.commandsToExecute}">
+				<f:selectItems value="#{reportBean.commands}" />
+			</h:selectManyListbox>
 			<br />
 			<ol>
 				<li>
