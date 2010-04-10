@@ -3,6 +3,7 @@ package com.stocks.command;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -18,8 +19,11 @@ public class NyseReportCommand extends AbstractCommand {
 	private static final int MAX_TRADING_SESSIONS_EXPECTED = 4; //Integer.MAX_VALUE;
 
 	public boolean execute(Context context) throws Exception {
-		System.out.println( "Executing NyseReportCommand..." );
-		processNyse();
+		Collection<String> commandNames = (Collection<String>)context.get(COMMANDS_TO_EXECUTE);
+		if( commandNames.contains(this.getClass().getName()) ){
+			System.out.println( "Executing NyseReportCommand..." );
+			processNyse();
+		}
 		return Command.CONTINUE_PROCESSING;
 	}
 
@@ -123,6 +127,11 @@ public class NyseReportCommand extends AbstractCommand {
 			url = url.replace("~MAX", Collections.max(cCloseList).toString());
 			sb.append( "<a href=\"http://www.google.com/finance?q=" +stockExchange+ ":" +scCode+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>\n" );
 		}
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getName();
 	}
 
 }

@@ -38,6 +38,8 @@ public class SchedulePercentCompleteReporterTimerTaskCommand implements Command 
 		this.percentCompleteReporter = percentCompleteReporter;
 	}
 	
-	
-
+	@Override
+	public String toString() {
+		return this.getClass().getName();
+	}
 }

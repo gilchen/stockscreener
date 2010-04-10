@@ -107,7 +107,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 	<bean id="nyseNPercentCorrectionInMMonthsReportCommand" class="com.stocks.command.NyseNPercentCorrectionInMMonthsReportCommand" parent="abstractCommand" />
 
 
-	<bean id="reportChain" class="org.apache.commons.chain.impl.ChainBase">
+	<bean id="reportChain" class="com.stocks.command.ChainBase">
 		<constructor-arg type="java.util.Collection">
 			<list value-type="org.apache.commons.chain.Command">
 				<bean class="com.stocks.command.SchedulePercentCompleteReporterTimerTaskCommand">

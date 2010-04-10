@@ -3,6 +3,7 @@ package com.stocks.command;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,8 +21,11 @@ import com.stocks.model.Report;
 public class NyseAlertReportCommand extends AbstractCommand {
 
 	public boolean execute(Context context) throws Exception {
-		System.out.println( "Executing NyseAlertReportCommand..." );
-		processNyseAlerts();
+		Collection<String> commandNames = (Collection<String>)context.get(COMMANDS_TO_EXECUTE);
+		if( commandNames.contains(this.getClass().getName()) ){
+			System.out.println( "Executing NyseAlertReportCommand..." );
+			processNyseAlerts();
+		}
 		return Command.CONTINUE_PROCESSING;
 	}
 
@@ -140,4 +144,9 @@ public class NyseAlertReportCommand extends AbstractCommand {
 		final Report report = new Report( Report.ReportName.NyseAlertReportCommand.toString(), sb.toString());
 		getStockService().saveReport(report);
 	}
+	@Override
+	public String toString() {
+		return this.getClass().getName();
+	}
+
 }
