@@ -94,6 +94,8 @@ public class AlertSearchBean {
 	}
 	
 	public void search(ActionEvent ae){
+		this.setGraphHtmlContent(null);
+		
 		if( getStockExchange().equals("BSE") ){
 			this.setDmBseAlertResults( new ListDataModel( getStockService().getAllAlertResultsByTrxType( getTrxType()) ) );
 		}else if( getStockExchange().equals("NYSE") ){

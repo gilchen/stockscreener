@@ -22,7 +22,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Entity
 @Table(name = "alert")
 @NamedQueries({
-	@NamedQuery(name = "allAlerts", query = "select a from Alert a where a.isActive='Y' order by a.bseIciciMapping.stockCode"),
+	@NamedQuery(name = "allAlerts", query = "select a from Alert a order by a.bseIciciMapping.stockCode"),
 	@NamedQuery(name = "allAlertResultsByTrxType", query = "select new com.stocks.search.AlertResult(a, b) from Alert a, Bse b where a.bseIciciMapping.scCode=b.bsePK.scCode and b.bsePK.tradeDate=(select max(c.bsePK.tradeDate) from Bse c) and a.isActive='Y' and a.trxType=:trxType order by a.bseIciciMapping.scCode, a.eventDate")
 })
 public class Alert implements Serializable{
