@@ -19,7 +19,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Entity
 @Table(name = "nyse_alert")
 @NamedQueries({
-	@NamedQuery(name = "allNyseAlerts", query = "select a from NyseAlert a where a.isActive='Y' order by a.symbol"),
+	@NamedQuery(name = "allNyseAlerts", query = "select a from NyseAlert a order by a.symbol"),
 	@NamedQuery(name = "allNyseAlertResultsByTrxType", query = "select new com.stocks.search.NyseAlertResult(a, b) from NyseAlert a, Nyse b where a.symbol=b.nysePK.symbol and b.nysePK.tradeDate=(select max(c.nysePK.tradeDate) from Nyse c) and a.isActive='Y' and a.trxType=:trxType order by a.symbol, a.eventDate")
 })
 public class NyseAlert implements Serializable{

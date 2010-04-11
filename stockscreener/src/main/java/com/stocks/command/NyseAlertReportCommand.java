@@ -92,7 +92,7 @@ public class NyseAlertReportCommand extends AbstractCommand {
 					}
 				}
 				
-				if( nyseAlert.getSltp() != null ){
+				if( nyseAlert.getSltp() != null && nyseAlert.getIsActive().equals("Y") ){
 					/*
 					Steps for getting sltp value between zero and 1.
 					1	Find Min		57.9

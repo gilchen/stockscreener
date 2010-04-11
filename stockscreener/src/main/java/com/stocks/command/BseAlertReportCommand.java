@@ -87,7 +87,7 @@ public class BseAlertReportCommand extends AbstractCommand {
 					}
 				}
 
-				if( alert.getSltp() != null ){
+				if( alert.getSltp() != null && alert.getIsActive().equals("Y") ){
 					/*
 					Steps for getting sltp value between zero and 1.
 					1	Find Min		57.9
