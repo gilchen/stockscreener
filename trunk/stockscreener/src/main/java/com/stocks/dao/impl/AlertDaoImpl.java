@@ -16,8 +16,8 @@ public class AlertDaoImpl extends AbstractDao implements AlertDao {
 		return entityManager.createNamedQuery("allAlerts").getResultList();
 	}
 	
-	public List<AlertResult> findAlertResultsByTrxType(String trxType) {
-		return entityManager.createNamedQuery("allAlertResultsByTrxType").setParameter("trxType", trxType).getResultList();
+	public List<AlertResult> findAlertResultsByTrxType(String trxType, String isActive) {
+		return entityManager.createNamedQuery("allAlertResultsByTrxType").setParameter("trxType", trxType).setParameter("isActive", isActive).getResultList();
 	}
 
 	public Alert read(Long id) {

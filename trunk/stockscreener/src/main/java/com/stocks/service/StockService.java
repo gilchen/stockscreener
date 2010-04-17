@@ -16,11 +16,11 @@ import com.stocks.search.NyseAlertResult;
 public interface StockService {
 	void saveAlert(Alert alert) throws Exception;
 	List<Alert> getAllBseAlerts();
-	List<AlertResult> getAllAlertResultsByTrxType(final String trxType);
+	List<AlertResult> getAllAlertResultsByTrxType(final String trxType, final String isActive);
 
 	void saveNyseAlert(NyseAlert nyseAlert) throws Exception;
 	List<NyseAlert> getAllNyseAlerts();
-	List<NyseAlertResult> getAllNyseAlertResultsByTrxType(final String trxType);
+	List<NyseAlertResult> getAllNyseAlertResultsByTrxType(final String trxType, final String isActive);
 
 	public List<Bse> findStockByScCodeAndTradeDate(final Integer scCode, final Date tradeDate);
 	public List<Bse> findStockByScCode(final Integer scCode);
