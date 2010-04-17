@@ -110,8 +110,8 @@ public class StockServiceImpl implements StockService {
 		return getAlertDao().findAll();
 	}
 	
-	public List<AlertResult> getAllAlertResultsByTrxType(final String trxType){
-		return getAlertDao().findAlertResultsByTrxType(trxType);
+	public List<AlertResult> getAllAlertResultsByTrxType(final String trxType, final String isActive){
+		return getAlertDao().findAlertResultsByTrxType(trxType, isActive);
 	}
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -123,8 +123,8 @@ public class StockServiceImpl implements StockService {
 		return getNyseAlertDao().findAll();
 	}
 	
-	public List<NyseAlertResult> getAllNyseAlertResultsByTrxType(String trxType) {
-		return getNyseAlertDao().findAlertResultsByTrxType(trxType);
+	public List<NyseAlertResult> getAllNyseAlertResultsByTrxType(final String trxType, final String isActive) {
+		return getNyseAlertDao().findAlertResultsByTrxType(trxType, isActive);
 	}
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)

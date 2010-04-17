@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Table(name = "alert")
 @NamedQueries({
 	@NamedQuery(name = "allAlerts", query = "select a from Alert a order by a.bseIciciMapping.stockCode"),
-	@NamedQuery(name = "allAlertResultsByTrxType", query = "select new com.stocks.search.AlertResult(a, b) from Alert a, Bse b where a.bseIciciMapping.scCode=b.bsePK.scCode and b.bsePK.tradeDate=(select max(c.bsePK.tradeDate) from Bse c) and a.isActive='Y' and a.trxType=:trxType order by a.bseIciciMapping.scCode, a.eventDate")
+	@NamedQuery(name = "allAlertResultsByTrxType", query = "select new com.stocks.search.AlertResult(a, b) from Alert a, Bse b where a.bseIciciMapping.scCode=b.bsePK.scCode and b.bsePK.tradeDate=(select max(c.bsePK.tradeDate) from Bse c) and ((a.isActive in ('Y', 'N') and :isActive=null) or a.isActive=:isActive) and a.trxType=:trxType order by a.bseIciciMapping.scCode, a.eventDate")
 })
 public class Alert implements Serializable{
     private final static long serialVersionUID = 2l;

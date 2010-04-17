@@ -17,6 +17,7 @@ import com.stocks.service.StockService;
 public class AlertSearchBean {
     private String trxType;
     private String stockExchange;
+    private String isActive;
     private String graphHtmlContent;
     
     private AlertBean alertBean;
@@ -33,6 +34,7 @@ public class AlertSearchBean {
     public void clear(ActionEvent ae){
     	this.setTrxType(null);
     	this.setStockExchange(null);
+    	this.setIsActive("");
     	this.setGraphHtmlContent(null);
     	this.setDmBseAlertResults(null);
     	this.setDmNyseAlertResults(null);
@@ -52,6 +54,14 @@ public class AlertSearchBean {
 
 	public void setStockExchange(String stockExchange) {
 		this.stockExchange = stockExchange;
+	}
+
+	public String getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(String isActive) {
+		this.isActive = isActive;
 	}
 
 	public String getGraphHtmlContent() {
@@ -97,9 +107,9 @@ public class AlertSearchBean {
 		this.setGraphHtmlContent(null);
 		
 		if( getStockExchange().equals("BSE") ){
-			this.setDmBseAlertResults( new ListDataModel( getStockService().getAllAlertResultsByTrxType( getTrxType()) ) );
+			this.setDmBseAlertResults( new ListDataModel( getStockService().getAllAlertResultsByTrxType( getTrxType(), getIsActive()) ) );
 		}else if( getStockExchange().equals("NYSE") ){
-			this.setDmNyseAlertResults( new ListDataModel(getStockService().getAllNyseAlertResultsByTrxType( getTrxType()) ) );
+			this.setDmNyseAlertResults( new ListDataModel(getStockService().getAllNyseAlertResultsByTrxType( getTrxType(), getIsActive() ) ) );
 		}
 	}
 	

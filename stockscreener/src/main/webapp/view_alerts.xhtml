@@ -18,19 +18,26 @@
 
 	<ui:define name="body">
 		<h:form id="form">
-			<h:panelGrid id="searchGrid" columns="5">
+			<h:panelGrid id="searchGrid" columns="4">
 				<h:outputText value="Stock Exchange" />
+				<h:outputText value="Trx Type" />
+				<h:outputText value="Active/Inactive" />
+				<h:outputText value="" />
+
 				<h:selectOneListbox value="#{alertSearchBean.stockExchange}" required="true">
 					<f:selectItem itemLabel="BSE" itemValue="BSE" />
 					<f:selectItem itemLabel="NYSE" itemValue="NYSE" />
 				</h:selectOneListbox>
-
-				<h:outputText value="Trx Type" />
 				<h:selectOneListbox value="#{alertSearchBean.trxType}" required="true">
 					<f:selectItem itemLabel="Buy" itemValue="Buy" />
 					<f:selectItem itemLabel="Sell" itemValue="Sell" />
 					<f:selectItem itemLabel="Virtual Buy" itemValue="Virtual Buy" />
 					<f:selectItem itemLabel="Virtual Sell" itemValue="Virtual Sell" />
+				</h:selectOneListbox>
+				<h:selectOneListbox value="#{alertSearchBean.isActive}" required="false">
+					<f:selectItem itemLabel="All" itemValue="" />
+					<f:selectItem itemLabel="Active" itemValue="Y" />
+					<f:selectItem itemLabel="Inactive" itemValue="N" />
 				</h:selectOneListbox>
 				<h:commandButton value="Go" actionListener="#{alertSearchBean.search}" />
 			</h:panelGrid>
@@ -58,12 +65,12 @@
 						</f:facet>
 						<h:outputText value="#{alertResult.alert.eventDate}" />
 					</h:column>
-					<h:column>
+					<!-- h:column>
 						<f:facet name="header">
 							<h:outputText value="Opportunity Type" />
 						</f:facet>
 						<h:outputText value="#{alertResult.alert.opportunityType}" />
-					</h:column>
+					</h:column -->
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="Event Price" />
@@ -84,9 +91,21 @@
 					</h:column>
 					<h:column>
 						<f:facet name="header">
+							<h:outputText value="Qty" />
+						</f:facet>
+						<h:outputText value="#{alertResult.alert.qty}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
 							<h:outputText value="Event Type" />
 						</f:facet>
 						<h:outputText value="#{alertResult.alert.eventType}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Active" />
+						</f:facet>
+						<h:outputText value="#{alertResult.alert.isActive}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
@@ -140,12 +159,12 @@
 						</f:facet>
 						<h:outputText value="#{alertResult.nyseAlert.eventDate}" />
 					</h:column>
-					<h:column>
+					<!-- h:column>
 						<f:facet name="header">
 							<h:outputText value="Opportunity Type" />
 						</f:facet>
 						<h:outputText value="#{alertResult.nyseAlert.opportunityType}" />
-					</h:column>
+					</h:column -->
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="Event Price" />
@@ -166,9 +185,21 @@
 					</h:column>
 					<h:column>
 						<f:facet name="header">
+							<h:outputText value="Qty" />
+						</f:facet>
+						<h:outputText value="#{alertResult.nyseAlert.qty}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
 							<h:outputText value="Event Type" />
 						</f:facet>
 						<h:outputText value="#{alertResult.nyseAlert.eventType}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Active" />
+						</f:facet>
+						<h:outputText value="#{alertResult.nyseAlert.isActive}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
