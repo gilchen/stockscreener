@@ -46,7 +46,7 @@
 				</h:selectOneListbox>
 
 				<h:outputText value="Event Price" />
-				<h:inputText id="eventPrice" value="#{alertBean.eventPrice}" required="true">
+				<h:inputText id="eventPrice" value="#{alertBean.eventPrice}" required="true" onblur="this.form['form:sltp'].value=round(parseInt(this.value) - (parseInt(this.value) * .05));">
 					<f:convertNumber type="number" />
 				</h:inputText>
 
