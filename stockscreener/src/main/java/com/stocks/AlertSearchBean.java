@@ -2,12 +2,17 @@ package com.stocks;
 
 import java.io.LineNumberReader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 
 import com.stocks.model.Alert;
+import com.stocks.model.Nyse;
 import com.stocks.model.NyseAlert;
 import com.stocks.model.Report;
 import com.stocks.search.AlertResult;
@@ -23,6 +28,12 @@ public class AlertSearchBean {
     private AlertBean alertBean;
     private DataModel dmBseAlertResults;
     private DataModel dmNyseAlertResults;
+    
+    // Simulation Properties
+    private Date simulationBuyDate;
+    private Double simulationSltpPercent;
+    private Double simulationExpectedGainPercent;
+    private DataModel dmNyseSimulation;
 
     // Services
     private StockService stockService;
@@ -38,6 +49,9 @@ public class AlertSearchBean {
     	this.setGraphHtmlContent(null);
     	this.setDmBseAlertResults(null);
     	this.setDmNyseAlertResults(null);
+    	this.setSimulationBuyDate( new Date() );
+    	this.setSimulationSltpPercent( 0.04 );
+    	this.setSimulationExpectedGainPercent( 0.02 );
     }
     
     // Getter / Setters
@@ -94,6 +108,39 @@ public class AlertSearchBean {
 
 	public void setDmNyseAlertResults(DataModel dmNyseAlertResults) {
 		this.dmNyseAlertResults = dmNyseAlertResults;
+	}
+
+	public Date getSimulationBuyDate() {
+		return simulationBuyDate;
+	}
+
+	public void setSimulationBuyDate(Date simulationBuyDate) {
+		this.simulationBuyDate = simulationBuyDate;
+	}
+
+	public Double getSimulationSltpPercent() {
+		return simulationSltpPercent;
+	}
+
+	public void setSimulationSltpPercent(Double simulationSltpPercent) {
+		this.simulationSltpPercent = simulationSltpPercent;
+	}
+
+	public Double getSimulationExpectedGainPercent() {
+		return simulationExpectedGainPercent;
+	}
+
+	public void setSimulationExpectedGainPercent(
+			Double simulationExpectedGainPercent) {
+		this.simulationExpectedGainPercent = simulationExpectedGainPercent;
+	}
+
+	public DataModel getDmNyseSimulation() {
+		return dmNyseSimulation;
+	}
+
+	public void setDmNyseSimulation(DataModel dmNyseSimulation) {
+		this.dmNyseSimulation = dmNyseSimulation;
 	}
 
 	public StockService getStockService() {
@@ -187,6 +234,51 @@ public class AlertSearchBean {
 		} catch (Exception e) {
 			setGraphHtmlContent( e.getMessage() );
 		}
+	}
+	
+	/**
+	 * Scenario: Stock is bought at close price on the given date.
+	 */
+	public void simulateTransactions(ActionEvent ae){
+		List<NyseSimulation> nyseSimulationList = new ArrayList<NyseSimulation>();
+		
+		//final double SLTP_PERCENT = 4.0/100.00;
+		//final double EXPECTED_GAIN_PERCENT = 2.0/100.00;
+		
+		//Calendar calendar = Calendar.getInstance();
+		//calendar.set(Calendar.DATE, 20);
+		String djia[] = new String[]{"MMM", "AA", "AXP", "T", "BAC", "BA", "CAT", "CVX", "CSCO", "KO", "DD", "XOM", "GE", "HPQ", "HD", "INTC", "IBM", "JNJ", "JPM", "KFT", "MCD", "MRK", "MSFT", "PFE", "PG", "TRV", "UTX", "VZ", "WMT", "DIS"};
+		for( String symbol : djia ){
+			List<Nyse> nyseList = getStockService().findStockBySymbolAndTradeDate(symbol, getSimulationBuyDate());
+			if( nyseList == null || nyseList.isEmpty() ){
+				System.out.println( "No data found for " +symbol );
+				continue;
+			}
+			
+			Nyse nyseBuy = nyseList.get(0);
+			Nyse nyseStopLoss = null;
+			Nyse nyseTarget = null;
+			final double sltpPrice = nyseBuy.getClose() - (nyseBuy.getClose() * getSimulationSltpPercent());
+			final double expectedGainPrice = nyseBuy.getClose() + ( nyseBuy.getClose() * getSimulationExpectedGainPercent() );
+			for( int i=1; i<nyseList.size(); i++ ){
+				Nyse nyse = nyseList.get(i);
+				
+				if( (sltpPrice > nyse.getLow() && sltpPrice < nyse.getHigh()) || sltpPrice > nyse.getHigh() ){
+					// Stop Loss hit
+					nyseStopLoss = nyse;
+					break;
+				}
+				
+				if( expectedGainPrice > nyse.getLow() && expectedGainPrice < nyse.getHigh() ){
+					// Target achieved
+					nyseTarget = nyse;
+					break;
+				}
+			}
+			nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget));
+		}
+		
+		this.setDmNyseSimulation( new ListDataModel( nyseSimulationList ) );
 	}
 
 }
