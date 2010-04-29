@@ -6,11 +6,15 @@ public class NyseSimulation{
 	private Nyse nyseBuy;
 	private Nyse nyseStopLoss;
 	private Nyse nyseTarget;
+	private Double sltp;
+	private Double target;
 
-	public NyseSimulation(Nyse nyseBuy, Nyse nyseStopLoss, Nyse nyseTarget) {
+	public NyseSimulation(Nyse nyseBuy, Nyse nyseStopLoss, Nyse nyseTarget, Double sltp, Double target) {
 		this.nyseBuy = nyseBuy;
 		this.nyseStopLoss = nyseStopLoss;
 		this.nyseTarget = nyseTarget;
+		this.sltp = sltp;
+		this.target = target;
 	}
 	public Nyse getNyseBuy() {
 		return nyseBuy;
@@ -29,5 +33,17 @@ public class NyseSimulation{
 	}
 	public void setNyseTarget(Nyse nyseTarget) {
 		this.nyseTarget = nyseTarget;
-	}	
+	}
+	public Double getSltp() {
+		return sltp;
+	}
+	public void setSltp(Double sltp) {
+		this.sltp = sltp;
+	}
+	public Double getTarget() {
+		return target;
+	}
+	public void setTarget(Double target) {
+		this.target = target;
+	}
 }

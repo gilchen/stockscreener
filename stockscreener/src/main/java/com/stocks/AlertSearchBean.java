@@ -3,7 +3,6 @@ package com.stocks;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +17,7 @@ import com.stocks.model.Report;
 import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
 import com.stocks.service.StockService;
+import com.stocks.util.Utility;
 
 public class AlertSearchBean {
     private String trxType;
@@ -50,8 +50,8 @@ public class AlertSearchBean {
     	this.setDmBseAlertResults(null);
     	this.setDmNyseAlertResults(null);
     	this.setSimulationBuyDate( new Date() );
-    	this.setSimulationSltpPercent( 0.04 );
-    	this.setSimulationExpectedGainPercent( 0.02 );
+    	this.setSimulationSltpPercent( 4.0 );
+    	this.setSimulationExpectedGainPercent( 2.0 );
     }
     
     // Getter / Setters
@@ -241,12 +241,7 @@ public class AlertSearchBean {
 	 */
 	public void simulateTransactions(ActionEvent ae){
 		List<NyseSimulation> nyseSimulationList = new ArrayList<NyseSimulation>();
-		
-		//final double SLTP_PERCENT = 4.0/100.00;
-		//final double EXPECTED_GAIN_PERCENT = 2.0/100.00;
-		
-		//Calendar calendar = Calendar.getInstance();
-		//calendar.set(Calendar.DATE, 20);
+
 		String djia[] = new String[]{"MMM", "AA", "AXP", "T", "BAC", "BA", "CAT", "CVX", "CSCO", "KO", "DD", "XOM", "GE", "HPQ", "HD", "INTC", "IBM", "JNJ", "JPM", "KFT", "MCD", "MRK", "MSFT", "PFE", "PG", "TRV", "UTX", "VZ", "WMT", "DIS"};
 		for( String symbol : djia ){
 			List<Nyse> nyseList = getStockService().findStockBySymbolAndTradeDate(symbol, getSimulationBuyDate());
@@ -254,12 +249,12 @@ public class AlertSearchBean {
 				System.out.println( "No data found for " +symbol );
 				continue;
 			}
-			
+
 			Nyse nyseBuy = nyseList.get(0);
 			Nyse nyseStopLoss = null;
 			Nyse nyseTarget = null;
-			final double sltpPrice = nyseBuy.getClose() - (nyseBuy.getClose() * getSimulationSltpPercent());
-			final double expectedGainPrice = nyseBuy.getClose() + ( nyseBuy.getClose() * getSimulationExpectedGainPercent() );
+			final double sltpPrice = nyseBuy.getClose() - (nyseBuy.getClose() * (getSimulationSltpPercent()/100.0));
+			final double expectedGainPrice = nyseBuy.getClose() + ( nyseBuy.getClose() * (getSimulationExpectedGainPercent()/100.0) );
 			for( int i=1; i<nyseList.size(); i++ ){
 				Nyse nyse = nyseList.get(i);
 				
@@ -275,7 +270,7 @@ public class AlertSearchBean {
 					break;
 				}
 			}
-			nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget));
+			nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) )));
 		}
 		
 		this.setDmNyseSimulation( new ListDataModel( nyseSimulationList ) );
