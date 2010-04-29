@@ -21,16 +21,16 @@
 		<h:form>
 			<h:panelGrid columns="2">
 				<h:outputText value="Buy Date (MM/dd/yyyy)" />
-				<h:inputText value="#{alertSearchBean.simulationBuyDate}" required="true">
+				<h:inputText value="#{alertSearchBean.simulationBuyDate}" required="true" size="8">
 					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
 				</h:inputText>
 				<h:outputText value="Stop Loss %" />
-				<h:inputText value="#{alertSearchBean.simulationSltpPercent}" required="true">
+				<h:inputText value="#{alertSearchBean.simulationSltpPercent}" required="true" size="4">
 					<f:convertNumber type="number" />
 				</h:inputText>
 				
 				<h:outputText value="Expected Gain %" />
-				<h:inputText value="#{alertSearchBean.simulationExpectedGainPercent}" required="true">
+				<h:inputText value="#{alertSearchBean.simulationExpectedGainPercent}" required="true" size="4">
 					<f:convertNumber type="number" />
 				</h:inputText>
 
@@ -68,7 +68,8 @@
 				<f:facet name="header">
 					<h:outputText value="Stop Loss Low/High" />
 				</f:facet>
-				<h:outputText value="#{ns.nyseStopLoss.low}/#{ns.nyseStopLoss.high}" />
+				<h:outputText value="#{ns.nyseStopLoss.low} (#{ns.sltp}) #{ns.nyseStopLoss.high}" rendered="#{ns.nyseStopLoss != null}" styleClass="error" />
+				<h:outputText value="" rendered="#{ns.nyseStopLoss == null}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -80,7 +81,8 @@
 				<f:facet name="header">
 					<h:outputText value="Target Low/High" />
 				</f:facet>
-				<h:outputText value="#{ns.nyseTarget.low}/#{ns.nyseTarget.high}" />
+				<h:outputText value="#{ns.nyseTarget.low} (#{ns.target}) #{ns.nyseTarget.high}" rendered="#{ns.nyseTarget != null}" styleClass="success" />
+				<h:outputText value="" rendered="#{ns.nyseTarget == null}" />
 			</h:column>
 		</h:dataTable>
 	</ui:define>

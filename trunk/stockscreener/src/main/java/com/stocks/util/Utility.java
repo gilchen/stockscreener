@@ -2,6 +2,7 @@ package com.stocks.util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.URL;
 
 public class Utility {
@@ -18,4 +19,9 @@ public class Utility {
 		return content.toString();
 	}
 
+	public static Double round(Double d){
+		BigDecimal bd = new BigDecimal( d );
+		bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+		return bd.doubleValue();
+	}
 }
