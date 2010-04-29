@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+<head>
+<title>Simulate Transaction</title>
+</head>
+<body>
+<ui:composition template="/template.xhtml">
+	<ui:define name="navigation">
+		<ui:include src="navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="heading">
+		<h:outputText value="Simulate Transaction" />
+	</ui:define>
+
+	
+	<ui:define name="body">
+		<h:form>
+			<h:panelGrid columns="2">
+				<h:outputText value="Buy Date (MM/dd/yyyy)" />
+				<h:inputText value="#{alertSearchBean.simulationBuyDate}" required="true">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:inputText>
+				<h:outputText value="Stop Loss %" />
+				<h:inputText value="#{alertSearchBean.simulationSltpPercent}" required="true">
+					<f:convertNumber type="number" />
+				</h:inputText>
+				
+				<h:outputText value="Expected Gain %" />
+				<h:inputText value="#{alertSearchBean.simulationExpectedGainPercent}" required="true">
+					<f:convertNumber type="number" />
+				</h:inputText>
+
+				<h:outputText value="" />
+				<h:commandButton value="Submit" actionListener="#{alertSearchBean.simulateTransactions}" />
+			</h:panelGrid>
+		</h:form>
+		
+		<h:dataTable value="#{alertSearchBean.dmNyseSimulation}" var="ns" border="1">
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Bought On" />
+				</f:facet>
+				<h:outputText value="#{ns.nyseBuy.nysePK.tradeDate}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Stock Code" />
+				</f:facet>
+				<h:outputText value="#{ns.nyseBuy.nysePK.symbol}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Bought Price" />
+				</f:facet>
+				<h:outputText value="#{ns.nyseBuy.close}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Stop Loss Hit On" />
+				</f:facet>
+				<h:outputText value="#{ns.nyseStopLoss.nysePK.tradeDate}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Stop Loss Low/High" />
+				</f:facet>
+				<h:outputText value="#{ns.nyseStopLoss.low}/#{ns.nyseStopLoss.high}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Target Achieved On" />
+				</f:facet>
+				<h:outputText value="#{ns.nyseTarget.nysePK.tradeDate}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Target Low/High" />
+				</f:facet>
+				<h:outputText value="#{ns.nyseTarget.low}/#{ns.nyseTarget.high}" />
+			</h:column>
+		</h:dataTable>
+	</ui:define>
+</ui:composition>
+</body>
+</html>
