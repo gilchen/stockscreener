@@ -38,6 +38,10 @@
 				<h:commandButton value="Submit" actionListener="#{alertSearchBean.simulateTransactions}" />
 			</h:panelGrid>
 		</h:form>
+
+		<div id="yahooChartDiv" style="position:fixed;left:40%;">
+			<img id="yahooChart" border="1" onclick="this.style.visibility='hidden'" />
+		</div>
 		
 		<h:dataTable value="#{alertSearchBean.dmNyseSimulation}" var="ns" border="1">
 			<h:column>
@@ -50,7 +54,9 @@
 				<f:facet name="header">
 					<h:outputText value="Stock Code" />
 				</f:facet>
-				<h:outputText value="#{ns.nyseBuy.nysePK.symbol}" />
+				<h:outputLink value="http://www.google.com/finance?q=#{ns.nyseBuy.nysePK.symbol}" target="_new" onmouseover="javascript:showChart(document.getElementById('yahooChart'), '#{ns.nyseBuy.nysePK.symbol}')">
+					<h:outputText value="#{ns.nyseBuy.nysePK.symbol}" />
+				</h:outputLink>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
