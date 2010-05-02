@@ -4,8 +4,7 @@ function round(value){
 }
 
 function showChart(imgObj, symbol){
-	var yahooUrl = "http://chart.finance.yahoo.com/c/6m/c/" +symbol+ "?lang=en-US&region=US";
-	//alert( relativeObj + "\n" +yahooUrl );
-	imgObj.style.visibility='visible';
+	var yahooUrl = "http://ichart.finance.yahoo.com/z?s=" +symbol+ "&t=1y&q=l&l=on&z=l&p=s&a=v&p=s&lang=en-US&region=US";
+	imgObj.style.display="block";
 	imgObj.src = yahooUrl;
 }
