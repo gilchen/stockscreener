@@ -110,7 +110,7 @@
 				<f:facet name="header">
 					<h:outputText value="Loss (incl. Brokerage)" />
 				</f:facet>
-				<h:outputText value="-#{alertSearchBean.simulationLoss}" rendered="#{ns.nyseStopLoss != null}" styleClass="error" />
+				<h:outputText value="#{alertSearchBean.simulationLoss}" rendered="#{ns.nyseStopLoss != null}" styleClass="error" />
 				<h:outputText value="" rendered="#{ns.nyseStopLoss == null}" />
 			</h:column>
 		</h:dataTable>
