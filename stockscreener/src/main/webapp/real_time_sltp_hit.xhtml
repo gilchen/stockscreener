@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+<head>
+<title>RealTime Sltp Hit</title>
+</head>
+<body>
+<ui:composition template="/template.xhtml">
+	<ui:define name="navigation">
+		<ui:include src="navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="heading">
+		<h:outputText value="RealTime Sltp Hit" />
+	</ui:define>
+
+	<ui:define name="body">
+		<h:form>
+			<h:panelGrid columns="2">
+				<h:outputText value="Stocks" />
+				<h:inputText value="#{realTimeSltpHitBean.symbols}" required="true" size="40" />
+
+				<h:outputText value="Last Market Close Date (MM/dd/yyyy)" />
+				<h:inputText value="#{realTimeSltpHitBean.lastMarketCloseDate}" required="true" size="8">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:inputText>
+
+				<h:outputText value="" />
+				<h:commandButton value="Submit" actionListener="#{realTimeSltpHitBean.getSltpHitStocks}" />
+			</h:panelGrid>
+		</h:form>
+
+		<div id="yahooChartDiv" style="position:fixed;left:22%;top:15%">
+			<img id="yahooChart" border="1" onclick="this.style.display='none'" />
+		</div>
+
+		<h:dataTable value="#{realTimeSltpHitBean.dmNyse}" var="nyse" border="1">
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Stock Code" />
+				</f:facet>
+				<h:outputLink value="http://www.google.com/finance?q=#{nyse.nysePK.symbol}" target="_new" onmouseover="javascript:showChart(document.getElementById('yahooChart'), '#{nyse.nysePK.symbol}')">
+					<h:outputText value="#{nyse.nysePK.symbol}" />
+				</h:outputLink>
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Close" />
+				</f:facet>
+				<h:outputText value="#{nyse.close}" />
+			</h:column>
+		</h:dataTable>
+	</ui:define>
+</ui:composition>
+</body>
+</html>
