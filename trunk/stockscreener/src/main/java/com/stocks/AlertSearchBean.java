@@ -294,7 +294,7 @@ public class AlertSearchBean {
 					nyseBuy = nyseList.get(i);
 					sltpPrice = nyseBuy.getClose() - (nyseBuy.getClose() * (getSimulationSltpPercent()/100.0));
 					expectedGainPrice = nyseBuy.getClose() + ( nyseBuy.getClose() * (getSimulationExpectedGainPercent()/100.0) );
-				}else if( expectedGainPrice > nyse.getLow() && expectedGainPrice < nyse.getHigh() ){
+				}else if( (expectedGainPrice > nyse.getLow() && expectedGainPrice < nyse.getHigh()) || expectedGainPrice < nyse.getLow() ){
 					// Target achieved
 					nyseTarget = nyse;
 					nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) )));
