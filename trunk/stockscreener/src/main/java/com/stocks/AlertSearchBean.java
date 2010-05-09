@@ -38,6 +38,18 @@ public class AlertSearchBean {
     private Double simulationExpectedGainPercent;
     private Double investmentAmount;
     private DataModel dmNyseSimulation;
+    
+    /* Doodh-Chhachh Pattern
+     * Rules to follow in trading
+     * ==========================
+     * Rule 1:
+     *	If a Stop Loss is hit Then
+     *		Do not enter that Stock until it achieves one target
+     *
+     *	Reenter when a Stop Loss is hit after one target achieved.
+    */
+    private int totalSltpHit;
+    private int totalTargetHit;
 
     // Services
     private StockService stockService;
@@ -58,6 +70,8 @@ public class AlertSearchBean {
     	this.setSimulationSltpPercent( 4.0 );
     	this.setSimulationExpectedGainPercent( 2.0 );
     	this.setInvestmentAmount(1000.00);
+    	this.setTotalSltpHit(0);
+    	this.setTotalTargetHit(0);
     }
     
     // Getter / Setters
@@ -66,6 +80,22 @@ public class AlertSearchBean {
 	}
 	public void setTrxType(String trxType) {
 		this.trxType = trxType;
+	}
+
+	public int getTotalSltpHit() {
+		return totalSltpHit;
+	}
+
+	public void setTotalSltpHit(int totalSltpHit) {
+		this.totalSltpHit = totalSltpHit;
+	}
+
+	public int getTotalTargetHit() {
+		return totalTargetHit;
+	}
+
+	public void setTotalTargetHit(int totalTargetHit) {
+		this.totalTargetHit = totalTargetHit;
 	}
 
 	public String getStockExchange() {
@@ -262,6 +292,9 @@ public class AlertSearchBean {
 	 * Scenario: Stock is bought at close price on the given date.
 	 */
 	public void simulateTransactions(ActionEvent ae){
+		this.setTotalSltpHit(0);
+		this.setTotalTargetHit(0);
+		
 		List<NyseSimulation> nyseSimulationList = new ArrayList<NyseSimulation>();
 
 		String djia[] = this.getSymbols().split("[,]"); //new String[]{"MMM", "AA", "AXP", "T", "BAC", "BA", "CAT", "CVX", "CSCO", "KO", "DD", "XOM", "GE", "HPQ", "HD", "INTC", "IBM", "JNJ", "JPM", "KFT", "MCD", "MRK", "MSFT", "PFE", "PG", "TRV", "UTX", "VZ", "WMT", "DIS"};
@@ -281,11 +314,15 @@ public class AlertSearchBean {
 			double sltpPrice = nyseBuy.getClose() - (nyseBuy.getClose() * (getSimulationSltpPercent()/100.0));
 			double expectedGainPrice = nyseBuy.getClose() + ( nyseBuy.getClose() * (getSimulationExpectedGainPercent()/100.0) );
 			
+			int noOfSltpHit = 0;
+			int totalSltp = 0;
+			int totalTarget = 0;
 			for( int i=1; i<nyseList.size(); i++ ){
 				Nyse nyse = nyseList.get(i);
 
 				if( (sltpPrice > nyse.getLow() && sltpPrice < nyse.getHigh()) || sltpPrice > nyse.getHigh() ){
 					// Stop Loss hit
+					noOfSltpHit++;
 					nyseStopLoss = nyse;
 					nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) )));
 					nyseStopLoss = null;
@@ -296,6 +333,13 @@ public class AlertSearchBean {
 					expectedGainPrice = nyseBuy.getClose() + ( nyseBuy.getClose() * (getSimulationExpectedGainPercent()/100.0) );
 				}else if( (expectedGainPrice > nyse.getLow() && expectedGainPrice < nyse.getHigh()) || expectedGainPrice < nyse.getLow() ){
 					// Target achieved
+					if( noOfSltpHit == 1 ){
+						totalTarget++;
+					}
+					if( noOfSltpHit > 1 ){
+						totalSltp++;
+					}
+					noOfSltpHit = 0;
 					nyseTarget = nyse;
 					nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) )));
 					nyseTarget = null;
@@ -306,6 +350,11 @@ public class AlertSearchBean {
 					expectedGainPrice = nyseBuy.getClose() + ( nyseBuy.getClose() * (getSimulationExpectedGainPercent()/100.0) );
 				}
 			}
+			if( noOfSltpHit > 1 ){
+				totalSltp++;
+			}
+			this.setTotalSltpHit(totalSltp);
+			this.setTotalTargetHit(totalTarget);
 			nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) )));
 		}
 		

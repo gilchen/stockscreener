@@ -49,6 +49,13 @@
 			<img id="yahooChart" border="1" onclick="this.style.display='none'" />
 		</div>
 		
+		<h:panelGrid columns="2">
+			<h:outputText value="Total Sltp Hits" />
+			<h:outputText value="#{alertSearchBean.totalSltpHit}" styleClass="error" />
+			<h:outputText value="Total Target Hits" />
+			<h:outputText value="#{alertSearchBean.totalTargetHit}" styleClass="success" />
+		</h:panelGrid>
+		
 		<h:dataTable value="#{alertSearchBean.dmNyseSimulation}" var="ns" border="1">
 			<h:column>
 				<f:facet name="header">
