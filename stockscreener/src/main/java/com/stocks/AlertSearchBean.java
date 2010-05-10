@@ -364,13 +364,13 @@ public class AlertSearchBean {
 
 	public Double getSimulationProfit(){
 		NyseSimulation ns = (NyseSimulation) this.getDmNyseSimulation().getRowData();
-		Double d = (ns.getTarget() - ns.getNyseBuy().getClose()) * ( getInvestmentAmount() / ns.getNyseBuy().getClose() )-BROKERAGE;
+		Double d = (ns.getTarget() - ns.getNyseBuy().getClose()) * ( getInvestmentAmount() / ns.getNyseBuy().getClose() )-(BROKERAGE*2.0);
 		return Utility.round(d);
 	}
 
 	public Double getSimulationLoss(){
 		NyseSimulation ns = (NyseSimulation) this.getDmNyseSimulation().getRowData();
-		Double d = (ns.getNyseBuy().getClose() - ns.getSltp()) * ( getInvestmentAmount() / ns.getNyseBuy().getClose() )+BROKERAGE;
+		Double d = (ns.getNyseBuy().getClose() - ns.getSltp()) * ( getInvestmentAmount() / ns.getNyseBuy().getClose() )+(BROKERAGE*2.0);
 		return Utility.round(-d);
 	}
 }
