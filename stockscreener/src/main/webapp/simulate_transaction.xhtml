@@ -87,7 +87,7 @@
 				<f:facet name="header">
 					<h:outputText value="Stop Loss Low/High" />
 				</f:facet>
-				<h:outputText styleClass="#{ns.renderClass}" value="#{ns.nyseStopLoss.low} (#{ns.sltp}) #{ns.nyseStopLoss.high}" rendered="#{ns.nyseStopLoss != null}" styleClass="error" />
+				<h:outputText value="#{ns.nyseStopLoss.low} (#{ns.sltp}) #{ns.nyseStopLoss.high}" rendered="#{ns.nyseStopLoss != null}" styleClass="error, #{ns.renderClass}" />
 				<h:outputText value="" rendered="#{ns.nyseStopLoss == null}" />
 			</h:column>
 			<h:column>
@@ -100,7 +100,7 @@
 				<f:facet name="header">
 					<h:outputText value="Target Low/High" />
 				</f:facet>
-				<h:outputText styleClass="#{ns.renderClass}" value="#{ns.nyseTarget.low} (#{ns.target}) #{ns.nyseTarget.high}" rendered="#{ns.nyseTarget != null}" styleClass="success" />
+				<h:outputText value="#{ns.nyseTarget.low} (#{ns.target}) #{ns.nyseTarget.high}" rendered="#{ns.nyseTarget != null}" styleClass="success, #{ns.renderClass}" />
 				<h:outputText value="" rendered="#{ns.nyseTarget == null}" />
 			</h:column>
 
@@ -109,7 +109,7 @@
 				<f:facet name="header">
 					<h:outputText value="Profit (incl. Brokerage)" />
 				</f:facet>
-				<h:outputText styleClass="#{ns.renderClass}" value="#{alertSearchBean.simulationProfit}" rendered="#{ns.nyseTarget != null}" styleClass="success" />
+				<h:outputText value="#{alertSearchBean.simulationProfit}" rendered="#{ns.nyseTarget != null}" styleClass="success, #{ns.renderClass}" />
 				<h:outputText value="" rendered="#{ns.nyseTarget == null}" />
 			</h:column>
 
@@ -117,7 +117,7 @@
 				<f:facet name="header">
 					<h:outputText value="Loss (incl. Brokerage)" />
 				</f:facet>
-				<h:outputText styleClass="#{ns.renderClass}" value="#{alertSearchBean.simulationLoss}" rendered="#{ns.nyseStopLoss != null}" styleClass="error" />
+				<h:outputText value="#{alertSearchBean.simulationLoss}" rendered="#{ns.nyseStopLoss != null}" styleClass="error, #{ns.renderClass}" />
 				<h:outputText value="" rendered="#{ns.nyseStopLoss == null}" />
 			</h:column>
 		</h:dataTable>
