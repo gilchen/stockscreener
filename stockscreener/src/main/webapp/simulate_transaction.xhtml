@@ -61,7 +61,7 @@
 				<f:facet name="header">
 					<h:outputText value="Stock Code" />
 				</f:facet>
-				<h:outputLink value="http://www.google.com/finance?q=#{ns.nyseBuy.nysePK.symbol}" target="_new" onmouseover="javascript:showChart(document.getElementById('yahooChart'), '#{ns.nyseBuy.nysePK.symbol}')">
+				<h:outputLink styleClass="#{ns.renderClass}" value="http://www.google.com/finance?q=#{ns.nyseBuy.nysePK.symbol}" target="_new" onmouseover="javascript:showChart(document.getElementById('yahooChart'), '#{ns.nyseBuy.nysePK.symbol}')">
 					<h:outputText value="#{ns.nyseBuy.nysePK.symbol}" />
 				</h:outputLink>
 			</h:column>
@@ -69,38 +69,38 @@
 				<f:facet name="header">
 					<h:outputText value="Bought On" />
 				</f:facet>
-				<h:outputText value="#{ns.nyseBuy.nysePK.tradeDate}" />
+				<h:outputText styleClass="#{ns.renderClass}" value="#{ns.nyseBuy.nysePK.tradeDate}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="Bought Price" />
 				</f:facet>
-				<h:outputText value="#{ns.nyseBuy.close}" />
+				<h:outputText styleClass="#{ns.renderClass}" value="#{ns.nyseBuy.close}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="Stop Loss Hit On" />
 				</f:facet>
-				<h:outputText value="#{ns.nyseStopLoss.nysePK.tradeDate}" />
+				<h:outputText styleClass="#{ns.renderClass}" value="#{ns.nyseStopLoss.nysePK.tradeDate}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="Stop Loss Low/High" />
 				</f:facet>
-				<h:outputText value="#{ns.nyseStopLoss.low} (#{ns.sltp}) #{ns.nyseStopLoss.high}" rendered="#{ns.nyseStopLoss != null}" styleClass="error" />
+				<h:outputText styleClass="#{ns.renderClass}" value="#{ns.nyseStopLoss.low} (#{ns.sltp}) #{ns.nyseStopLoss.high}" rendered="#{ns.nyseStopLoss != null}" styleClass="error" />
 				<h:outputText value="" rendered="#{ns.nyseStopLoss == null}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="Target Achieved On" />
 				</f:facet>
-				<h:outputText value="#{ns.nyseTarget.nysePK.tradeDate}" />
+				<h:outputText styleClass="#{ns.renderClass}" value="#{ns.nyseTarget.nysePK.tradeDate}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="Target Low/High" />
 				</f:facet>
-				<h:outputText value="#{ns.nyseTarget.low} (#{ns.target}) #{ns.nyseTarget.high}" rendered="#{ns.nyseTarget != null}" styleClass="success" />
+				<h:outputText styleClass="#{ns.renderClass}" value="#{ns.nyseTarget.low} (#{ns.target}) #{ns.nyseTarget.high}" rendered="#{ns.nyseTarget != null}" styleClass="success" />
 				<h:outputText value="" rendered="#{ns.nyseTarget == null}" />
 			</h:column>
 
@@ -109,7 +109,7 @@
 				<f:facet name="header">
 					<h:outputText value="Profit (incl. Brokerage)" />
 				</f:facet>
-				<h:outputText value="#{alertSearchBean.simulationProfit}" rendered="#{ns.nyseTarget != null}" styleClass="success" />
+				<h:outputText styleClass="#{ns.renderClass}" value="#{alertSearchBean.simulationProfit}" rendered="#{ns.nyseTarget != null}" styleClass="success" />
 				<h:outputText value="" rendered="#{ns.nyseTarget == null}" />
 			</h:column>
 
@@ -117,7 +117,7 @@
 				<f:facet name="header">
 					<h:outputText value="Loss (incl. Brokerage)" />
 				</f:facet>
-				<h:outputText value="#{alertSearchBean.simulationLoss}" rendered="#{ns.nyseStopLoss != null}" styleClass="error" />
+				<h:outputText styleClass="#{ns.renderClass}" value="#{alertSearchBean.simulationLoss}" rendered="#{ns.nyseStopLoss != null}" styleClass="error" />
 				<h:outputText value="" rendered="#{ns.nyseStopLoss == null}" />
 			</h:column>
 		</h:dataTable>

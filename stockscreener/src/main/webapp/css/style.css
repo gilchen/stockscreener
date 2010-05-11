@@ -18,3 +18,11 @@ body, td{
 	color: green;
 	font-weight:bold;
 }
+
+.errorBg{
+	background-color: #C9A19F;
+}
+
+.successBg{
+	background-color: #A4C99F;
+}
