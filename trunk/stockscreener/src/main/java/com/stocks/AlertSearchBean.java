@@ -318,14 +318,19 @@ public class AlertSearchBean {
 			double expectedGainPrice = nyseBuy.getClose() + ( nyseBuy.getClose() * (getSimulationExpectedGainPercent()/100.0) );
 			
 			int noOfSltpHit = 0;
+			String renderClass = null;
 			for( int i=1; i<nyseList.size(); i++ ){
 				Nyse nyse = nyseList.get(i);
-
+				renderClass = null;
 				if( (sltpPrice > nyse.getLow() && sltpPrice < nyse.getHigh()) || sltpPrice > nyse.getHigh() ){
 					// Stop Loss hit
+					if( noOfSltpHit == 1 ){
+						renderClass = "errorBg";
+					}
+
 					noOfSltpHit++;
 					nyseStopLoss = nyse;
-					nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) )));
+					nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) ), renderClass));
 					nyseStopLoss = null;
 
 					// Reset vars
@@ -336,13 +341,14 @@ public class AlertSearchBean {
 					// Target achieved
 					if( noOfSltpHit == 1 ){
 						totalTarget++;
+						renderClass = "successBg";
 					}
 					if( noOfSltpHit > 1 ){
 						totalSltp++;
 					}
 					noOfSltpHit = 0;
 					nyseTarget = nyse;
-					nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) )));
+					nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) ), renderClass));
 					nyseTarget = null;
 
 					// Reset vars
@@ -354,7 +360,7 @@ public class AlertSearchBean {
 			if( noOfSltpHit > 1 ){
 				totalSltp++;
 			}
-			nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) )));
+			nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) ), renderClass));
 		}
 		this.setTotalSltpHit(totalSltp);
 		this.setTotalTargetHit(totalTarget);
