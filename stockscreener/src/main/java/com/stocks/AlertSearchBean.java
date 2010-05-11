@@ -324,12 +324,12 @@ public class AlertSearchBean {
 				renderClass = null;
 				if( (sltpPrice > nyse.getLow() && sltpPrice < nyse.getHigh()) || sltpPrice > nyse.getHigh() ){
 					// Stop Loss hit
-					if( noOfSltpHit == 1 ){
-						renderClass = "errorBg";
-					}
-
 					noOfSltpHit++;
 					nyseStopLoss = nyse;
+
+					if( noOfSltpHit == 2 ){
+						renderClass = "error";
+					}
 					nyseSimulationList.add(new NyseSimulation(nyseBuy, nyseStopLoss, nyseTarget, (nyseStopLoss == null ? null : Utility.round(sltpPrice)), (nyseTarget == null ? null : Utility.round(expectedGainPrice) ), renderClass));
 					nyseStopLoss = null;
 
@@ -341,7 +341,7 @@ public class AlertSearchBean {
 					// Target achieved
 					if( noOfSltpHit == 1 ){
 						totalTarget++;
-						renderClass = "successBg";
+						renderClass = "success";
 					}
 					if( noOfSltpHit > 1 ){
 						totalSltp++;
