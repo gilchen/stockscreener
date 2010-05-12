@@ -21,6 +21,7 @@
 			<value>#{stockService}</value>
 		</managed-property>
 	</managed-bean>
+	
 	<managed-bean>
 		<managed-bean-name>alertSearchBean</managed-bean-name>
 		<managed-bean-class>com.stocks.AlertSearchBean</managed-bean-class>
@@ -34,6 +35,17 @@
 			<value>#{stockService}</value>
 		</managed-property>
 	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>lspfBean</managed-bean-name>
+		<managed-bean-class>com.stocks.LucrativeStockPatternFinderBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>alertSearchBean</property-name>
+			<value>#{alertSearchBean}</value>
+		</managed-property>
+	</managed-bean>
+
 	<managed-bean>
 		<managed-bean-name>bseIciciMappingBean</managed-bean-name>
 		<managed-bean-class>com.stocks.BseIciciMappingBean</managed-bean-class>
@@ -113,5 +125,10 @@
 			<from-outcome>real_time_sltp_hit</from-outcome>
 			<to-view-id>/real_time_sltp_hit.xhtml</to-view-id>
 		</navigation-case>
+		<navigation-case>
+			<from-outcome>lucrative_stock_pattern_finder</from-outcome>
+			<to-view-id>/lucrative_stock_pattern_finder.xhtml</to-view-id>
+		</navigation-case>
+
 	</navigation-rule>
 </faces-config>

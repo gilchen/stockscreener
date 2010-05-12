@@ -18,3 +18,7 @@ body, td{
 	color: green;
 	font-weight:bold;
 }
+
+.rtAlign{
+	text-align:right;
+}

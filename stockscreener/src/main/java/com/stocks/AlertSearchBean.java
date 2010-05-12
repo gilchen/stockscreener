@@ -3,6 +3,7 @@ package com.stocks;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -66,10 +67,16 @@ public class AlertSearchBean {
     	this.setDmBseAlertResults(null);
     	this.setDmNyseAlertResults(null);
     	this.setSymbols("MMM, AA, AXP, T, BAC, BA, CAT, CVX, CSCO, KO, DD, XOM, GE, HPQ, HD, INTC, IBM, JNJ, JPM, KFT, MCD, MRK, MSFT, PFE, PG, TRV, UTX, VZ, WMT, DIS");
-    	this.setSimulationBuyDate( new Date() );
-    	this.setSimulationSltpPercent( 4.0 );
-    	this.setSimulationExpectedGainPercent( 2.0 );
-    	this.setInvestmentAmount(1000.00);
+    	
+    	Calendar calendar = Calendar.getInstance();
+    	calendar.set(Calendar.DATE, 1);
+    	calendar.set(Calendar.MONTH, Calendar.AUGUST);
+    	calendar.set(Calendar.YEAR, 2009);
+    	this.setSimulationBuyDate( calendar.getTime() );
+
+    	this.setSimulationSltpPercent( 1.0 );
+    	this.setSimulationExpectedGainPercent( 6.0 );
+    	this.setInvestmentAmount(5000.00);
     	this.setTotalSltpHit(0);
     	this.setTotalTargetHit(0);
     }
