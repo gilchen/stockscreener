@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+<head>
+<title>Simulate Transaction</title>
+</head>
+<body>
+<ui:composition template="/template.xhtml">
+	<ui:define name="navigation">
+		<ui:include src="navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="heading">
+		<h:outputText value="Lucrative Stock Pattern Finder" />
+	</ui:define>
+
+	
+	<ui:define name="body">
+		<h:form>
+			<h:panelGrid columns="2">
+				<h:outputText value="Stocks" />
+				<h:inputText value="#{lspfBean.symbols}" required="true" size="40" />
+
+				<h:outputText value="" />
+				<h:commandButton value="Submit" actionListener="#{lspfBean.generateLucrativeStockPattern}" />
+			</h:panelGrid>
+		</h:form>
+
+		<h:dataTable value="#{lspfBean.dmLucrativeStockPatternFinder}" var="lspf" border="1" columnClasses=",rtAlign,rtAlign,rtAlign,rtAlign,rtAlign,rtAlign,rtAlign">
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Stock Code" />
+				</f:facet>
+				<h:outputLink value="http://www.google.com/finance?q=#{lspf.stockCode}" target="_new">
+					<h:outputText value="#{lspf.stockCode}" />
+				</h:outputLink>
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Stop Loss %" />
+				</f:facet>
+				<h:outputText value="#{lspf.stopLossPercent}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Expected Gain %" />
+				</f:facet>
+				<h:outputText value="#{lspf.expectedGainPercent}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Total Sltp Hit Tx" />
+				</f:facet>
+				<h:outputText value="#{lspf.totalSltpHitTx}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Total Target Hit Tx" />
+				</f:facet>
+				<h:outputText value="#{lspf.totalTargetHitTx}" />
+			</h:column>
+
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Loss Per Tx" />
+				</f:facet>
+				<h:outputText value="#{lspf.lossPerTx}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Profit Per Tx" />
+				</f:facet>
+				<h:outputText value="#{lspf.profitPerTx}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Effective Profit/Loss" />
+				</f:facet>
+				<h:outputText value="#{lspf.totalProfit}" />
+			</h:column>
+		</h:dataTable>
+	</ui:define>
+</ui:composition>
+</body>
+</html>
