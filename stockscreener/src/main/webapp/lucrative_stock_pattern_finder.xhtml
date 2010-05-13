@@ -78,7 +78,9 @@
 				<f:facet name="header">
 					<h:outputText value="Effective Profit/Loss" />
 				</f:facet>
-				<h:outputText value="#{lspf.totalProfit}" />
+				<h:outputText value="#{lspf.totalProfit}" rendered="#{lspf.totalProfit &gt; 0.0}" styleClass="success" />
+				<h:outputText value="#{lspf.totalProfit}" rendered="#{lspf.totalProfit &lt; 0.0}" styleClass="error" />
+				<h:outputText value="#{lspf.totalProfit}" rendered="#{lspf.totalProfit == 0.0}" />
 			</h:column>
 		</h:dataTable>
 	</ui:define>
