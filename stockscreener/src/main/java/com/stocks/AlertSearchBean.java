@@ -57,6 +57,12 @@ public class AlertSearchBean {
     
     public AlertSearchBean() {
     	clear(null);
+
+    	Calendar calendar = Calendar.getInstance();
+    	calendar.set(Calendar.DATE, 1);
+    	calendar.set(Calendar.MONTH, Calendar.AUGUST);
+    	calendar.set(Calendar.YEAR, 2009);
+    	this.setSimulationBuyDate( calendar.getTime() );
 	}
 
     public void clear(ActionEvent ae){
@@ -67,13 +73,6 @@ public class AlertSearchBean {
     	this.setDmBseAlertResults(null);
     	this.setDmNyseAlertResults(null);
     	this.setSymbols("MMM, AA, AXP, T, BAC, BA, CAT, CVX, CSCO, KO, DD, XOM, GE, HPQ, HD, INTC, IBM, JNJ, JPM, KFT, MCD, MRK, MSFT, PFE, PG, TRV, UTX, VZ, WMT, DIS");
-    	
-    	Calendar calendar = Calendar.getInstance();
-    	calendar.set(Calendar.DATE, 1);
-    	calendar.set(Calendar.MONTH, Calendar.AUGUST);
-    	calendar.set(Calendar.YEAR, 2009);
-    	this.setSimulationBuyDate( calendar.getTime() );
-
     	this.setSimulationSltpPercent( 1.0 );
     	this.setSimulationExpectedGainPercent( 6.0 );
     	this.setInvestmentAmount(5000.00);
