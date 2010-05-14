@@ -54,7 +54,7 @@ public class NyseAlertReportCommand extends AbstractCommand {
 		for( final List<NyseAlert> nyseAlerts : mSymbolNyseAlert.values() ){
 			cClose.clear();
 			//List<Nyse> nyseList = getStockService().findStockBySymbol(nyseAlerts.get(0).getSymbol());
-			List<Nyse> nyseList = getStockService().findStockBySymbolAndTradeDate(nyseAlerts.get(0).getSymbol(), tradeDateParam);
+			List<Nyse> nyseList = getStockService().findStockBySymbolBetweenTradeDates(nyseAlerts.get(0).getSymbol(), tradeStartDateParam, tradeEndDateParam);
 			for(final Nyse nyse : nyseList){
 				cClose.add( nyse.getClose() );
 			}

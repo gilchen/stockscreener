@@ -19,12 +19,16 @@ public abstract class AbstractCommand implements Command{
 	protected static final String GOOGLE_CHART_CHM_PARAM_VALUE = "A~RECOMMENDED_BUY_PRICE,,0,~RECOMMENDED_BUY_INDEX,9";
 	protected static final String GOOGLE_CHART_CHM_SLTP = "|h,FF0000,0,~VAL_BETWEEN_ZERO_AND_ONE,1";
 
-	protected static Date tradeDateParam = null;
+	protected static Date tradeStartDateParam = null;
+	protected static Date tradeEndDateParam = null;
+
 	protected static int NUM = 0;
 	static{
 		Calendar dt = Calendar.getInstance();
+		tradeEndDateParam = (Date) dt.getTime().clone();
+		
 		dt.add( Calendar.DAY_OF_YEAR, -30*6 ); // 6 months ago
-		tradeDateParam = dt.getTime();
+		tradeStartDateParam = dt.getTime();
 	}
 	
 	private StockService stockService;

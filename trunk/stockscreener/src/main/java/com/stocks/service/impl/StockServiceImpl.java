@@ -148,8 +148,8 @@ public class StockServiceImpl implements StockService {
     	return getNyseDao().findStockBySymbol(symbol);
     }
 
-    public List<Nyse> findStockBySymbolAndTradeDate(String symbol, Date tradeDate) {
-    	return getNyseDao().findStockBySymbolAndTradeDate(symbol, tradeDate);
+    public List<Nyse> findStockBySymbolBetweenTradeDates(final String symbol, final Date tradeStartDate, final Date tradeEndDate) {
+    	return getNyseDao().findStockBySymbolBetweenTradeDates(symbol, tradeStartDate, tradeEndDate);
     }
     
     public List<String> getAllSymbols() {

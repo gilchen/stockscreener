@@ -23,6 +23,16 @@
 				<h:outputText value="Stocks" />
 				<h:inputText value="#{lspfBean.symbols}" required="true" size="40" />
 
+				<h:outputText value="Start Date (MM/dd/yyyy)" />
+				<h:inputText value="#{alertSearchBean.simulationStartDate}" required="true" size="8">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:inputText>
+
+				<h:outputText value="End Date (MM/dd/yyyy)" />
+				<h:inputText value="#{alertSearchBean.simulationEndDate}" required="true" size="8">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:inputText>
+
 				<h:outputText value="" />
 				<h:commandButton value="Submit" actionListener="#{lspfBean.generateLucrativeStockPattern}" />
 			</h:panelGrid>
