@@ -128,7 +128,7 @@ public class LucrativeStockPatternFinderBean {
 			    	this.getAlertSearchBean().setSimulationSltpPercent( i );
 			    	this.getAlertSearchBean().setSimulationExpectedGainPercent( j );
 			    	this.getAlertSearchBean().simulateTransactions(ae);
-			    	
+
 			    	Double lossPerTransaction = Utility.round( (this.getAlertSearchBean().getInvestmentAmount() * (i/100)) +AlertSearchBean.BROKERAGE*2.0 );
 			    	Double profitPerTransaction = Utility.round( (this.getAlertSearchBean().getInvestmentAmount() * (j/100)) -AlertSearchBean.BROKERAGE*2.0 );
 			    	LucrativeStockPatternFinderBean bean = new LucrativeStockPatternFinderBean(

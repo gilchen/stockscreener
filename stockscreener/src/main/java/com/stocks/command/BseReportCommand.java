@@ -39,7 +39,7 @@ public class BseReportCommand extends AbstractCommand {
 		double ctr = 0.0;
 		for( final Integer scCode : scCodes ){
 			cClose.clear();
-			List<Bse> bseList = getStockService().findStockByScCodeAndTradeDate(scCode, tradeDateParam);
+			List<Bse> bseList = getStockService().findStockByScCodeAndTradeDate(scCode, tradeStartDateParam);
 			
 			for( final Bse bse : bseList ){
 				cClose.add( bse.getClose() );

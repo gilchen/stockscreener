@@ -26,10 +26,16 @@
 				<h:outputText value="Investment Amount" />
 				<h:inputText value="#{alertSearchBean.investmentAmount}" required="true" size="8" />
 
-				<h:outputText value="Buy Date (MM/dd/yyyy)" />
-				<h:inputText value="#{alertSearchBean.simulationBuyDate}" required="true" size="8">
+				<h:outputText value="Start Date (MM/dd/yyyy)" />
+				<h:inputText value="#{alertSearchBean.simulationStartDate}" required="true" size="8">
 					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
 				</h:inputText>
+
+				<h:outputText value="End Date (MM/dd/yyyy)" />
+				<h:inputText value="#{alertSearchBean.simulationEndDate}" required="true" size="8">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:inputText>
+
 				<h:outputText value="Stop Loss %" />
 				<h:inputText value="#{alertSearchBean.simulationSltpPercent}" required="true" size="4">
 					<f:convertNumber type="number" />

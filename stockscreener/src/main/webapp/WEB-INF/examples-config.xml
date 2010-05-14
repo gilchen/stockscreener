@@ -85,15 +85,6 @@
 			<value>#{reportChain}</value>
 		</managed-property>
 	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>realTimeSltpHitBean</managed-bean-name>
-		<managed-bean-class>com.stocks.RealTimeSltpHitBean</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-		<managed-property>
-			<property-name>stockService</property-name>
-			<value>#{stockService}</value>
-		</managed-property>
-	</managed-bean>
 
 	<!-- navigation rules for helloWorld.jsp -->
 	<navigation-rule>

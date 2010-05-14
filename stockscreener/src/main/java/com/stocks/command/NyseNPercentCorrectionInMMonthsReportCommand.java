@@ -46,7 +46,7 @@ public class NyseNPercentCorrectionInMMonthsReportCommand extends AbstractComman
 		for( final String symbol : symbols ){
 			cClose.clear();
 			//List<Nyse> nyseList = getStockService().findStockBySymbol(symbol);
-			List<Nyse> nyseList = getStockService().findStockBySymbolAndTradeDate(symbol, tradeDateParam);
+			List<Nyse> nyseList = getStockService().findStockBySymbolBetweenTradeDates(symbol, tradeStartDateParam, tradeEndDateParam);
 			for( final Nyse nyse : nyseList ){
 				cClose.add( nyse.getClose() );
 			}

@@ -34,7 +34,8 @@ public class AlertSearchBean {
     
     // Simulation Properties
     private String symbols;
-    private Date simulationBuyDate;
+    private Date simulationStartDate;
+    private Date simulationEndDate;
     private Double simulationSltpPercent;
     private Double simulationExpectedGainPercent;
     private Double investmentAmount;
@@ -59,10 +60,12 @@ public class AlertSearchBean {
     	clear(null);
 
     	Calendar calendar = Calendar.getInstance();
+    	this.setSimulationEndDate( (Date) calendar.getTime().clone() );
+
     	calendar.set(Calendar.DATE, 1);
     	calendar.set(Calendar.MONTH, Calendar.AUGUST);
     	calendar.set(Calendar.YEAR, 2009);
-    	this.setSimulationBuyDate( calendar.getTime() );
+    	this.setSimulationStartDate( calendar.getTime() );
 	}
 
     public void clear(ActionEvent ae){
@@ -160,12 +163,20 @@ public class AlertSearchBean {
 		this.symbols = symbols;
 	}
 
-	public Date getSimulationBuyDate() {
-		return simulationBuyDate;
+	public Date getSimulationStartDate() {
+		return simulationStartDate;
 	}
 
-	public void setSimulationBuyDate(Date simulationBuyDate) {
-		this.simulationBuyDate = simulationBuyDate;
+	public void setSimulationStartDate(Date simulationStartDate) {
+		this.simulationStartDate = simulationStartDate;
+	}
+
+	public Date getSimulationEndDate() {
+		return simulationEndDate;
+	}
+
+	public void setSimulationEndDate(Date simulationEndDate) {
+		this.simulationEndDate = simulationEndDate;
 	}
 
 	public Double getSimulationSltpPercent() {
@@ -310,7 +321,7 @@ public class AlertSearchBean {
 		for( String symbol : djia ){
 			symbol = symbol.trim();
 
-			List<Nyse> nyseList = getStockService().findStockBySymbolAndTradeDate(symbol, getSimulationBuyDate());
+			List<Nyse> nyseList = getStockService().findStockBySymbolBetweenTradeDates(symbol, getSimulationStartDate(), getSimulationEndDate());
 			if( nyseList == null || nyseList.isEmpty() ){
 				System.out.println( "No data found for " +symbol );
 				continue;

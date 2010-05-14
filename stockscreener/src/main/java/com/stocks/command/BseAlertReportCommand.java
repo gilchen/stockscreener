@@ -54,7 +54,7 @@ public class BseAlertReportCommand extends AbstractCommand {
 		
 		for( final List<Alert> alerts : mSymbolAlert.values() ){
 			cClose.clear();
-			List<Bse> bseList = getStockService().findStockByScCodeAndTradeDate(alerts.get(0).getBseIciciMapping().getScCode(), tradeDateParam);
+			List<Bse> bseList = getStockService().findStockByScCodeAndTradeDate(alerts.get(0).getBseIciciMapping().getScCode(), tradeStartDateParam);
 			for(final Bse bse : bseList){
 				cClose.add( bse.getClose() );
 			}

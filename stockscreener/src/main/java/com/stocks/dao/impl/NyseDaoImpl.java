@@ -26,10 +26,11 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 		return query.getResultList();
 	}
 
-	public List<Nyse> findStockBySymbolAndTradeDate(final String symbol, final Date tradeDate){
-		Query query = entityManager.createNamedQuery("stockBySymbolAndTradeDate");
+	public List<Nyse> findStockBySymbolBetweenTradeDates(final String symbol, final Date tradeStartDate, final Date tradeEndDate){
+		Query query = entityManager.createNamedQuery("stockBySymbolBetweenTradeDates");
 		query.setParameter("symbol", symbol);
-		query.setParameter("tradeDate", tradeDate);
+		query.setParameter("tradeStartDate", tradeStartDate);
+		query.setParameter("tradeEndDate", tradeEndDate);
 		return query.getResultList();
 	}
 	
