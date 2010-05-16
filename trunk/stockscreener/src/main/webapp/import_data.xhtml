@@ -45,10 +45,16 @@
 				</h:outputText>
 				<h:outputText value="" />
 
+				<h:outputText value="Global Indices - Last imported on " />
+				<h:outputText value="#{importDataBean.lastGlobalIndicesImport}">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:outputText>
+				<h:outputText value="" />
+
 				<h:outputText value="" />
 				<h:outputText value="" />
 				<h:panelGroup>
-					<h:commandButton value="Import Nyse+Nasdaq+Amex" actionListener="#{importDataBean.importNyse}" />
+					<h:commandButton value="Import Nyse+Nasdaq+Amex+Global Indices" actionListener="#{importDataBean.importNyse}" />
 					&nbsp; <a href="http://www.eoddata.com/Download.aspx" target="_new">EODData</a>
 				</h:panelGroup>
 			</h:panelGrid>
