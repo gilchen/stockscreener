@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html">
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
 <head>
 <title>Alert</title>
 </head>
@@ -33,10 +34,8 @@
 					<f:selectItem itemLabel="Virtual Sell" itemValue="Virtual Sell" />
 				</h:selectOneListbox>
 
-				<h:outputText value="Event Date (MM/dd/yyyy)" />
-				<h:inputText id="eventDate" value="#{alertBean.eventDate}" required="true">
-					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
-				</h:inputText>
+				<h:outputText value="Event Date" />
+				<t:inputDate type="date" popupCalendar="true" value="#{alertBean.eventDate}" required="true" />
 
 				<h:outputText value="Opportunity Type" />
 				<h:selectOneListbox value="#{alertBean.opportunityType}" required="true">

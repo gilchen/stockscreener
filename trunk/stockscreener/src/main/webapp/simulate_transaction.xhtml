@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html">
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
 <head>
 <title>Simulate Transaction</title>
 </head>
@@ -26,15 +27,11 @@
 				<h:outputText value="Investment Amount" />
 				<h:inputText value="#{alertSearchBean.investmentAmount}" required="true" size="8" />
 
-				<h:outputText value="Start Date (MM/dd/yyyy)" />
-				<h:inputText value="#{alertSearchBean.simulationStartDate}" required="true" size="8">
-					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
-				</h:inputText>
+				<h:outputText value="Start Date" />
+				<t:inputDate type="date" popupCalendar="true" value="#{alertSearchBean.simulationStartDate}" required="true" />
 
-				<h:outputText value="End Date (MM/dd/yyyy)" />
-				<h:inputText value="#{alertSearchBean.simulationEndDate}" required="true" size="8">
-					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
-				</h:inputText>
+				<h:outputText value="End Date" />
+				<t:inputDate type="date" popupCalendar="true" value="#{alertSearchBean.simulationEndDate}" required="true" />
 
 				<h:outputText value="Stop Loss %" />
 				<h:inputText value="#{alertSearchBean.simulationSltpPercent}" required="true" size="4">
