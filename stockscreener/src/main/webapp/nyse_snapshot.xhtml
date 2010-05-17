@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
+<head>
+<title>Nyse Snapshot</title>
+</head>
+<body>
+<ui:composition template="/template.xhtml">
+	<ui:define name="navigation">
+		<ui:include src="navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="heading">
+		<h:outputText value="Nyse Snapshot" />
+	</ui:define>
+
+	
+	<ui:define name="body">
+		<h:form>
+			<h:panelGrid columns="2">
+				<h:outputText value="Stocks" />
+				<h:inputText value="#{nyseSnapshotBean.symbols}" required="true" size="40" />
+
+				<h:outputText value="Snapshot Date" />
+				<t:inputDate type="date" popupCalendar="true" value="#{nyseSnapshotBean.snapshotDate}" required="true" />
+
+				<h:outputText value="" />
+				<h:commandButton value="Submit" actionListener="#{nyseSnapshotBean.showNyseSnapshot}" />
+			</h:panelGrid>
+		</h:form>
+
+		<h:dataTable value="#{nyseSnapshotBean.dmNyseSnapshot}" var="nyseSnapshot" border="1" columnClasses=",rtAlign,rtAlign,rtAlign,rtAlign">
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Snapshot Date" />
+				</f:facet>
+				<h:outputText value="#{nyseSnapshot.nyseToday.nysePK.tradeDate}">
+					<f:convertDateTime type="date" pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:outputText>
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Stock Code" />
+				</f:facet>
+				<h:outputLink value="http://www.google.com/finance?q=#{nyseSnapshot.nyseToday.nysePK.symbol}" target="_new">
+					<h:outputText value="#{nyseSnapshot.nyseToday.nysePK.symbol}" styleClass="emphasis" rendered="#{nyseSnapshot.nyseToday.nysePK.symbol == 'DJI.IDX'}" />
+					<h:outputText value="#{nyseSnapshot.nyseToday.nysePK.symbol}" rendered="#{nyseSnapshot.nyseToday.nysePK.symbol != 'DJI.IDX'}" />
+				</h:outputLink>
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Prev Close" />
+				</f:facet>
+				<h:outputText value="#{nyseSnapshot.nyseYesterday.close}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Close" />
+				</f:facet>
+				<h:outputText value="#{nyseSnapshot.nyseToday.close}" />
+			</h:column>
+
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="% Change" />
+				</f:facet>
+				<h:outputText value="#{nyseSnapshot.percentChange}" rendered="#{nyseSnapshot.percentChange &gt; 0.0}" styleClass="success" />
+				<h:outputText value="#{nyseSnapshot.percentChange}" rendered="#{nyseSnapshot.percentChange &lt; 0.0}" styleClass="error" />
+				<h:outputText value="#{nyseSnapshot.percentChange}" rendered="#{nyseSnapshot.percentChange == 0.0}" />
+			</h:column>
+		</h:dataTable>
+	</ui:define>
+</ui:composition>
+</body>
+</html>

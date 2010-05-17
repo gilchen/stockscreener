@@ -22,3 +22,6 @@ body, td{
 .rtAlign{
 	text-align:right;
 }
+.emphasis{
+	font-weight:bold;
+}
