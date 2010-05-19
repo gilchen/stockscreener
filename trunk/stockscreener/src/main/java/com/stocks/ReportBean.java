@@ -151,6 +151,24 @@ public class ReportBean{
 			setContent( e.getMessage() );
 		}
 	}
+	
+	public void getNyseNPercentUpFromBottomReport(ActionEvent ae){
+		try {
+			Report report = getStockService().getReport(Report.ReportName.NyseNPercentUpFromBottomCommand.toString());
+			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
+
+	public void getNyseNPercentUpFromBottomSimulationReport(ActionEvent ae){
+		try {
+			Report report = getStockService().getReport(Report.ReportName.NyseNPercentUpFromBottomSimulationCommand.toString());
+			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
 
 	public void filterBseAlertReport(ActionEvent ae){
 		try {
