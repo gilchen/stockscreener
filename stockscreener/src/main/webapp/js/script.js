@@ -8,3 +8,8 @@ function showChart(imgObj, symbol){
 	imgObj.style.display="block";
 	imgObj.src = yahooUrl;
 }
+
+function showGoogleChart(imgObj, imgUrl){
+	imgObj.style.display="block";
+	imgObj.src = imgUrl;
+}
