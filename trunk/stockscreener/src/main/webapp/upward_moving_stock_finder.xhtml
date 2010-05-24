@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
+<head>
+<title>Upward Moving Stock Finder</title>
+</head>
+<body>
+<ui:composition template="/template.xhtml">
+	<ui:define name="navigation">
+		<ui:include src="navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="heading">
+		<h:outputText value="Upward Moving Stock Finder" />
+	</ui:define>
+
+	
+	<ui:define name="body">
+		<h:form>
+			<h:panelGrid columns="2">
+				<h:outputText value="Interval" />
+				<h:inputText value="#{upwardMovingStockFinderBean.interval}" required="true" size="4" />
+
+				<h:outputText value="Average Percentage" />
+				<h:inputText value="#{upwardMovingStockFinderBean.averagePercentage}" required="true" size="4" />
+
+				<h:outputText value="" />
+				<h:commandButton value="Submit" actionListener="#{upwardMovingStockFinderBean.getUpwardMovingStocks}" />
+			</h:panelGrid>
+		</h:form>
+
+		<div id="yahooChartDiv" style="position:fixed;left:22%;top:15%">
+			<img id="yahooChart" border="1" onclick="this.style.display='none'" />
+		</div>
+
+		<h:dataTable value="#{upwardMovingStockFinderBean.dmUpwardMovingStocks}" var="ums" border="1" columnClasses=",rtAlign,rtAlign">
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Stock Code" />
+				</f:facet>
+				<h:outputLink value="http://www.google.com/finance?q=#{ums.symbol}" target="_new" onmouseover="javascript:showChart(document.getElementById('yahooChart'), '#{ums.symbol}')">
+					<h:outputText value="#{ums.symbol}" />
+				</h:outputLink>
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Close" />
+				</f:facet>
+				<h:outputText value="#{ums.close}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="Average" />
+				</f:facet>
+				<h:outputText value="#{ums.average}" />
+			</h:column>
+		</h:dataTable>
+	</ui:define>
+</ui:composition>
+</body>
+</html>

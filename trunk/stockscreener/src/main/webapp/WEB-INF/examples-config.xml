@@ -65,6 +65,17 @@
 			<value>#{stockService}</value>
 		</managed-property>
 	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>upwardMovingStockFinderBean</managed-bean-name>
+		<managed-bean-class>com.stocks.UpwardMovingStockFinderBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>stockService</property-name>
+			<value>#{stockService}</value>
+		</managed-property>
+	</managed-bean>
+
 	<managed-bean>
 		<managed-bean-name>importDataBean</managed-bean-name>
 		<managed-bean-class>com.stocks.ImportDataBean</managed-bean-class>
@@ -129,6 +140,10 @@
 		<navigation-case>
 			<from-outcome>nyse_snapshot</from-outcome>
 			<to-view-id>/nyse_snapshot.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>upward_moving_stock_finder</from-outcome>
+			<to-view-id>/upward_moving_stock_finder.xhtml</to-view-id>
 		</navigation-case>
 
 	</navigation-rule>

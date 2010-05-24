@@ -37,7 +37,33 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 	public List<String> getAllSymbols() {
 		return entityManager.createNamedQuery("allSymbols").getResultList();
 	}
+	
+	public List<Object[]> findUpwardMovingStocks(final Integer interval, final Double averagePercentage){
+		final StringBuffer sbSql = new StringBuffer();
+		sbSql.append("select"); 
+		sbSql.append( " a.symbol,");
+		sbSql.append( " a.close,");
+		sbSql.append( " b.average");
+		sbSql.append( " from");
+		sbSql.append( " Nyse a,");
+		sbSql.append( " (select symbol, avg(close) average from Nyse where trade_date between"); 
+		sbSql.append( "	(SELECT DATE_SUB((SELECT STR_TO_DATE(V, '%d%m%y') FROM KEY_VALUE WHERE K='LAST_NYSE_IMPORT'), INTERVAL ~pInterval DAY)) and ");
+		sbSql.append( "	(SELECT STR_TO_DATE(V, '%d%m%y') FROM KEY_VALUE WHERE K='LAST_NYSE_IMPORT') ");
+		sbSql.append( " group by symbol) b");
+		sbSql.append( " where");
+		sbSql.append( " a.symbol=b.symbol");
+		sbSql.append( " and a.trade_date = (SELECT STR_TO_DATE(V, '%d%m%y') FROM KEY_VALUE WHERE K='LAST_NYSE_IMPORT')");
+		sbSql.append( " and b.average <= (a.close-(a.close*~pAveragePercentage))");
+		sbSql.append( " and a.symbol not like '%.IDX' and a.symbol not like '%.%' and a.symbol not like '%-%'");
 
+		String sql = sbSql.toString();
+		sql = sql.replaceAll("~pInterval", interval.toString());
+		sql = sql.replaceAll("~pAveragePercentage", averagePercentage.toString());
+		System.out.println( "sql: " +sql );
+		Query query = entityManager.createNativeQuery(sql);
+		List<Object[]> result = query.getResultList();
+		return result;
+	}
 	
 	public Nyse read(NysePK nysePK) {
 		return get(Nyse.class, nysePK);

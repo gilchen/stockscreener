@@ -152,6 +152,10 @@ public class StockServiceImpl implements StockService {
     	return getNyseDao().findStockBySymbolBetweenTradeDates(symbol, tradeStartDate, tradeEndDate);
     }
     
+    public List<Object[]> findUpwardMovingStocks(final Integer interval, final Double averagePercentage){
+    	return getNyseDao().findUpwardMovingStocks(interval, averagePercentage);
+    }
+    
     public List<String> getAllSymbols() {
     	return getNyseDao().getAllSymbols();
     }
