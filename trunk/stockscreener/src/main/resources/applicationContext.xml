@@ -110,6 +110,8 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 
 	<bean id="nyseNPercentUpFromBottomSimulationCommand" class="com.stocks.command.NyseNPercentUpFromBottomSimulationCommand" parent="abstractCommand" />
 
+	<bean id="nyseBreakingHighsEachTimeCommand" class="com.stocks.command.NyseBreakingHighsEachTimeCommand" parent="abstractCommand" />
+
 	<bean id="reportChain" class="com.stocks.command.ChainBase">
 		<constructor-arg type="java.util.Collection">
 			<list value-type="org.apache.commons.chain.Command">
@@ -124,6 +126,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 				<ref bean="nyseNPercentCorrectionInMMonthsReportCommand" />
 				<ref bean="nyseNPercentUpFromBottomCommand" />
 				<ref bean="nyseNPercentUpFromBottomSimulationCommand" />
+				<ref bean="nyseBreakingHighsEachTimeCommand" />
 				<bean class="com.stocks.command.CancelPercentCompleteReporterTimerTaskCommand">
 					<property name="percentCompleteReporter" ref="percentCompleteReporter" />
 				</bean>
