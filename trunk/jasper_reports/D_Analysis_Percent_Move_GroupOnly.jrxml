@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="D_Analysis_Percent_Move_GroupOnly"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="750"
+		 pageHeight="842"
+		 columnWidth="690"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 scriptletClass="D_Analysis_Percent_Move_GroupOnlyScriptlet"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="1" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="pStartDate" isForPrompting="false" class="java.util.Date">
+		<parameterDescription><![CDATA[Start Date]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[new java.text.SimpleDateFormat("MM/dd/yyyy").parse("01/01/2010")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="pEndDate" isForPrompting="false" class="java.util.Date">
+		<parameterDescription><![CDATA[End Date]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[new java.util.Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="pPercentMove" isForPrompting="false" class="java.lang.Double">
+		<parameterDescription><![CDATA[Percent Movement: ]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[0.60]]></defaultValueExpression>
+	</parameter>
+	<parameter name="pSymbol" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[Symbol]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["DJI.IDX"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select trade_date, open, high, low, close, dayname(trade_date) weekdayname from nyse where symbol=$P{pSymbol} and trade_date between $P{pStartDate} and $P{pEndDate} order by trade_date asc]]></queryString>
+
+	<field name="trade_date" class="java.sql.Date"/>
+	<field name="open" class="java.lang.Double"/>
+	<field name="high" class="java.lang.Double"/>
+	<field name="low" class="java.lang.Double"/>
+	<field name="close" class="java.lang.Double"/>
+	<field name="weekdayname" class="java.lang.String"/>
+
+	<variable name="prevClose" class="java.lang.Double" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[$V{prevClose}]]></variableExpression>
+	</variable>
+	<variable name="v_MonUp" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Monday" ) && $F{high}.doubleValue() > 
+
+($V{prevClose}.doubleValue() + ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0
+]]></variableExpression>
+	</variable>
+	<variable name="v_TueUp" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Tuesday" ) && $F{high} > 
+
+($V{prevClose}.doubleValue() + ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0]]></variableExpression>
+	</variable>
+	<variable name="v_WedUp" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Wednesday" ) && $F{high} > 
+
+($V{prevClose}.doubleValue() + ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0]]></variableExpression>
+	</variable>
+	<variable name="v_ThuUp" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Thursday" ) && $F{high} > 
+
+($V{prevClose}.doubleValue() + ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0]]></variableExpression>
+	</variable>
+	<variable name="v_FriUp" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Friday" ) && $F{high} > 
+
+($V{prevClose}.doubleValue() + ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0]]></variableExpression>
+	</variable>
+	<variable name="v_MonDown" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Monday" ) && $F{low} < 
+
+($V{prevClose}.doubleValue() - ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0]]></variableExpression>
+	</variable>
+	<variable name="v_TueDown" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Tuesday" ) && $F{low} < 
+
+($V{prevClose}.doubleValue() - ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0]]></variableExpression>
+	</variable>
+	<variable name="v_WedDown" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Wednesday" ) && $F{low} < 
+
+($V{prevClose}.doubleValue() - ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0]]></variableExpression>
+	</variable>
+	<variable name="v_ThuDown" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Thursday" ) && $F{low} < 
+
+($V{prevClose}.doubleValue() - ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0]]></variableExpression>
+	</variable>
+	<variable name="v_FriDown" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[($F{weekdayname}.equalsIgnoreCase( "Friday" ) && $F{low} < 
+
+($V{prevClose}.doubleValue() - ($V{prevClose}.doubleValue() * ($P{pPercentMove}.doubleValue()/100.0)))
+
+) ? 1 : 0]]></variableExpression>
+	</variable>
+	<variable name="sumMonUp" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_MonUp}]]></variableExpression>
+	</variable>
+	<variable name="sumTueUp" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_TueUp}]]></variableExpression>
+	</variable>
+	<variable name="sumWedUp" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_WedUp}]]></variableExpression>
+	</variable>
+	<variable name="sumThuUp" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_ThuUp}]]></variableExpression>
+	</variable>
+	<variable name="sumFriUp" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_FriUp}]]></variableExpression>
+	</variable>
+	<variable name="sumMonDown" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_MonDown}]]></variableExpression>
+	</variable>
+	<variable name="sumTueDown" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_TueDown}]]></variableExpression>
+	</variable>
+	<variable name="sumWedDown" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_WedDown}]]></variableExpression>
+	</variable>
+	<variable name="sumThuDown" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_ThuDown}]]></variableExpression>
+	</variable>
+	<variable name="sumFriDown" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{v_FriDown}]]></variableExpression>
+	</variable>
+	<variable name="hmTotalWkDays" class="java.util.HashMap" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[$V{hmTotalWkDays}]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="true" pattern="dd-MMM-yy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="-46"
+						width="133"
+						height="15"
+						key="textField"/>
+					<box leftPadding="2" rightPadding="2">					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+</box>
+					<textElement>
+						<font fontName="Times-Roman" size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$F{trade_date}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="133"
+						y="-46"
+						width="133"
+						height="15"
+						key="textField"/>
+					<box leftPadding="2" rightPadding="2">					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+</box>
+					<textElement>
+						<font fontName="Times-Roman" size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{high}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="266"
+						y="-46"
+						width="133"
+						height="15"
+						key="textField"/>
+					<box leftPadding="2" rightPadding="2">					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+</box>
+					<textElement>
+						<font fontName="Times-Roman" size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{low}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="399"
+						y="-46"
+						width="133"
+						height="15"
+						key="textField"/>
+					<box leftPadding="2" rightPadding="2">					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+</box>
+					<textElement>
+						<font fontName="Arial" size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{close}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="540"
+						y="-46"
+						width="100"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{prevClose}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="640"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_MonUp}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="690"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_TueUp}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="740"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_WedUp}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="790"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_ThuUp}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="840"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_FriUp}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="890"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_MonDown}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="940"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_TueDown}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="990"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_WedDown}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1040"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_ThuDown}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1090"
+						y="-46"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{v_FriDown}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="98"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="139"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumMonUp} +"/"+ $V{hmTotalWkDays}.get( "Monday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="189"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumTueUp} +"/"+ $V{hmTotalWkDays}.get( "Tuesday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="239"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumWedUp} +"/"+ $V{hmTotalWkDays}.get( "Wednesday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="289"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumThuUp} +"/"+ $V{hmTotalWkDays}.get( "Thursday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="339"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumFriUp} +"/"+ $V{hmTotalWkDays}.get( "Friday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="389"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumMonDown} +"/"+ $V{hmTotalWkDays}.get( "Monday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="439"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumTueDown} +"/"+ $V{hmTotalWkDays}.get( "Tuesday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="489"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumWedDown} +"/"+ $V{hmTotalWkDays}.get( "Wednesday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="539"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumThuDown} +"/"+ $V{hmTotalWkDays}.get( "Thursday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="589"
+						y="7"
+						width="50"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{sumFriDown} +"/"+ $V{hmTotalWkDays}.get( "Friday" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="139"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFFFCC"
+						key="textField-1"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumMonUp}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Monday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="189"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFFFCC"
+						key="textField-2"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumTueUp}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Tuesday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="239"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFFFCC"
+						key="textField-3"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumWedUp}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Wednesday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="289"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFFFCC"
+						key="textField-4"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumThuUp}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Thursday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="339"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFFFCC"
+						key="textField-5"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumFriUp}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Friday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="390"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFCCCC"
+						key="textField-6"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumMonDown}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Monday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="440"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFCCCC"
+						key="textField-7"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumTueDown}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Tuesday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="490"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFCCCC"
+						key="textField-8"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumWedDown}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Wednesday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="540"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFCCCC"
+						key="textField-9"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumThuDown}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Thursday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="590"
+						y="30"
+						width="50"
+						height="18"
+						backcolor="#FFCCCC"
+						key="textField-10"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[($V{sumFriDown}.doubleValue() / ((Integer) $V{hmTotalWkDays}.get( "Friday" )).doubleValue())*100.00]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="23"
+						y="30"
+						width="108"
+						height="18"
+						key="staticText-1"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[% Chances of Success]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="9"
+						y="7"
+						width="122"
+						height="18"
+						key="staticText-2"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[positive days/out of total]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="139"
+						y="53"
+						width="489"
+						height="19"
+						key="textField-12"/>
+					<box>					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+</box>
+					<textElement>
+						<font fontName="Times-Roman" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Data considered for Period - From " +new java.text.SimpleDateFormat("MM/dd/yyyy").format( $P{pStartDate} )+
+" to " +new java.text.SimpleDateFormat("MM/dd/yyyy").format( $P{pEndDate} )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="139"
+						y="77"
+						width="120"
+						height="19"
+						key="textField-13"/>
+					<box>					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+</box>
+					<textElement>
+						<font fontName="Times-Roman" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Percent Move: " +$P{pPercentMove}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="266"
+						y="77"
+						width="108"
+						height="19"
+						key="textField-14"/>
+					<box>					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+</box>
+					<textElement>
+						<font fontName="Times-Roman" size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Symbol: " +$P{pSymbol}]]></textFieldExpression>
+				</textField>
+			</band>
+		</summary>
+</jasperReport>
