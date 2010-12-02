@@ -180,7 +180,9 @@
 						y="-46"
 						width="133"
 						height="15"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box leftPadding="2" rightPadding="2">					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.0" lineColor="#000000"/>
@@ -197,7 +199,9 @@
 						y="-46"
 						width="133"
 						height="15"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box leftPadding="2" rightPadding="2">					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.0" lineColor="#000000"/>
@@ -214,7 +218,9 @@
 						y="-46"
 						width="133"
 						height="15"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box leftPadding="2" rightPadding="2">					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.0" lineColor="#000000"/>
@@ -231,7 +237,9 @@
 						y="-46"
 						width="133"
 						height="15"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box leftPadding="2" rightPadding="2">					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.0" lineColor="#000000"/>
@@ -248,7 +256,9 @@
 						y="-46"
 						width="100"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font fontName="Arial" size="12"/>
@@ -261,7 +271,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -274,7 +286,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -287,7 +301,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -300,7 +316,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -313,7 +331,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -326,7 +346,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -339,7 +361,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -352,7 +376,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -365,7 +391,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -378,7 +406,9 @@
 						y="-46"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -403,7 +433,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -416,7 +448,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -429,7 +463,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -442,7 +478,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -455,7 +493,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -468,7 +508,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -481,7 +523,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -494,7 +538,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -507,7 +553,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -520,7 +568,9 @@
 						y="7"
 						width="50"
 						height="18"
-						key="textField"/>
+						key="textField">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -610,7 +660,9 @@
 						width="50"
 						height="18"
 						backcolor="#FFCCCC"
-						key="textField-6"/>
+						key="textField-6">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -625,7 +677,9 @@
 						width="50"
 						height="18"
 						backcolor="#FFCCCC"
-						key="textField-7"/>
+						key="textField-7">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -640,7 +694,9 @@
 						width="50"
 						height="18"
 						backcolor="#FFCCCC"
-						key="textField-8"/>
+						key="textField-8">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -655,7 +711,9 @@
 						width="50"
 						height="18"
 						backcolor="#FFCCCC"
-						key="textField-9"/>
+						key="textField-9">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -670,7 +728,9 @@
 						width="50"
 						height="18"
 						backcolor="#FFCCCC"
-						key="textField-10"/>
+						key="textField-10">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -679,11 +739,13 @@
 				</textField>
 				<staticText>
 					<reportElement
-						x="23"
-						y="30"
+						x="9"
+						y="72"
 						width="108"
 						height="18"
-						key="staticText-1"/>
+						key="staticText-1">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -696,7 +758,9 @@
 						y="7"
 						width="122"
 						height="18"
-						key="staticText-2"/>
+						key="staticText-2">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box></box>
 					<textElement>
 						<font/>
@@ -709,7 +773,9 @@
 						y="53"
 						width="489"
 						height="19"
-						key="textField-12"/>
+						key="textField-12">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box>					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.0" lineColor="#000000"/>
@@ -727,7 +793,9 @@
 						y="77"
 						width="120"
 						height="19"
-						key="textField-13"/>
+						key="textField-13">
+							<printWhenExpression><![CDATA[false]]></printWhenExpression>
+						</reportElement>
 					<box>					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.0" lineColor="#000000"/>
@@ -740,9 +808,9 @@
 				</textField>
 				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
 					<reportElement
-						x="266"
-						y="77"
-						width="108"
+						x="60"
+						y="30"
+						width="69"
 						height="19"
 						key="textField-14"/>
 					<box>					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -753,7 +821,7 @@
 					<textElement>
 						<font fontName="Times-Roman" size="10"/>
 					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA["Symbol: " +$P{pSymbol}]]></textFieldExpression>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{pSymbol}]]></textFieldExpression>
 				</textField>
 			</band>
 		</summary>
