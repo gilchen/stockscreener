@@ -2,6 +2,7 @@ package com.stocks;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.LineNumberReader;
 import java.sql.Connection;
@@ -14,10 +15,21 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import net.sf.jasperreports.engine.JRExporterParameter;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.export.JRCsvExporter;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
 public class Statistics {
-	static final String folder = "C:/Temp/stk/Analysis/3_month";
+	static final String RPT_FILE = "C:/Classroom/JSF/int_ref/workspace/trunk/jasper_reports/D_Analysis_Percent_Move_GroupOnly_Main.jrxml";
 	
 	static Comparator comparator = new Comparator(){
 		public int compare(Object o1, Object o2) {
@@ -44,31 +56,92 @@ public class Statistics {
 	
 	public static void main(String args[]) throws Exception{
 		Statistics stats = new Statistics();
-		String[] files = new File(folder).list(new FilenameFilter(){
+		//stats.process();
+		Connection con = stats.getConnection();
+
+		Calendar cStartDate = Calendar.getInstance();
+		Calendar cEndDate = Calendar.getInstance();
+		Calendar cLastFriday = Calendar.getInstance();
+		if( cLastFriday.get( Calendar.DAY_OF_WEEK ) >= Calendar.FRIDAY ){
+			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
+		}else{
+			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
+			cLastFriday.add( Calendar.DATE, -7 );
+		}
+		
+//		cLastFriday.set(Calendar.DATE, 3);
+//		cLastFriday.set(Calendar.MONTH, Calendar.DECEMBER);
+//		cLastFriday.set(Calendar.YEAR, 2010);
+		
+
+		// Initialize Dates
+		cStartDate.set(Calendar.DATE, 1);
+		cStartDate.set(Calendar.MONDAY, Calendar.MARCH);
+		cStartDate.set(Calendar.YEAR, 2010);
+
+		cEndDate.set(Calendar.DATE, 18);
+		cEndDate.set(Calendar.MONDAY, Calendar.JUNE);
+		cEndDate.set(Calendar.YEAR, 2010);
+		
+		String exportFolder = "C:/Temp/stk/Analysis/reports/";
+		while( cEndDate.before( cLastFriday ) ){
+			cStartDate.add(Calendar.DATE, 7);
+			cEndDate.add(Calendar.DATE, 7);
+			
+			stats.generateReports( con, cStartDate.getTime(), cEndDate.getTime(), exportFolder );
+		}
+		stats.process(exportFolder, con);
+		
+		stats.closeResource(null, null, con);
+	}
+	
+	private void generateReports(Connection con, Date startDate, Date endDate, String exportFolder) throws Exception {
+		String exportFileName = exportFolder+new java.text.SimpleDateFormat("MM_dd_yyyy").format( endDate )+ ".csv";
+		Map params = new HashMap();
+		
+		params.put("pStartDate", startDate);
+		params.put("pEndDate", endDate);
+		params.put("pPercentMove", new Double("0.60"));
+		params.put("SUBREPORT_DIR", "C:\\Program Files\\JasperSoft\\iReport-3.0.0\\");
+		
+		JasperDesign design = JRXmlLoader.load( RPT_FILE );
+		design.setIgnorePagination(true);
+		JasperReport report = JasperCompileManager.compileReport(design);
+		JasperPrint print = JasperFillManager.fillReport(report, params, con);
+		JRCsvExporter exporter = new JRCsvExporter();
+		exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+		exporter.setParameter(JRExporterParameter.OUTPUT_FILE, new File(exportFileName));
+		exporter.exportReport();
+		System.out.println( "CSV Generated: " +exportFileName );
+	}
+	
+	private void process(String exportFolder, Connection con) throws Exception{
+		FileWriter writer = new FileWriter( exportFolder+"rpt.html" );
+		
+		String[] files = new File(exportFolder).list(new FilenameFilter(){
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".csv");
 			}
 		});
-		Connection con = stats.getConnection();
-		System.out.println( "<html><body><table border='1'>" );
+
+		writer.write( "<html><body><table border='1'>\n" );
 		for( String file : files ){
-			//System.out.println( file );
-			List<NysePick> list = stats.getStrategy( file );
-			System.out.println( "<!--" );
+			//System.out.println( "-> " + file );
+			List<NysePick> list = getStrategy( exportFolder+file );
+			writer.write( "<!--\n" );
 			for( NysePick nysePick : list ){
-				System.out.println( nysePick );
+				writer.write( nysePick.toString()+"\n" );
 			}
-			System.out.println( "-->" );
+			writer.write( "-->\n" );
 //			if(true) return;
 			
-			System.out.println( "<tr>" );
-			//boolean isHoliday = false;
+			writer.write( "<tr>\n" );
 			NysePick npBuy = null, npSell = null;
 			for( int i=0; i<list.size(); i++ ){
-				System.out.println( "<td " );
+				writer.write( "<td " );
 				npBuy = list.get(i);
 				
-				Nyse nyseBuy = stats.getResult( con, npBuy.buyDate, npBuy.symbol);
+				Nyse nyseBuy = getResult( con, npBuy.buyDate, npBuy.symbol);
 				if( nyseBuy == null ){
 					// Friday Holiday
 					Calendar c = Calendar.getInstance();
@@ -76,9 +149,7 @@ public class Statistics {
 					
 					while( nyseBuy == null ){
 						c.add( Calendar.DATE, -1);
-						//npBuy.buyDate = c.getTime();
-	
-						nyseBuy = stats.getResult( con, c.getTime(), npBuy.symbol);
+						nyseBuy = getResult( con, c.getTime(), npBuy.symbol);
 					}
 				}
 				
@@ -96,107 +167,36 @@ public class Statistics {
 					npSell.buyDate = c.getTime();
 				}
 				
-				Nyse nyseSell = stats.getResult( con, npSell.buyDate, npBuy.symbol);
+				Nyse nyseSell = getResult( con, npSell.buyDate, npBuy.symbol);
 
 				if( nyseSell == null ){
-					//isHoliday = true;
-					System.out.println( "><B>Holiday</B>" );
+					writer.write( "><B>Holiday</B>" );
 				}else{
 					if( expectedGain > nyseSell.low && expectedGain < nyseSell.high ){
-						System.out.println( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +stats.getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
-						System.out.println( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +stats.getStrDate( nyseSell.tradeDate )+ " @"+ expectedGain );
+						writer.write( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+						writer.write( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ expectedGain );
 					}else if( expectedGain < nyseSell.low ){
-						System.out.println( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +stats.getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
-						System.out.println( "<BR>Profit (<B>Beyond Expectations</B>): Sell " +nyseSell.symbol+ " on " +stats.getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.low );
+						writer.write( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+						writer.write( "<BR>Profit (<B>Beyond Expectations</B>): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.low );
 					}else{
-						System.out.println( "bgcolor=#FFC1C1>Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +stats.getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
-						System.out.println( "<BR>Loss: Sell " +nyseSell.symbol+ " on " +stats.getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.close );
+						writer.write( "bgcolor=#FFC1C1>Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+						writer.write( "<BR>Loss: Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.close );
 					}
 				}
 				
-//				if( isHoliday ){
-//					try{
-//						tradeDate = stats.getDate( row2[i-0] );
-//						symbol = row1[i-2];
-//					}
-//					catch(Exception e){
-//						// When Monday is Holiday
-//						tradeDate = oldTradeDate;
-//						symbol = row1[i+2];
-//						//System.out.println( "Exception " +tradeDate+ ", "+ symbol );
-//					}
-//					isHoliday = false;
-//				}else{
-//					tradeDate = stats.getDate( row2[i+1] );
-//					symbol = row1[i+2];
-//				}
-//				nyseBuy = stats.getResult(con, tradeDate, symbol);
-				System.out.println( "</td>" );
+				writer.write( "</td>\n" );
 			}
-			System.out.println( "</tr>" );			
-			
-			
-//			String[] rows = stats.readFile(file);
-//			String[] row1 = rows[0].split(",");
-//			String[] row2 = rows[1].split(",");
-//			
-//			Date tradeDate = stats.getDate( row2[row2.length-1] );
-//			String symbol = row1[1];
-//			Nyse nyseBuy = stats.getResult(  con, tradeDate, symbol);
-//			System.out.println( "<tr>" );
-//			boolean isHoliday = false;
-//			for( int i=0; i<5; i++ ){
-//				System.out.println( "<td " );
-//				Date oldTradeDate = tradeDate;
-//				tradeDate = stats.getDate( row2[i+1] );
-//				symbol = row1[i+1];
-//				Nyse nyseSell = stats.getResult( con, tradeDate, symbol);
-//				Double expectedGain = nyseBuy.close + (nyseBuy.close * (0.60/100.0));
-//				
-//				if( nyseSell == null ){
-//					isHoliday = true;
-//					System.out.println( "><B>Holiday</B>" );
-//				}else{
-//					if( expectedGain > nyseSell.low && expectedGain < nyseSell.high ){
-//						System.out.println( ">Buy " +symbol+ " on " +stats.getStrDate( oldTradeDate )+ " @"+ nyseBuy.close );
-//						System.out.println( "<BR>Profit (As expected): Sell " +symbol+ " on " +stats.getStrDate( tradeDate )+ " @"+ expectedGain );
-//					}else if( expectedGain < nyseSell.low ){
-//						System.out.println( ">Buy " +symbol+ " on " +stats.getStrDate( oldTradeDate )+ " @"+ nyseBuy.close );
-//						System.out.println( "<BR>Profit (<B>Beyond Expectations</B>): Sell " +symbol+ " on " +stats.getStrDate( tradeDate )+ " @"+ nyseSell.low );
-//					}else{
-//						System.out.println( "bgcolor=#FFC1C1>Buy " +symbol+ " on " +stats.getStrDate( oldTradeDate )+ " @"+ nyseBuy.close );
-//						System.out.println( "<BR>Loss: Sell " +symbol+ " on " +stats.getStrDate( tradeDate )+ " @"+ nyseSell.close );
-//					}
-//				}
-//				
-//				if( isHoliday ){
-//					try{
-//						tradeDate = stats.getDate( row2[i-0] );
-//						symbol = row1[i-2];
-//					}
-//					catch(Exception e){
-//						// When Monday is Holiday
-//						tradeDate = oldTradeDate;
-//						symbol = row1[i+2];
-//						//System.out.println( "Exception " +tradeDate+ ", "+ symbol );
-//					}
-//					isHoliday = false;
-//				}else{
-//					tradeDate = stats.getDate( row2[i+1] );
-//					symbol = row1[i+2];
-//				}
-//				nyseBuy = stats.getResult(con, tradeDate, symbol);
-//				System.out.println( "</td>" );
-//			}
-//			System.out.println( "</tr>" );
+			writer.write( "</tr>\n" );
 		}
-		System.out.println( "</table></body></html>" );
-		stats.closeResource(null, null, con);
+		writer.write( "</table></body></html>\n" );
+		
+		writer.close();
+		System.out.println( "Report Generated." );
 	}
 	
 	private List<NysePick> getStrategy(String fileName) throws Exception {
 		String str[] = new String[2];
-		LineNumberReader lnr = new LineNumberReader( new FileReader( folder+"/"+fileName ) );
+		LineNumberReader lnr = new LineNumberReader( new FileReader( fileName ) );
 		str[0] = lnr.readLine();
 		str[1] = lnr.readLine();
 		
@@ -245,15 +245,6 @@ public class Statistics {
 		c.add(Calendar.DATE, 1);
 
 		return list;
-	}
-	
-	private String[] readFile(String fileName) throws Exception {
-		String str[] = new String[2];
-		LineNumberReader lnr = new LineNumberReader( new FileReader( folder+"/"+fileName ) );
-		str[0] = lnr.readLine();
-		str[1] = lnr.readLine();
-		lnr.close();
-		return str;
 	}
 	
 	private Date getDate(String str) throws Exception {
@@ -329,7 +320,7 @@ public class Statistics {
 			catch(Exception e){
 				
 			}
-			return symbol +", "+ successPercent+ ", "+ bd;
+			return "Buy " +symbol +" on " +bd+ " ("+ successPercent+ "% chances of success)";
 		}
 	}
 	
