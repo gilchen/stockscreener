@@ -56,11 +56,28 @@ public class Statistics {
 	
 	public static void main(String args[]) throws Exception{
 		Statistics stats = new Statistics();
-		//stats.process();
 		Connection con = stats.getConnection();
 
+		stats.analyzeNWeekData(con, 2);
+		stats.analyzeNWeekData(con, 4); // 1 Month
+		
+		stats.analyzeNWeekData(con, 6);
+		stats.analyzeNWeekData(con, 8); // 2 Month
+		
+		stats.analyzeNWeekData(con, 10);
+		stats.analyzeNWeekData(con, 12); // 3 Month
+		
+		stats.analyzeNWeekData(con, 14);
+		stats.analyzeNWeekData(con, 16); // 4 Month
+		
+		stats.analyzeNWeekData(con, 18);
+		stats.analyzeNWeekData(con, 20); // 5 Month
+
+		stats.closeResource(null, null, con);
+	}
+	
+	private void analyzeNWeekData(Connection con, int numberOfWeeks) throws Exception{
 		Calendar cStartDate = Calendar.getInstance();
-		Calendar cEndDate = Calendar.getInstance();
 		Calendar cLastFriday = Calendar.getInstance();
 		if( cLastFriday.get( Calendar.DAY_OF_WEEK ) >= Calendar.FRIDAY ){
 			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
@@ -73,26 +90,27 @@ public class Statistics {
 //		cLastFriday.set(Calendar.MONTH, Calendar.DECEMBER);
 //		cLastFriday.set(Calendar.YEAR, 2010);
 		
-
 		// Initialize Dates
 		cStartDate.set(Calendar.DATE, 1);
 		cStartDate.set(Calendar.MONDAY, Calendar.MARCH);
 		cStartDate.set(Calendar.YEAR, 2010);
 
-		cEndDate.set(Calendar.DATE, 18);
-		cEndDate.set(Calendar.MONDAY, Calendar.JUNE);
-		cEndDate.set(Calendar.YEAR, 2010);
+		Calendar cEndDate = (Calendar) cStartDate.clone();
+		cEndDate.add(Calendar.DATE, (numberOfWeeks*7)-3);
+
+		String exportFolder = "C:/Temp/stk/Analysis/reports/" +numberOfWeeks+"Week/";
+		File file = new File(exportFolder);
+		if( !file.exists() ){
+			file.mkdir();
+		}
 		
-		String exportFolder = "C:/Temp/stk/Analysis/reports/";
 		while( cEndDate.before( cLastFriday ) ){
 			cStartDate.add(Calendar.DATE, 7);
 			cEndDate.add(Calendar.DATE, 7);
 			
-			stats.generateReports( con, cStartDate.getTime(), cEndDate.getTime(), exportFolder );
+			generateReports( con, cStartDate.getTime(), cEndDate.getTime(), exportFolder );
 		}
-		stats.process(exportFolder, con);
-		
-		stats.closeResource(null, null, con);
+		process(exportFolder, con, numberOfWeeks);
 	}
 	
 	private void generateReports(Connection con, Date startDate, Date endDate, String exportFolder) throws Exception {
@@ -115,7 +133,7 @@ public class Statistics {
 		System.out.println( "CSV Generated: " +exportFileName );
 	}
 	
-	private void process(String exportFolder, Connection con) throws Exception{
+	private void process(String exportFolder, Connection con, int numberOfWeeks) throws Exception{
 		FileWriter writer = new FileWriter( exportFolder+"rpt.html" );
 		
 		String[] files = new File(exportFolder).list(new FilenameFilter(){
@@ -124,7 +142,13 @@ public class Statistics {
 			}
 		});
 
-		writer.write( "<html><body><table border='1'>\n" );
+		writer.write( "<html><body>" );
+		writer.write( "<B>" +numberOfWeeks+ " Weeks Data Starting 03/01/2010.</B>" );
+		writer.write( "<table border='1'>\n" );
+		
+		Map<Integer, Integer> mTotalTradingDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalTradingDays
+		Map<Integer, Integer> mTotalSuccessDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalSuccessDays
+		
 		for( String file : files ){
 			//System.out.println( "-> " + file );
 			List<NysePick> list = getStrategy( exportFolder+file );
@@ -133,8 +157,7 @@ public class Statistics {
 				writer.write( nysePick.toString()+"\n" );
 			}
 			writer.write( "-->\n" );
-//			if(true) return;
-			
+
 			writer.write( "<tr>\n" );
 			NysePick npBuy = null, npSell = null;
 			for( int i=0; i<list.size(); i++ ){
@@ -172,15 +195,30 @@ public class Statistics {
 				if( nyseSell == null ){
 					writer.write( "><B>Holiday</B>" );
 				}else{
+					Integer totalTradingDays = mTotalTradingDays.get(i);
+					if( totalTradingDays == null ){
+						totalTradingDays = new Integer(0);
+					}
+					mTotalTradingDays.put(i, totalTradingDays.intValue()+1);
+
+					Integer totalSuccessDays = mTotalSuccessDays.get(i);
+					if( totalSuccessDays == null ){
+						totalSuccessDays = new Integer(0);
+					}
+
 					if( expectedGain > nyseSell.low && expectedGain < nyseSell.high ){
+						mTotalSuccessDays.put(i, totalSuccessDays.intValue()+1);
+						
 						writer.write( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
 						writer.write( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ expectedGain );
 					}else if( expectedGain < nyseSell.low ){
+						mTotalSuccessDays.put(i, totalSuccessDays.intValue()+1);
+
 						writer.write( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
 						writer.write( "<BR>Profit (<B>Beyond Expectations</B>): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.low );
 					}else{
-						writer.write( "bgcolor=#FFC1C1>Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
-						writer.write( "<BR>Loss: Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.close );
+						writer.write( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+						writer.write( "<BR><span style='background-color:red'>Loss:</span> Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.close );
 					}
 				}
 				
@@ -188,6 +226,17 @@ public class Statistics {
 			}
 			writer.write( "</tr>\n" );
 		}
+		
+		writer.write( "<tr>\n" );
+		for(int i=0; i<5; i++){
+			writer.write( "<td>" );
+			int totalTradingDays = mTotalTradingDays.get(i);
+			int totalSuccessDays = mTotalSuccessDays.get(i);
+			writer.write( totalSuccessDays +"/"+totalTradingDays+ " (" +(int)(((double)totalSuccessDays/(double)totalTradingDays)*100.0)+ "%)" );
+			writer.write( "</td>" );
+		}
+		writer.write( "</tr>\n" );
+		
 		writer.write( "</table></body></html>\n" );
 		
 		writer.close();
