@@ -33,7 +33,7 @@
 	</parameter>
 	<parameter name="pPercentMove" isForPrompting="true" class="java.lang.Double">
 		<parameterDescription><![CDATA[Percent Movement:]]></parameterDescription>
-		<defaultValueExpression ><![CDATA[0.60]]></defaultValueExpression>
+		<defaultValueExpression ><![CDATA[new java.lang.Double("0.60")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="SUBREPORT_DIR" isForPrompting="true" class="java.lang.String">
 		<defaultValueExpression ><![CDATA["C:\\Program Files\\JasperSoft\\iReport-3.0.0\\"]]></defaultValueExpression>
