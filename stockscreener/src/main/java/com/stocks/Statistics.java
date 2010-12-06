@@ -58,26 +58,25 @@ public class Statistics {
 		Statistics stats = new Statistics();
 		Connection con = stats.getConnection();
 
-		stats.analyzeNWeekData(con, 2);
-		stats.analyzeNWeekData(con, 4); // 1 Month
+		stats.analyzeNWeekData(con, 2, 20);
+		stats.analyzeNWeekData(con, 4, 20); // 1 Month
 		
-		stats.analyzeNWeekData(con, 6);
-		stats.analyzeNWeekData(con, 8); // 2 Month
+		stats.analyzeNWeekData(con, 6, 20);
+		stats.analyzeNWeekData(con, 8, 20); // 2 Month
 		
-		stats.analyzeNWeekData(con, 10);
-		stats.analyzeNWeekData(con, 12); // 3 Month
+		stats.analyzeNWeekData(con, 10, 20);
+		stats.analyzeNWeekData(con, 12, 20); // 3 Month
 		
-		stats.analyzeNWeekData(con, 14);
-		stats.analyzeNWeekData(con, 16); // 4 Month
+		stats.analyzeNWeekData(con, 14, 20);
+		stats.analyzeNWeekData(con, 16, 20); // 4 Month
 		
-		stats.analyzeNWeekData(con, 18);
-		stats.analyzeNWeekData(con, 20); // 5 Month
+		stats.analyzeNWeekData(con, 18, 20);
+		stats.analyzeNWeekData(con, 20, 20); // 5 Month
 
 		stats.closeResource(null, null, con);
 	}
 	
-	private void analyzeNWeekData(Connection con, int numberOfWeeks) throws Exception{
-		Calendar cStartDate = Calendar.getInstance();
+	private void analyzeNWeekData(Connection con, int numberOfWeeks, int maxWeeksInGroup) throws Exception{
 		Calendar cLastFriday = Calendar.getInstance();
 		if( cLastFriday.get( Calendar.DAY_OF_WEEK ) >= Calendar.FRIDAY ){
 			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
@@ -91,12 +90,20 @@ public class Statistics {
 //		cLastFriday.set(Calendar.YEAR, 2010);
 		
 		// Initialize Dates
+		Calendar cStartDate = Calendar.getInstance();
 		cStartDate.set(Calendar.DATE, 1);
 		cStartDate.set(Calendar.MONDAY, Calendar.MARCH);
 		cStartDate.set(Calendar.YEAR, 2010);
 
 		Calendar cEndDate = (Calendar) cStartDate.clone();
-		cEndDate.add(Calendar.DATE, (numberOfWeeks*7)-3);
+		cEndDate.add(Calendar.DATE, (maxWeeksInGroup*7)-3);
+		cStartDate.setTime( cEndDate.getTime() );
+		cStartDate.add(Calendar.DATE, -(numberOfWeeks*7)+3);
+		
+//		System.out.println( "Number of Weeks " +numberOfWeeks );
+//		System.out.println( "\tStart Date: " +cStartDate.getTime() );
+//		System.out.println( "\tEnd Date: " +cEndDate.getTime() );
+//		if(true)return;
 
 		String exportFolder = "C:/Temp/stk/Analysis/reports/" +numberOfWeeks+"Week/";
 		File file = new File(exportFolder);
@@ -104,7 +111,8 @@ public class Statistics {
 			file.mkdir();
 		}
 		
-		while( cEndDate.before( cLastFriday ) ){
+		//int ctr=0;
+		while( cEndDate.before( cLastFriday ) ){ // && ctr++ < 19 ){
 			cStartDate.add(Calendar.DATE, 7);
 			cEndDate.add(Calendar.DATE, 7);
 			
@@ -130,6 +138,7 @@ public class Statistics {
 		exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
 		exporter.setParameter(JRExporterParameter.OUTPUT_FILE, new File(exportFileName));
 		exporter.exportReport();
+		//System.out.println( "Date Range: " +getStrDate(startDate)+"-"+getStrDate(endDate) );
 		System.out.println( "CSV Generated: " +exportFileName );
 	}
 	
@@ -143,7 +152,7 @@ public class Statistics {
 		});
 
 		writer.write( "<html><body>" );
-		writer.write( "<B>" +numberOfWeeks+ " Weeks Data Starting 03/01/2010.</B>" );
+		writer.write( "<B>" +numberOfWeeks+ " Weeks Data</B>" );
 		writer.write( "<table border='1'>\n" );
 		
 		Map<Integer, Integer> mTotalTradingDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalTradingDays
@@ -230,8 +239,16 @@ public class Statistics {
 		writer.write( "<tr>\n" );
 		for(int i=0; i<5; i++){
 			writer.write( "<td>" );
-			int totalTradingDays = mTotalTradingDays.get(i);
-			int totalSuccessDays = mTotalSuccessDays.get(i);
+			int totalTradingDays = 0;
+			if(mTotalTradingDays.get(i) != null){
+				totalTradingDays = mTotalTradingDays.get(i);
+			}
+			
+			int totalSuccessDays = 0;
+			if( mTotalSuccessDays.get(i) != null){
+				totalSuccessDays = mTotalSuccessDays.get(i);
+			}
+			
 			writer.write( totalSuccessDays +"/"+totalTradingDays+ " (" +(int)(((double)totalSuccessDays/(double)totalTradingDays)*100.0)+ "%)" );
 			writer.write( "</td>" );
 		}
