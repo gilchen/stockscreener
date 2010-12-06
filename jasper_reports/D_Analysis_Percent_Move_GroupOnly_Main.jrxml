@@ -47,8 +47,6 @@ select 'URTY' union
 select 'FAS' union 
 select 'TNA' union 
 select 'BGU' union 
-select 'TYD' union 
-select 'TWOL' union 
 select 'TMF' union 
 select 'CZM' union 
 select 'DZK' union 
@@ -68,13 +66,10 @@ select 'FAZ' union
 select 'TZA' union 
 select 'BGZ' union 
 select 'TYO' union 
-select 'TWOZ' union 
 select 'TMV' union 
-select 'CZI' union 
 select 'DPK' union 
 select 'EDZ' union 
 select 'ERY' union 
-select 'LHB' union 
 select 'MWN' union 
 select 'DRV' union 
 select 'SOXS' union 
