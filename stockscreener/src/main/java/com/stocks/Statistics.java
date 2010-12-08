@@ -12,12 +12,13 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -30,7 +31,9 @@ import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
 public class Statistics {
 	static final String RPT_FILE = "C:/Classroom/JSF/int_ref/workspace/trunk/jasper_reports/D_Analysis_Percent_Move_GroupOnly_Main.jrxml";
-	
+	static final String EXPORT_FOLDER = "C:/Temp/stk/Analysis/reports/";
+	static final StringBuffer sbConsolidatedReport = new StringBuffer();
+	static Integer PERCENT = 50;
 	static Comparator comparator = new Comparator(){
 		public int compare(Object o1, Object o2) {
 			Object[] arr1 = (Object[]) o1;
@@ -58,32 +61,59 @@ public class Statistics {
 		Statistics stats = new Statistics();
 		Connection con = stats.getConnection();
 
-		stats.analyzeNWeekData(con, 2, 20);
-		stats.analyzeNWeekData(con, 4, 20); // 1 Month
+		//
+		Calendar cLastFriday = Calendar.getInstance();
+		cLastFriday.set( Calendar.DATE, 23 );
+		cLastFriday.set( Calendar.MONTH, Calendar.JULY );
+		cLastFriday.set( Calendar.YEAR, 2010 );
+		//
 		
-		stats.analyzeNWeekData(con, 6, 20);
-		stats.analyzeNWeekData(con, 8, 20); // 2 Month
+		Integer[] arrPercent = new Integer[]{50, 60, 70, 80, 90, 100};
+		for( int iteration=1; iteration<=20; iteration++ ){
+			for( Integer pc : arrPercent ){
+				PERCENT = pc;
+				int MAX_WEEKS_IN_GROUP = 20;
+				for( int i=2; i<=MAX_WEEKS_IN_GROUP; i+=2 ){
+					stats.analyzeNWeekData(con, i, MAX_WEEKS_IN_GROUP, cLastFriday);
+				}
+				
+		//		stats.analyzeNWeekData(con, 2, 20);
+		//		stats.analyzeNWeekData(con, 4, 20); // 1 Month
+		//		
+		//		stats.analyzeNWeekData(con, 6, 20);
+		//		stats.analyzeNWeekData(con, 8, 20); // 2 Month
+		//		
+		//		stats.analyzeNWeekData(con, 10, 20);
+		//		stats.analyzeNWeekData(con, 12, 20); // 3 Month
+		//		
+		//		stats.analyzeNWeekData(con, 14, 20);
+		//		stats.analyzeNWeekData(con, 16, 20); // 4 Month
+		//		
+		//		stats.analyzeNWeekData(con, 18, 20);
+		//		stats.analyzeNWeekData(con, 20, 20); // 5 Month
 		
-		stats.analyzeNWeekData(con, 10, 20);
-		stats.analyzeNWeekData(con, 12, 20); // 3 Month
+				FileWriter writer = new FileWriter( EXPORT_FOLDER+"Wk"+iteration+"_"+PERCENT+".html" );
+				writer.write("<html><body><table border='1'>\n");
+				writer.write( sbConsolidatedReport.toString() );
+				writer.write("</table></body></html>\n");
+				writer.close();
+				
+				sbConsolidatedReport.delete(0, sbConsolidatedReport.length());
+			}
+			cLastFriday.add(Calendar.DATE, 7);
+		}
 		
-		stats.analyzeNWeekData(con, 14, 20);
-		stats.analyzeNWeekData(con, 16, 20); // 4 Month
-		
-		stats.analyzeNWeekData(con, 18, 20);
-		stats.analyzeNWeekData(con, 20, 20); // 5 Month
-
 		stats.closeResource(null, null, con);
 	}
 	
-	private void analyzeNWeekData(Connection con, int numberOfWeeks, int maxWeeksInGroup) throws Exception{
-		Calendar cLastFriday = Calendar.getInstance();
-		if( cLastFriday.get( Calendar.DAY_OF_WEEK ) >= Calendar.FRIDAY ){
-			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
-		}else{
-			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
-			cLastFriday.add( Calendar.DATE, -7 );
-		}
+	private void analyzeNWeekData(Connection con, int numberOfWeeks, int maxWeeksInGroup, Calendar cLastFriday) throws Exception{
+//		Calendar cLastFriday = Calendar.getInstance();
+//		if( cLastFriday.get( Calendar.DAY_OF_WEEK ) >= Calendar.FRIDAY ){
+//			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
+//		}else{
+//			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
+//			cLastFriday.add( Calendar.DATE, -7 );
+//		}
 		
 //		cLastFriday.set(Calendar.DATE, 3);
 //		cLastFriday.set(Calendar.MONTH, Calendar.DECEMBER);
@@ -99,13 +129,8 @@ public class Statistics {
 		cEndDate.add(Calendar.DATE, (maxWeeksInGroup*7)-3);
 		cStartDate.setTime( cEndDate.getTime() );
 		cStartDate.add(Calendar.DATE, -(numberOfWeeks*7)+3);
-		
-//		System.out.println( "Number of Weeks " +numberOfWeeks );
-//		System.out.println( "\tStart Date: " +cStartDate.getTime() );
-//		System.out.println( "\tEnd Date: " +cEndDate.getTime() );
-//		if(true)return;
 
-		String exportFolder = "C:/Temp/stk/Analysis/reports/" +numberOfWeeks+"Week/";
+		String exportFolder = EXPORT_FOLDER+numberOfWeeks+"Week/";
 		File file = new File(exportFolder);
 		if( !file.exists() ){
 			file.mkdir();
@@ -158,13 +183,16 @@ public class Statistics {
 		Map<Integer, Integer> mTotalTradingDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalTradingDays
 		Map<Integer, Integer> mTotalSuccessDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalSuccessDays
 		
+		StringBuffer sbStrategy = null;
 		for( String file : files ){
 			//System.out.println( "-> " + file );
 			List<NysePick> list = getStrategy( exportFolder+file );
 			writer.write( "<!--\n" );
+			sbStrategy = new StringBuffer();
 			for( NysePick nysePick : list ){
-				writer.write( nysePick.toString()+"\n" );
+				sbStrategy.append( nysePick.toString() ).append("\n");
 			}
+			writer.write( sbStrategy.toString() );
 			writer.write( "-->\n" );
 
 			writer.write( "<tr>\n" );
@@ -237,6 +265,8 @@ public class Statistics {
 		}
 		
 		writer.write( "<tr>\n" );
+		sbConsolidatedReport.append( "<tr title='" +sbStrategy+ "'>" );
+		sbConsolidatedReport.append( "<td>" +numberOfWeeks+ "Weeks</td>" );
 		for(int i=0; i<5; i++){
 			writer.write( "<td>" );
 			int totalTradingDays = 0;
@@ -248,10 +278,14 @@ public class Statistics {
 			if( mTotalSuccessDays.get(i) != null){
 				totalSuccessDays = mTotalSuccessDays.get(i);
 			}
+			String summary = totalSuccessDays +"/"+totalTradingDays+ " (" +(int)(((double)totalSuccessDays/(double)totalTradingDays)*100.0)+ "%)";
+			writer.write( summary );
 			
-			writer.write( totalSuccessDays +"/"+totalTradingDays+ " (" +(int)(((double)totalSuccessDays/(double)totalTradingDays)*100.0)+ "%)" );
+			sbConsolidatedReport.append("<td>").append( summary ).append("</td>");
+			
 			writer.write( "</td>" );
 		}
+		sbConsolidatedReport.append( "</tr>\n" );
 		writer.write( "</tr>\n" );
 		
 		writer.write( "</table></body></html>\n" );
@@ -259,7 +293,7 @@ public class Statistics {
 		writer.close();
 		System.out.println( "Report Generated." );
 	}
-	
+/*	
 	private List<NysePick> getStrategy(String fileName) throws Exception {
 		String str[] = new String[2];
 		LineNumberReader lnr = new LineNumberReader( new FileReader( fileName ) );
@@ -295,22 +329,108 @@ public class Statistics {
 		Calendar c = Calendar.getInstance();
 		c.setTime( getDate(s[s.length-1]) );
 		
-		list.add( new NysePick( (String)o1[0], new Integer((String)o1[1]), c.getTime() ) );
+		list.add( new NysePick( (String)o1[0], new Integer((String)(o1[1].equals("null") ? "0" : o1[1])), c.getTime() ) );
 		c.add(Calendar.DATE, 3);
 		
-		list.add( new NysePick( (String)o2[0], new Integer((String)o2[1]), c.getTime() ) );
+		list.add( new NysePick( (String)o2[0], new Integer((String)(o2[1].equals("null") ? "0" : o2[1])), c.getTime() ) );
 		c.add(Calendar.DATE, 1);
 
-		list.add( new NysePick( (String)o3[0], new Integer((String)o3[1]), c.getTime() ) );
+		list.add( new NysePick( (String)o3[0], new Integer((String)(o3[1].equals("null") ? "0" : o3[1])), c.getTime() ) );
 		c.add(Calendar.DATE, 1);
 
-		list.add( new NysePick( (String)o4[0], new Integer((String)o4[1]), c.getTime() ) );
+		list.add( new NysePick( (String)o4[0], new Integer((String)(o4[1].equals("null") ? "0" : o4[1])), c.getTime() ) );
 		c.add(Calendar.DATE, 1);
 
-		list.add( new NysePick( (String)o5[0], new Integer((String)o5[1]), c.getTime() ) );
+		list.add( new NysePick( (String)o5[0], new Integer((String)(o5[1].equals("null") ? "0" : o5[1])), c.getTime() ) );
 		c.add(Calendar.DATE, 1);
 
 		return list;
+	}
+*/
+	private List<NysePick> getStrategy(String fileName) throws Exception {
+		String str[] = new String[2];
+		LineNumberReader lnr = new LineNumberReader( new FileReader( fileName ) );
+		str[0] = lnr.readLine();
+		str[1] = lnr.readLine();
+		
+		String line = null;
+		List<Object[]> l1 = new ArrayList<Object[]>();
+		List<Object[]> l2 = new ArrayList<Object[]>();
+		List<Object[]> l3 = new ArrayList<Object[]>();
+		List<Object[]> l4 = new ArrayList<Object[]>();
+		List<Object[]> l5 = new ArrayList<Object[]>();
+		
+		while( (line = lnr.readLine()) != null ){
+			String[] arrLine = line.split("[,]", -1);
+			l1.add( new Object[]{arrLine[1], arrLine[2]} );
+			l2.add( new Object[]{arrLine[1], arrLine[3]} );
+			l3.add( new Object[]{arrLine[1], arrLine[4]} );
+			l4.add( new Object[]{arrLine[1], arrLine[5]} );
+			l5.add( new Object[]{arrLine[1], arrLine[6]} );
+		}
+		lnr.close();
+		
+		TreeSet ts1 = new TreeSet(comparator);
+		ts1.addAll(l1);
+		Object[] o1 = getNPlus(ts1);
+
+		TreeSet ts2 = new TreeSet(comparator);
+		ts2.addAll(l2);
+		Object[] o2 = getNPlus(ts2);
+
+		TreeSet ts3 = new TreeSet(comparator);
+		ts3.addAll(l3);
+		Object[] o3 = getNPlus(ts3);
+
+		TreeSet ts4 = new TreeSet(comparator);
+		ts4.addAll(l4);
+		Object[] o4 = getNPlus(ts4);
+
+		TreeSet ts5 = new TreeSet(comparator);
+		ts5.addAll(l5);
+		Object[] o5 = getNPlus(ts5);
+
+//		Object[] o1 = Collections.max(l1, comparator);
+//		Object[] o2 = Collections.max(l2, comparator);
+//		Object[] o3 = Collections.max(l3, comparator);
+//		Object[] o4 = Collections.max(l4, comparator);
+//		Object[] o5 = Collections.max(l5, comparator);
+		
+		List<NysePick> list = new ArrayList<NysePick>();
+		String[] s = str[1].split("[,]", -1);
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime( getDate(s[s.length-1]) );
+		
+		list.add( new NysePick( (String)o1[0], new Integer((String)(o1[1].equals("null") ? "0" : o1[1])), c.getTime() ) );
+		c.add(Calendar.DATE, 3);
+		
+		list.add( new NysePick( (String)o2[0], new Integer((String)(o2[1].equals("null") ? "0" : o2[1])), c.getTime() ) );
+		c.add(Calendar.DATE, 1);
+
+		list.add( new NysePick( (String)o3[0], new Integer((String)(o3[1].equals("null") ? "0" : o3[1])), c.getTime() ) );
+		c.add(Calendar.DATE, 1);
+
+		list.add( new NysePick( (String)o4[0], new Integer((String)(o4[1].equals("null") ? "0" : o4[1])), c.getTime() ) );
+		c.add(Calendar.DATE, 1);
+
+		list.add( new NysePick( (String)o5[0], new Integer((String)(o5[1].equals("null") ? "0" : o5[1])), c.getTime() ) );
+		c.add(Calendar.DATE, 1);
+
+		return list;
+	}
+	
+	private Object[] getNPlus(TreeSet<Object[]> ts1){
+		Iterator<Object[]> iterator = ts1.iterator();
+		while(iterator.hasNext()){
+			Object[] o = iterator.next();
+			if( !o[1].equals("null") ){
+				if( Integer.parseInt((String)o[1]) > PERCENT ){
+					return o;
+				}
+			}
+		}
+		return ts1.floor(new Object[]{"", PERCENT+""});
 	}
 	
 	private Date getDate(String str) throws Exception {
