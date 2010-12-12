@@ -18,6 +18,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -34,9 +36,7 @@ import net.sf.jasperreports.engine.xml.JRXmlLoader;
 public class Statistics {
 	static final String RPT_FILE = "C:/Classroom/JSF/int_ref/workspace/trunk/jasper_reports/D_Analysis_Percent_Move_GroupOnly_Main.jrxml";
 	static final String EXPORT_FOLDER = "C:/Temp/stk/Analysis/reports/";
-	static final StringBuffer sbConsolidatedReport = new StringBuffer();
-	static Integer PERCENT = 50;
-	static Map<Integer, ArrayList<KeyValDetails>> wkDayIteration = new HashMap<Integer, ArrayList<KeyValDetails>>();
+	static final int MAX_WEEKS_IN_GROUP = 20;
 	
 	static Comparator comparator = new Comparator(){
 		public int compare(Object o1, Object o2) {
@@ -56,123 +56,173 @@ public class Statistics {
 	};
 	
 	public static void main(String args[]) throws Exception{
+		System.out.println( "Process Started @ " +new Date() );
 		Statistics stats = new Statistics();
 		Connection con = stats.getConnection();
 
-		//
-		Calendar cLastFriday = Calendar.getInstance();
-		cLastFriday.set( Calendar.DATE, 23 );
-		cLastFriday.set( Calendar.MONTH, Calendar.JULY );
-		cLastFriday.set( Calendar.YEAR, 2010 );
-		//
-		
-		Integer[] arrPercent = new Integer[]{50, 60, 70, 80, 90, 100};
-		for( int iteration=19; iteration<=21; iteration++ ){
-			wkDayIteration.clear();
-			wkDayIteration.put(Calendar.MONDAY, new ArrayList<KeyValDetails>());
-			wkDayIteration.put(Calendar.TUESDAY, new ArrayList<KeyValDetails>());
-			wkDayIteration.put(Calendar.WEDNESDAY, new ArrayList<KeyValDetails>());
-			wkDayIteration.put(Calendar.THURSDAY, new ArrayList<KeyValDetails>());
-			wkDayIteration.put(Calendar.FRIDAY, new ArrayList<KeyValDetails>());
-			
-			for( Integer pc : arrPercent ){
-				PERCENT = pc;
-				int MAX_WEEKS_IN_GROUP = 20;
-//				for( int i=2; i<=MAX_WEEKS_IN_GROUP; i+=2 ){
-//					stats.analyzeNWeekData(con, i, MAX_WEEKS_IN_GROUP, cLastFriday);
-//				}
-				
-		//		stats.analyzeNWeekData(con, 2, 20);
-		//		stats.analyzeNWeekData(con, 4, 20); // 1 Month
-		//		
-		//		stats.analyzeNWeekData(con, 6, 20);
-		//		stats.analyzeNWeekData(con, 8, 20); // 2 Month
-		//		
-		//		stats.analyzeNWeekData(con, 10, 20);
-		//		stats.analyzeNWeekData(con, 12, 20); // 3 Month
-		//		
-		//		stats.analyzeNWeekData(con, 14, 20);
-		//		stats.analyzeNWeekData(con, 16, 20); // 4 Month
-		//		
-		//		stats.analyzeNWeekData(con, 18, 20);
-				stats.analyzeNWeekData(con, 20, 20, cLastFriday); // 5 Month
-		
-				FileWriter writer = new FileWriter( EXPORT_FOLDER+"Wk"+iteration+"_"+PERCENT+".html" );
-				writer.write("<html><body><table border='1'>\n");
-				writer.write( sbConsolidatedReport.toString() );
-				writer.write("</table></body></html>\n");
-				writer.close();
-				
-				sbConsolidatedReport.delete(0, sbConsolidatedReport.length());
-			}
-			
-			ArrayList<KeyValDetails> monKvd = wkDayIteration.get(Calendar.MONDAY);
-			ArrayList<KeyValDetails> tueKvd = wkDayIteration.get(Calendar.TUESDAY);
-			ArrayList<KeyValDetails> wedKvd = wkDayIteration.get(Calendar.WEDNESDAY);
-			ArrayList<KeyValDetails> thuKvd = wkDayIteration.get(Calendar.THURSDAY);
-			ArrayList<KeyValDetails> friKvd = wkDayIteration.get(Calendar.FRIDAY);
-			
-			Collections.sort( monKvd, comparator );
-			Collections.sort( tueKvd, comparator );
-			Collections.sort( wedKvd, comparator );
-			Collections.sort( thuKvd, comparator );
-			Collections.sort( friKvd, comparator );
-			
-			System.out.println( "\tMon: " +monKvd.get( monKvd.size()-1 ) );
-			System.out.println( "\tTue: " +tueKvd.get( tueKvd.size()-1 ) );
-			System.out.println( "\tWed: " +wedKvd.get( wedKvd.size()-1 ) );
-			System.out.println( "\tThu: " +thuKvd.get( thuKvd.size()-1 ) );
-			System.out.println( "\tFri: " +friKvd.get( friKvd.size()-1 ) );
-			
-			
-			cLastFriday.add(Calendar.DATE, 7);
+		try{
+			stats.execute(con);
+		}finally{
+			stats.closeResource(null, null, con);
 		}
-		
-		stats.closeResource(null, null, con);
-		System.out.println( "Process Completed." );
+		System.out.println( "Process Completed @ " +new Date() );
 	}
 	
-	private void analyzeNWeekData(Connection con, int numberOfWeeks, int maxWeeksInGroup, Calendar cLastFriday) throws Exception{
-//		Calendar cLastFriday = Calendar.getInstance();
-//		if( cLastFriday.get( Calendar.DAY_OF_WEEK ) >= Calendar.FRIDAY ){
-//			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
-//		}else{
-//			cLastFriday.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
-//			cLastFriday.add( Calendar.DATE, -7 );
-//		}
+	private void execute(Connection con) throws Exception{
+
+		// Step1: Generate required data till today.
+		for( int iteration = 0; ; iteration++){
+			boolean bMoreIterationsRequired = generateWeeklyReport(iteration, con);
+			if( !bMoreIterationsRequired ){
+				break;
+			}
+		}
+
+		// Get list of folders that contain .csv files 
+		String[] folders = new File(EXPORT_FOLDER).list(new FilenameFilter(){
+			public boolean accept(File dir, String name) {
+				return new File( dir.getAbsolutePath()+"/"+name ).isDirectory();
+			}
+		});
 		
-//		cLastFriday.set(Calendar.DATE, 3);
-//		cLastFriday.set(Calendar.MONTH, Calendar.DECEMBER);
-//		cLastFriday.set(Calendar.YEAR, 2010);
+		List<String> folderList = Arrays.asList(folders);
+		Collections.sort(folderList, new Comparator(){
+			public int compare(Object o1, Object o2) {
+				return new Integer(o1.toString()).compareTo( new Integer(o2.toString() ) );
+			}
+		});
+
+
+		// Step 2: Generate strategies for each .csv file
+		for(String folderName : folderList){
+			//System.out.println( folderName );
+			generateStrategy(EXPORT_FOLDER+"/"+folderName, con);
+		}
+
+		// Step 3: Run/Simulate Strategies.
+		runStrategy(con);
 		
-		// Initialize Dates
+		// Step 4: Conclude best strategy
+		LineNumberReader reader = new LineNumberReader(new FileReader( EXPORT_FOLDER+"summary.txt" ) );
+		String line = null;
+		
+		final List<Integer> mondayCollection = new ArrayList<Integer>();
+		final List<Integer> tuesdayCollection = new ArrayList<Integer>();
+		final List<Integer> wednesdayCollection = new ArrayList<Integer>();
+		final List<Integer> thursdayCollection = new ArrayList<Integer>();
+		final List<Integer> fridayCollection = new ArrayList<Integer>();
+		final List<String> summaryCollection = new LinkedList<String>();
+		
+		while( (line = reader.readLine()) != null ){
+			// 2wk_50%,12/20 (60%),13/21 (61%),16/21 (76%),15/20 (75%),16/21 (76%)
+			summaryCollection.add( line );
+			
+			String[] weekResults = line.split(",");
+			mondayCollection.add( new Integer(    weekResults[1].substring( weekResults[1].indexOf("(")+1 , weekResults[1].indexOf("%") ) ) );
+			tuesdayCollection.add( new Integer(   weekResults[2].substring( weekResults[2].indexOf("(")+1 , weekResults[2].indexOf("%") ) ) );
+			wednesdayCollection.add( new Integer( weekResults[3].substring( weekResults[3].indexOf("(")+1 , weekResults[3].indexOf("%") ) ) );
+			thursdayCollection.add( new Integer(  weekResults[4].substring( weekResults[4].indexOf("(")+1 , weekResults[4].indexOf("%") ) ) );
+			fridayCollection.add( new Integer(    weekResults[5].substring( weekResults[5].indexOf("(")+1 , weekResults[5].indexOf("%") ) ) );
+		}
+		reader.close();
+		
+		final Integer maxMonday = Collections.max( mondayCollection );
+		final Integer maxTuesday = Collections.max( tuesdayCollection );
+		final Integer maxWednesday = Collections.max( wednesdayCollection );
+		final Integer maxThursday = Collections.max( thursdayCollection );
+		final Integer maxFriday = Collections.max( fridayCollection );
+
+		for( int i=0; i<5; i++ ){
+			for( int j=summaryCollection.size(); j>0; j-- ){
+				final String summary = summaryCollection.get(j-1);
+				String[] weekResults = summary.split(",");
+				if( i == 0 ){ // Monday
+					if( weekResults[1].indexOf( maxMonday+"%" ) != -1 ){
+						System.out.println( "Monday: " +summary );
+						break;
+					}
+				}else if( i == 1 ){ // Tuesday
+					if( weekResults[2].indexOf( maxTuesday+"%" ) != -1 ){
+						System.out.println( "Tuesday: " +summary );
+						break;
+					}
+				}else if( i == 2 ){ // Wednesday
+					if( weekResults[3].indexOf( maxWednesday+"%" ) != -1 ){
+						System.out.println( "Wednesday: " +summary );
+						break;
+					}
+				}else if( i == 3 ){ // Thursday
+					if( weekResults[4].indexOf( maxThursday+"%" ) != -1 ){
+						System.out.println( "Thursday: " +summary );
+						break;
+					}
+				}else if( i == 4 ){ // Friday
+					if( weekResults[5].indexOf( maxFriday+"%" ) != -1 ){
+						System.out.println( "Friday: " +summary );
+						break;
+					}
+				}
+			}
+		}
+	}
+	/* Step 1
+		1. Execute "D_Analysis_Percent_Move_GroupOnly_Main.jrxml" for following date ranges (2 weeks to 20 weeks = 10 reports)
+		
+		File name should be iteration/StartDate-EndDate.csv
+		
+		20wk-------------
+		18wk  -----------
+		...
+		8wk      --------
+		6wk        ------
+		4wk          ----
+		2wk            --
+	 */
+	private boolean generateWeeklyReport(int iteration, Connection con) throws Exception{
+		boolean bMoreIterationsRequired = true;
 		Calendar cStartDate = Calendar.getInstance();
 		cStartDate.set(Calendar.DATE, 1);
 		cStartDate.set(Calendar.MONDAY, Calendar.MARCH);
 		cStartDate.set(Calendar.YEAR, 2010);
 
 		Calendar cEndDate = (Calendar) cStartDate.clone();
-		cEndDate.add(Calendar.DATE, (maxWeeksInGroup*7)-3);
-		cStartDate.setTime( cEndDate.getTime() );
-		cStartDate.add(Calendar.DATE, -(numberOfWeeks*7)+3);
-
-		String exportFolder = EXPORT_FOLDER+numberOfWeeks+"Week/";
-		File file = new File(exportFolder);
-		if( !file.exists() ){
-			file.mkdir();
+		cEndDate.add(Calendar.DATE, ((MAX_WEEKS_IN_GROUP*7)-3) +(iteration * 7)); 
+		// TODO: As of now cEndDate is relative to 03/01/2010. 
+		// You can make it relative to today. e.g. MAX_WEEKS_IN_GROUP (20 weeks) before today.
+		// This way, analysis will not be done based on piled-up data. It will be done based on 
+		// trailing data instead.
+		// BUT DO THIS AFTER 01/01/2011 only when there is 20 weeks of data available to consider.
+		// Following code will be useful. Please retest.
+		//Calendar cToday = Calendar.getInstance();
+		//cToday.add(Calendar.DATE, -(MAX_WEEKS_IN_GROUP*7));
+		//cToday.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+		//cEndDate.add(Calendar.DATE, (iteration * 7));
+		//
+		
+		if( cEndDate.before( Calendar.getInstance() ) ){
+			cStartDate.setTime( cEndDate.getTime() );
+			cStartDate.add(Calendar.DATE, 3);
+	
+			int step = 2;
+			for( int numberOfWeeks=2; numberOfWeeks<=MAX_WEEKS_IN_GROUP; numberOfWeeks+=step ){
+				cStartDate.add(Calendar.DATE, -(7*step));
+				
+				String exportFolder = EXPORT_FOLDER+iteration+"/";
+				File file = new File(exportFolder);
+				if( !file.exists() ){
+					file.mkdirs();
+				}
+				generateReports( con, cStartDate.getTime(), cEndDate.getTime(), exportFolder, numberOfWeeks );
+			}
+		}else{
+			bMoreIterationsRequired = false;
 		}
 		
-		while( cEndDate.before( cLastFriday ) ){
-			cStartDate.add(Calendar.DATE, 7);
-			cEndDate.add(Calendar.DATE, 7);
-			
-			generateReports( con, cStartDate.getTime(), cEndDate.getTime(), exportFolder );
-		}
-		process(exportFolder, con, numberOfWeeks);
+		return bMoreIterationsRequired;
 	}
 	
-	private void generateReports(Connection con, Date startDate, Date endDate, String exportFolder) throws Exception {
-		String exportFileName = exportFolder+new java.text.SimpleDateFormat("MM_dd_yyyy").format( endDate )+ ".csv";
+	private void generateReports(Connection con, Date startDate, Date endDate, String exportFolder, int numberOfWeeks) throws Exception {
+		String exportFileName = exportFolder+new java.text.SimpleDateFormat("MM_dd_yyyy").format( startDate )+"-"+new java.text.SimpleDateFormat("MM_dd_yyyy").format( endDate )+ "$" +numberOfWeeks+"wks.csv";
 		Map params = new HashMap();
 		
 		params.put("pStartDate", startDate);
@@ -192,161 +242,226 @@ public class Statistics {
 		System.out.println( "CSV Generated: " +exportFileName );
 	}
 	
-	private void process(String exportFolder, Connection con, int numberOfWeeks) throws Exception{
-		FileWriter writer = new FileWriter( exportFolder+"rpt.html" );
-		
-		String[] files = new File(exportFolder).list(new FilenameFilter(){
+	private void generateStrategy(String csvFolder, Connection con) throws Exception{
+		String[] files = new File(csvFolder).list(new FilenameFilter(){
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".csv");
 			}
 		});
+		
+		List<String> fileList = Arrays.asList( files );
+		
+		// Below sorting is required so that files with least data is processed first followed by others.
+		Collections.sort(fileList, new Comparator(){
+			public int compare(Object o1, Object o2) {
+				String s1 = (String) o1;
+				String s2 = (String) o2;
+				Integer index1 = Integer.parseInt( s1.substring( s1.indexOf("$")+1, s1.indexOf("wks.csv")) );
+				Integer index2 = Integer.parseInt( s2.substring( s2.indexOf("$")+1, s2.indexOf("wks.csv")) );
 
-		writer.write( "<html><body>" );
-		writer.write( "<B>" +numberOfWeeks+ " Weeks Data</B>" );
-		writer.write( "<table border='1'>\n" );
+				return index1.compareTo(index2);
+			}
+		});
+		//System.out.println( fileList );
 		
-		Map<Integer, Integer> mTotalTradingDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalTradingDays
-		Map<Integer, Integer> mTotalSuccessDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalSuccessDays
-		
-		StringBuffer sbStrategy = null;
-		List<NysePick> list = null;
-		for( String file : files ){
+		List<NysePick> strategyList = null;
+		Integer[] iPercent = new Integer[]{50, 60, 70, 80, 90, 100};
+
+		StringBuffer strategyBuffer = new StringBuffer("DataLength_Percent$Symbol,BuyOn,Success%$..");
+		for( String file : fileList ){
 			//System.out.println( "-> " + file );
-			list = getStrategy( exportFolder+file );
-	
-			writer.write( "<!--\n" );
-			sbStrategy = new StringBuffer();
-			
-			for( NysePick nysePick : list ){
-				sbStrategy.append( nysePick.toString() ).append("\n");
-			}
-			writer.write( sbStrategy.toString() );
-			writer.write( "-->\n" );
+			for( Integer percent : iPercent ){
+				strategyList = getStrategy( csvFolder+"/"+file, percent );
 
-			writer.write( "<tr>\n" );
-			NysePick npBuy = null, npSell = null;
-			for( int i=0; i<list.size(); i++ ){
-				writer.write( "<td " );
-				npBuy = list.get(i);
-				
-				Nyse nyseBuy = getResult( con, npBuy.buyDate, npBuy.symbol);
-				if( nyseBuy == null ){
-					// Friday Holiday
-					Calendar c = Calendar.getInstance();
-					c.setTime( npBuy.buyDate );
-					
-					while( nyseBuy == null ){
-						c.add( Calendar.DATE, -1);
-						nyseBuy = getResult( con, c.getTime(), npBuy.symbol);
-					}
+				String dataLength = file.substring( file.indexOf("$")+1 , file.indexOf("wks.csv"));
+				strategyBuffer.append("\n").append(dataLength+"wk_"+percent+"%");
+				for(final NysePick nysePick : strategyList){
+					strategyBuffer.append("$").append( nysePick.toString());
 				}
-				
-				Double expectedGain = nyseBuy.close + (nyseBuy.close * (0.60/100.0));
-				
-				if( list.size() > (i+1) ){
-					npSell = list.get(i+1);
-				}else{
-					npSell = list.get(i);
-					npSell = new NysePick(npSell.symbol, npSell.successPercent, new Date( npSell.buyDate.getTime() ));
-					
-					Calendar c = Calendar.getInstance();
-					c.setTime( npSell.buyDate );
-					c.add( Calendar.DATE, 1);
-					
-					npSell.buyDate = c.getTime();
-				}
-				
-				Nyse nyseSell = getResult( con, npSell.buyDate, npBuy.symbol);
-
-				if( nyseSell == null ){
-					writer.write( "><B>Holiday</B>" );
-				}else{
-					Integer totalTradingDays = mTotalTradingDays.get(i);
-					if( totalTradingDays == null ){
-						totalTradingDays = new Integer(0);
-					}
-					mTotalTradingDays.put(i, totalTradingDays.intValue()+1);
-
-					Integer totalSuccessDays = mTotalSuccessDays.get(i);
-					if( totalSuccessDays == null ){
-						totalSuccessDays = new Integer(0);
-					}
-
-					if( expectedGain > nyseSell.low && expectedGain < nyseSell.high ){
-						mTotalSuccessDays.put(i, totalSuccessDays.intValue()+1);
-						
-						writer.write( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
-						writer.write( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ expectedGain );
-					}else if( expectedGain < nyseSell.low ){
-						mTotalSuccessDays.put(i, totalSuccessDays.intValue()+1);
-
-						writer.write( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
-						writer.write( "<BR>Profit (<B>Beyond Expectations</B>): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.low );
-					}else{
-						writer.write( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
-						writer.write( "<BR><span style='background-color:red'>Loss:</span> Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.close );
-					}
-				}
-				
-				writer.write( "</td>\n" );
-			}
-			writer.write( "</tr>\n" );
-		}
-		
-		Calendar cal = Calendar.getInstance();
-		for( NysePick nysePick : list ){
-			cal.setTime(nysePick.buyDate);
-			switch( cal.get( Calendar.DAY_OF_WEEK ) ){
-				case Calendar.FRIDAY:
-					wkDayIteration.get(Calendar.MONDAY).add( new KeyValDetails( nysePick.symbol, nysePick.successPercent, "Buy on "+getStrDate(nysePick.buyDate) ) );
-					break;
-				case Calendar.MONDAY:
-					wkDayIteration.get(Calendar.TUESDAY).add( new KeyValDetails( nysePick.symbol, nysePick.successPercent, "Buy on "+getStrDate(nysePick.buyDate) ) );
-					break;
-				case Calendar.TUESDAY:
-					wkDayIteration.get(Calendar.WEDNESDAY).add( new KeyValDetails( nysePick.symbol, nysePick.successPercent, "Buy on "+getStrDate(nysePick.buyDate) ) );
-					break;
-				case Calendar.WEDNESDAY:
-					wkDayIteration.get(Calendar.THURSDAY).add( new KeyValDetails( nysePick.symbol, nysePick.successPercent, "Buy on "+getStrDate(nysePick.buyDate) ) );
-					break;
-				case Calendar.THURSDAY:
-					wkDayIteration.get(Calendar.FRIDAY).add( new KeyValDetails( nysePick.symbol, nysePick.successPercent, "Buy on "+getStrDate(nysePick.buyDate) ) );
-					break;
 			}
 		}
 		
-		
-		writer.write( "<tr>\n" );
-		sbConsolidatedReport.append( "<tr title='" +sbStrategy+ "'>" );
-		sbConsolidatedReport.append( "<td>" +numberOfWeeks+ "Weeks</td>" );
-		for(int i=0; i<5; i++){
-			writer.write( "<td>" );
-			int totalTradingDays = 0;
-			if(mTotalTradingDays.get(i) != null){
-				totalTradingDays = mTotalTradingDays.get(i);
-			}
-			
-			int totalSuccessDays = 0;
-			if( mTotalSuccessDays.get(i) != null){
-				totalSuccessDays = mTotalSuccessDays.get(i);
-			}
-			String summary = totalSuccessDays +"/"+totalTradingDays+ " (" +(int)(((double)totalSuccessDays/(double)totalTradingDays)*100.0)+ "%)";
-			writer.write( summary );
-			
-			sbConsolidatedReport.append("<td>").append( summary ).append("</td>");
-			
-			writer.write( "</td>" );
-		}
-		sbConsolidatedReport.append( "</tr>\n" );
-		writer.write( "</tr>\n" );
-		
-		writer.write( "</table></body></html>\n" );
-		
+		FileWriter writer = new FileWriter( csvFolder+"/strategy.txt" );
+		writer.append( strategyBuffer.toString() );
 		writer.close();
-		System.out.println( "Report Generated." );
 	}
 
-	private List<NysePick> getStrategy(String fileName) throws Exception {
+	private void runStrategy(Connection con) throws Exception{
+		// Step 1: Get List of all folders that contain strategy.txt
+		String[] folders = new File(EXPORT_FOLDER).list(new FilenameFilter(){
+			public boolean accept(File dir, String name) {
+				return new File( dir.getAbsolutePath()+"/"+name ).isDirectory();
+			}
+		});
+		
+		List<String> folderList = Arrays.asList(folders);
+		Collections.sort(folderList, new Comparator(){
+			public int compare(Object o1, Object o2) {
+				return new Integer(o1.toString()).compareTo( new Integer(o2.toString() ) );
+			}
+		});
+		
+		// Step 2: Cache strategy.txt in a Map.
+		// 0={strategy.txt}, 1={strategy.txt}
+		LinkedHashMap<Integer, StringBuffer> strategyMap = new LinkedHashMap<Integer, StringBuffer>();
+		for( String folder : folderList ){
+			Integer key = new Integer(folder);
+			strategyMap.put(key, new StringBuffer());
+			
+			String strategyFileName = EXPORT_FOLDER+folder+"/"+"strategy.txt";
+			LineNumberReader reader = new LineNumberReader(new FileReader( strategyFileName ) );
+			String line = null;
+			while( (line = reader.readLine()) != null ){
+				strategyMap.get(key).append( line ).append("\n");
+			}
+			reader.close();
+		}
+		
+		// Step 3: Run Strategy
+		StringBuffer sbSummaryOnly = new StringBuffer();
+		Integer[] iPercent = new Integer[]{50, 60, 70, 80, 90, 100};
+		int step = 2;
+		for( int numberOfWeeks=2; numberOfWeeks<=MAX_WEEKS_IN_GROUP; numberOfWeeks+=step ){
+			for( Integer percent : iPercent ){
+				final Map<Integer, Integer> mTotalTradingDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalTradingDays
+				final Map<Integer, Integer> mTotalSuccessDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalSuccessDays
+				final StringBuffer simulationReport = new StringBuffer();
+				simulationReport.append( "<html><body><table border='1'>\n" );
+				
+				String lineStartsWith = numberOfWeeks +"wk_"+ percent +"%"; //2wk_50%
+				// Iterate thru each folder for the given Key.
+				for( String folder : folderList ){
+					Integer key = new Integer(folder);
+					StringBuffer strategyFileContent = strategyMap.get(key);
+					int start = strategyFileContent.indexOf(lineStartsWith);
+					int end   = strategyFileContent.indexOf("\n", start);
+					String matchingStrategyLine = strategyFileContent.substring( start, end );
+					String[] thisWeekStrategy = matchingStrategyLine.split("\\$");
+
+					final List<NysePick> nysePickList = new LinkedList<NysePick>();
+					for( int i=0; i<thisWeekStrategy.length; i++ ){
+						if( i == 0 ){
+							continue;
+						}else{
+							NysePick nysePick = new NysePick(thisWeekStrategy[i]);
+							//System.out.println( "--> " +nysePick );
+							nysePickList.add(nysePick);
+						}
+					}
+
+					simulate(con, nysePickList, mTotalTradingDays, mTotalSuccessDays, simulationReport);
+				}
+				
+				// Generate Summary here.
+				sbSummaryOnly.append( lineStartsWith );
+
+				simulationReport.append("<tr>\n");
+				for(int i=0; i<5; i++){
+					simulationReport.append( "<td>" );
+					int totalTradingDays = 0;
+					if(mTotalTradingDays.get(i) != null){
+						totalTradingDays = mTotalTradingDays.get(i);
+					}
+					
+					int totalSuccessDays = 0;
+					if( mTotalSuccessDays.get(i) != null){
+						totalSuccessDays = mTotalSuccessDays.get(i);
+					}
+					String summary = totalSuccessDays +"/"+totalTradingDays+ " (" +(int)(((double)totalSuccessDays/(double)totalTradingDays)*100.0)+ "%)";
+					simulationReport.append( summary );
+					simulationReport.append( "</td>" );
+					
+					sbSummaryOnly.append(",").append( summary );
+				}
+				sbSummaryOnly.append("\n");
+				simulationReport.append( "</tr>\n" );
+				simulationReport.append( "</table></body></html>\n" );
+				
+				FileWriter writer = new FileWriter( EXPORT_FOLDER+lineStartsWith+".html" );
+				writer.append( simulationReport.toString() );
+				writer.close();
+			}
+		}
+		
+		FileWriter writer = new FileWriter( EXPORT_FOLDER+"summary.txt" );
+		writer.append( sbSummaryOnly.toString() );
+		writer.close();
+
+	}
+	
+	private void simulate(Connection con, List<NysePick> nysePickList, Map<Integer, Integer> mTotalTradingDays, Map<Integer, Integer> mTotalSuccessDays, StringBuffer simulationReport) throws Exception{
+		simulationReport.append( "<tr>" );
+		NysePick npBuy = null, npSell = null;
+		for( int i=0; i<nysePickList.size(); i++ ){
+			simulationReport.append( "<td " );
+			npBuy = nysePickList.get(i);
+			simulationReport.append( "title='" +npBuy.toString()+ "' " );
+			
+			Nyse nyseBuy = getResult( con, npBuy.buyDate, npBuy.symbol);
+			if( nyseBuy == null ){
+				// Friday Holiday
+				Calendar c = Calendar.getInstance();
+				c.setTime( npBuy.buyDate );
+				
+				while( nyseBuy == null ){
+					c.add( Calendar.DATE, -1);
+					nyseBuy = getResult( con, c.getTime(), npBuy.symbol);
+				}
+			}
+			
+			Double expectedGain = nyseBuy.close + (nyseBuy.close * (0.60/100.0));
+			
+			if( nysePickList.size() > (i+1) ){
+				npSell = nysePickList.get(i+1);
+			}else{
+				npSell = nysePickList.get(i);
+				npSell = new NysePick(npSell.symbol, npSell.successPercent, new Date( npSell.buyDate.getTime() ));
+				
+				Calendar c = Calendar.getInstance();
+				c.setTime( npSell.buyDate );
+				c.add( Calendar.DATE, 1);
+				
+				npSell.buyDate = c.getTime();
+			}
+			
+			Nyse nyseSell = getResult( con, npSell.buyDate, npBuy.symbol);
+
+			if( nyseSell == null ){
+				simulationReport.append( "><B>Holiday</B>" );
+			}else{
+				Integer totalTradingDays = mTotalTradingDays.get(i);
+				if( totalTradingDays == null ){
+					totalTradingDays = new Integer(0);
+				}
+				mTotalTradingDays.put(i, totalTradingDays.intValue()+1);
+
+				Integer totalSuccessDays = mTotalSuccessDays.get(i);
+				if( totalSuccessDays == null ){
+					totalSuccessDays = new Integer(0);
+				}
+
+				if( expectedGain > nyseSell.low && expectedGain < nyseSell.high ){
+					mTotalSuccessDays.put(i, totalSuccessDays.intValue()+1);
+					
+					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+					simulationReport.append( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ expectedGain );
+				}else if( expectedGain < nyseSell.low ){
+					mTotalSuccessDays.put(i, totalSuccessDays.intValue()+1);
+
+					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+					simulationReport.append( "<BR>Profit (<B>Beyond Expectations</B>): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.low );
+				}else{
+					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+					simulationReport.append( "<BR><span style='background-color:red'>Loss:</span> Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.close );
+				}
+			}
+			
+			simulationReport.append( "</td>\n" );
+		}
+		simulationReport.append( "<tr>\n" );
+	}
+
+	private List<NysePick> getStrategy(String fileName, int percent) throws Exception {
 		String str[] = new String[2];
 		LineNumberReader lnr = new LineNumberReader( new FileReader( fileName ) );
 		str[0] = lnr.readLine();
@@ -371,31 +486,25 @@ public class Statistics {
 		
 		TreeSet ts1 = new TreeSet(comparator);
 		ts1.addAll(l1);
-		KeyValDetails o1 = getNPlus(ts1);
+		KeyValDetails o1 = getNPlus(ts1, percent);
 
 		TreeSet ts2 = new TreeSet(comparator);
 		ts2.addAll(l2);
-		KeyValDetails o2 = getNPlus(ts2);
+		KeyValDetails o2 = getNPlus(ts2, percent);
 
 		TreeSet ts3 = new TreeSet(comparator);
 		ts3.addAll(l3);
-		KeyValDetails o3 = getNPlus(ts3);
+		KeyValDetails o3 = getNPlus(ts3, percent);
 
 		TreeSet ts4 = new TreeSet(comparator);
 		ts4.addAll(l4);
-		KeyValDetails o4 = getNPlus(ts4);
+		KeyValDetails o4 = getNPlus(ts4, percent);
 
 		TreeSet ts5 = new TreeSet(comparator);
 		ts5.addAll(l5);
-		KeyValDetails o5 = getNPlus(ts5);
+		KeyValDetails o5 = getNPlus(ts5, percent);
 
-//		Object[] o1 = Collections.max(l1, comparator);
-//		Object[] o2 = Collections.max(l2, comparator);
-//		Object[] o3 = Collections.max(l3, comparator);
-//		Object[] o4 = Collections.max(l4, comparator);
-//		Object[] o5 = Collections.max(l5, comparator);
-		
-		List<NysePick> list = new ArrayList<NysePick>();
+		List<NysePick> list = new LinkedList<NysePick>();
 		String[] s = str[1].split("[,]", -1);
 		
 		Calendar c = Calendar.getInstance();
@@ -419,17 +528,17 @@ public class Statistics {
 		return list;
 	}
 	
-	private KeyValDetails getNPlus(TreeSet<KeyValDetails> ts1){
+	private KeyValDetails getNPlus(TreeSet<KeyValDetails> ts1, int percent){
 		Iterator<KeyValDetails> iterator = ts1.iterator();
 		while(iterator.hasNext()){
 			KeyValDetails o = iterator.next();
-			if( o.value > PERCENT ){
+			if( o.value > percent ){
 				return o;
 			}
 		}
-		return ts1.floor( new KeyValDetails("", PERCENT, "") );
+		return ts1.floor( new KeyValDetails("", percent, "") );
 	}
-	
+
 	private Date getDate(String str) throws Exception {
 		return new java.text.SimpleDateFormat("MM/dd/yyyy").parse( str );
 	}
@@ -510,6 +619,17 @@ public class Statistics {
 			this.successPercent = successPercent;
 			this.buyDate = buyDate;
 		}
+		public NysePick(String toString){
+			String[] arr = toString.split(",");
+			this.symbol = arr[0];
+			try{
+				this.buyDate = getDate(arr[1]);
+			}
+			catch(Exception e){
+				
+			}
+			this.successPercent = new Integer( arr[2] );
+		}
 		
 		@Override
 		public String toString(){
@@ -518,10 +638,10 @@ public class Statistics {
 				bd = getStrDate(buyDate);
 			}
 			catch(Exception e){
-				
 			}
-			return "Buy " +symbol +" on " +bd+ " ("+ successPercent+ "% chances of success)";
-		}
+			//return "Buy " +symbol +" on " +bd+ " ("+ successPercent+ "% chances of success)";
+			return symbol +","+ bd +","+ successPercent;
+		}		
 	}
 	
 	class Nyse{
@@ -543,4 +663,5 @@ public class Statistics {
 			this.close = close;
 		}
 	}
+	
 }
