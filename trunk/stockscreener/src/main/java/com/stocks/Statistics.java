@@ -61,15 +61,350 @@ public class Statistics {
 		Connection con = stats.getConnection();
 
 		try{
-			stats.execute(con);
+			//stats.execute(con);
+			stats.exportCycleResults(con);
 		}finally{
 			stats.closeResource(null, null, con);
 		}
 		System.out.println( "Process Completed @ " +new Date() );
 	}
 	
-	private void execute(Connection con) throws Exception{
+	private void exportCycleResults(Connection con) throws Exception{
+		// Step 1: Get List of all folders that contain strategy.txt
+		String[] folders = new File(EXPORT_FOLDER).list(new FilenameFilter(){
+			public boolean accept(File dir, String name) {
+				return new File( dir.getAbsolutePath()+"/"+name ).isDirectory();
+			}
+		});
+		
+		List<String> folderList = Arrays.asList(folders);
+		Collections.sort(folderList, new Comparator(){
+			public int compare(Object o1, Object o2) {
+				return new Integer(o1.toString()).compareTo( new Integer(o2.toString() ) );
+			}
+		});
+		
+		// Step 2: Cache strategy.txt in a Map.
+		// 0={strategy.txt}, 1={strategy.txt}
+		LinkedHashMap<Integer, StringBuffer> strategyMap = new LinkedHashMap<Integer, StringBuffer>();
+		for( String folder : folderList ){
+			Integer key = new Integer(folder);
+			strategyMap.put(key, new StringBuffer());
+			
+			String strategyFileName = EXPORT_FOLDER+folder+"/"+"strategy.txt";
+			LineNumberReader reader = new LineNumberReader(new FileReader( strategyFileName ) );
+			String line = null;
+			while( (line = reader.readLine()) != null ){
+				strategyMap.get(key).append( line ).append("\n");
+			}
+			reader.close();
+		}
+		
+		// Step 3: Run Strategy
+		final StringBuffer exportCycleSimulationReport = new StringBuffer();
+		exportCycleSimulationReport.append( "<html><body>" );
+		
+		Integer[] iPercent = new Integer[]{50, 60, 70, 80, 90, 100};
+		for( Integer percent : iPercent ){
+			exportCycleSimulationReport.append( "<span style='background-color:" +getBgColor("_" +percent+ "%")+ "'>" +percent+ "</span> &nbsp;" );
+		}
+		exportCycleSimulationReport.append( "<table border='1'>" );
+		
+		for( String folder : folderList ){
+			StringBuffer sbSummaryOnly = new StringBuffer();
+			int step = 2;
+			for( int numberOfWeeks=2; numberOfWeeks<=MAX_WEEKS_IN_GROUP; numberOfWeeks+=step ){
+				for( Integer percent : iPercent ){
+					final Map<Integer, Integer> mTotalTradingDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalTradingDays
+					final Map<Integer, Integer> mTotalSuccessDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalSuccessDays
+					final StringBuffer simulationReport = new StringBuffer();
+					simulationReport.append( "<html><body><table border='1'>\n" );
+					
+					String lineStartsWith = numberOfWeeks +"wk_"+ percent +"%"; //2wk_50%
+					// Iterate thru each folder for the given Key.
+					//for( String folder : folderList ){
+						Integer key = new Integer(folder);
+						StringBuffer strategyFileContent = strategyMap.get(key);
+						int start = strategyFileContent.indexOf(lineStartsWith);
+						int end   = strategyFileContent.indexOf("\n", start);
+						String matchingStrategyLine = strategyFileContent.substring( start, end );
+						String[] thisWeekStrategy = matchingStrategyLine.split("\\$");
+	
+						final List<NysePick> nysePickList = new LinkedList<NysePick>();
+						for( int i=0; i<thisWeekStrategy.length; i++ ){
+							if( i == 0 ){
+								continue;
+							}else{
+								NysePick nysePick = new NysePick(thisWeekStrategy[i]);
+								//System.out.println( "--> " +nysePick );
+								nysePickList.add(nysePick);
+							}
+						}
+	
+						simulate(con, nysePickList, mTotalTradingDays, mTotalSuccessDays, simulationReport);
+					//}
+					
+					// Generate Summary here.
+					sbSummaryOnly.append( lineStartsWith );
+	
+					simulationReport.append("<tr>\n");
+					for(int i=0; i<5; i++){
+						simulationReport.append( "<td>" );
+						int totalTradingDays = 0;
+						if(mTotalTradingDays.get(i) != null){
+							totalTradingDays = mTotalTradingDays.get(i);
+						}
+						
+						int totalSuccessDays = 0;
+						if( mTotalSuccessDays.get(i) != null){
+							totalSuccessDays = mTotalSuccessDays.get(i);
+						}
+						String summary = totalSuccessDays +"/"+totalTradingDays+ " (" +(int)(((double)totalSuccessDays/(double)totalTradingDays)*100.0)+ "%)";
+						simulationReport.append( summary );
+						simulationReport.append( "</td>" );
+						
+						sbSummaryOnly.append(",").append( summary );
+					}
+					sbSummaryOnly.append("\n");
+					simulationReport.append( "</tr>\n" );
+					simulationReport.append( "</table></body></html>\n" );
+					/*
+					FileWriter writer = new FileWriter( EXPORT_FOLDER+lineStartsWith+".html" );
+					writer.append( simulationReport.toString() );
+					writer.close();
+					*/
+				}
+			}
+			
+//			FileWriter writer = new FileWriter( EXPORT_FOLDER+"summary.txt" );
+//			writer.append( sbSummaryOnly.toString() );
+//			writer.close();
 
+			FileWriter writer = new FileWriter( EXPORT_FOLDER+"summary" +folder+ ".txt" );
+			writer.append( sbSummaryOnly.toString() );
+			writer.close();
+
+			// ******** Generate results based on summary here. ************* //
+			String mondayStrategy = null;
+			String tuesdayStrategy = null;
+			String wednesdayStrategy = null;
+			String thursdayStrategy = null;
+			String fridayStrategy = null;
+			
+			
+			// Step 4: Conclude best strategy
+			LineNumberReader reader = new LineNumberReader(new FileReader( EXPORT_FOLDER+"summary" +folder+ ".txt" ) );
+			String line = null;
+			
+			final List<Integer> mondayCollection = new ArrayList<Integer>();
+			final List<Integer> tuesdayCollection = new ArrayList<Integer>();
+			final List<Integer> wednesdayCollection = new ArrayList<Integer>();
+			final List<Integer> thursdayCollection = new ArrayList<Integer>();
+			final List<Integer> fridayCollection = new ArrayList<Integer>();
+			final List<String> summaryCollection = new LinkedList<String>();
+			
+			while( (line = reader.readLine()) != null ){
+				// 2wk_50%,12/20 (60%),13/21 (61%),16/21 (76%),15/20 (75%),16/21 (76%)
+				summaryCollection.add( line );
+				
+				String[] weekResults = line.split(",");
+				mondayCollection.add( new Integer(    weekResults[1].substring( weekResults[1].indexOf("(")+1 , weekResults[1].indexOf("%") ) ) );
+				tuesdayCollection.add( new Integer(   weekResults[2].substring( weekResults[2].indexOf("(")+1 , weekResults[2].indexOf("%") ) ) );
+				wednesdayCollection.add( new Integer( weekResults[3].substring( weekResults[3].indexOf("(")+1 , weekResults[3].indexOf("%") ) ) );
+				thursdayCollection.add( new Integer(  weekResults[4].substring( weekResults[4].indexOf("(")+1 , weekResults[4].indexOf("%") ) ) );
+				fridayCollection.add( new Integer(    weekResults[5].substring( weekResults[5].indexOf("(")+1 , weekResults[5].indexOf("%") ) ) );
+			}
+			reader.close();
+			
+			final Integer maxMonday = Collections.max( mondayCollection );
+			final Integer maxTuesday = Collections.max( tuesdayCollection );
+			final Integer maxWednesday = Collections.max( wednesdayCollection );
+			final Integer maxThursday = Collections.max( thursdayCollection );
+			final Integer maxFriday = Collections.max( fridayCollection );
+
+			for( int i=0; i<5; i++ ){
+				for( int j=summaryCollection.size(); j>0; j-- ){
+					final String summary = summaryCollection.get(j-1);
+					String[] weekResults = summary.split(",");
+					if( i == 0 ){ // Monday
+						if( weekResults[1].indexOf( maxMonday+"%" ) != -1 ){
+							mondayStrategy = summary;
+							break;
+						}
+					}else if( i == 1 ){ // Tuesday
+						if( weekResults[2].indexOf( maxTuesday+"%" ) != -1 ){
+							tuesdayStrategy = summary;
+							break;
+						}
+					}else if( i == 2 ){ // Wednesday
+						if( weekResults[3].indexOf( maxWednesday+"%" ) != -1 ){
+							wednesdayStrategy = summary;
+							break;
+						}
+					}else if( i == 3 ){ // Thursday
+						if( weekResults[4].indexOf( maxThursday+"%" ) != -1 ){
+							thursdayStrategy = summary;
+							break;
+						}
+					}else if( i == 4 ){ // Friday
+						if( weekResults[5].indexOf( maxFriday+"%" ) != -1 ){
+							fridayStrategy = summary;
+							break;
+						}
+					}
+				}
+			}
+			
+			String strategy = strategyMap.get( new Integer( folder) ).toString();
+			final List<NysePick> nysePickList = new LinkedList<NysePick>();
+			final List<String> keysForStrategy = new LinkedList<String>();
+			
+			// For Monday
+			// 20wk_100%,17/20 (85%),16/21 (76%),17/21 (80%),14/20 (70%),13/21 (61%)
+			String mondayStrategyKey = mondayStrategy.split(",")[0];
+			int start = strategy.indexOf( mondayStrategyKey );
+			int end = strategy.indexOf( "\n", start );
+			String mondayStrategyFromFile = strategy.substring(start, end);
+			// 2wk_50%$UPRO,07/16/2010,100$UDOW,07/19/2010,50$UDOW,07/20/2010,100$UPRO,07/21/2010,100$SPXU,07/22/2010,100
+			mondayStrategyFromFile = mondayStrategyFromFile.split("\\$")[1];
+
+			// For Tuesday
+			// 20wk_100%,17/20 (85%),16/21 (76%),17/21 (80%),14/20 (70%),13/21 (61%)
+			String tuesdayStrategyKey = tuesdayStrategy.split(",")[0];
+			start = strategy.indexOf( tuesdayStrategyKey );
+			end = strategy.indexOf( "\n", start );
+			String tuesdayStrategyFromFile = strategy.substring(start, end);
+			// 2wk_50%$UPRO,07/16/2010,100$UDOW,07/19/2010,50$UDOW,07/20/2010,100$UPRO,07/21/2010,100$SPXU,07/22/2010,100
+			tuesdayStrategyFromFile = tuesdayStrategyFromFile.split("\\$")[2];
+			
+			// For Wednesday
+			// 20wk_100%,17/20 (85%),16/21 (76%),17/21 (80%),14/20 (70%),13/21 (61%)
+			String wednesdayStrategyKey = wednesdayStrategy.split(",")[0];
+			start = strategy.indexOf( wednesdayStrategyKey );
+			end = strategy.indexOf( "\n", start );
+			String wednesdayStrategyFromFile = strategy.substring(start, end);
+			// 2wk_50%$UPRO,07/16/2010,100$UDOW,07/19/2010,50$UDOW,07/20/2010,100$UPRO,07/21/2010,100$SPXU,07/22/2010,100
+			wednesdayStrategyFromFile = wednesdayStrategyFromFile.split("\\$")[3];
+
+			// For Thursday
+			// 20wk_100%,17/20 (85%),16/21 (76%),17/21 (80%),14/20 (70%),13/21 (61%)
+			String thursdayStrategyKey = thursdayStrategy.split(",")[0];
+			start = strategy.indexOf( thursdayStrategyKey );
+			end = strategy.indexOf( "\n", start );
+			String thursdayStrategyFromFile = strategy.substring(start, end);
+			// 2wk_50%$UPRO,07/16/2010,100$UDOW,07/19/2010,50$UDOW,07/20/2010,100$UPRO,07/21/2010,100$SPXU,07/22/2010,100
+			thursdayStrategyFromFile = thursdayStrategyFromFile.split("\\$")[4];
+
+			// For Friday
+			// 20wk_100%,17/20 (85%),16/21 (76%),17/21 (80%),14/20 (70%),13/21 (61%)
+			String fridayStrategyKey = fridayStrategy.split(",")[0];
+			start = strategy.indexOf( fridayStrategyKey );
+			end = strategy.indexOf( "\n", start );
+			String fridayStrategyFromFile = strategy.substring(start, end);
+			// 2wk_50%$UPRO,07/16/2010,100$UDOW,07/19/2010,50$UDOW,07/20/2010,100$UPRO,07/21/2010,100$SPXU,07/22/2010,100
+			fridayStrategyFromFile = fridayStrategyFromFile.split("\\$")[5];
+			
+			nysePickList.add( new NysePick(mondayStrategyFromFile) );			
+			nysePickList.add( new NysePick(tuesdayStrategyFromFile) );			
+			nysePickList.add( new NysePick(wednesdayStrategyFromFile) );			
+			nysePickList.add( new NysePick(thursdayStrategyFromFile) );			
+			nysePickList.add( new NysePick(fridayStrategyFromFile) );
+			
+			keysForStrategy.add( mondayStrategyKey );
+			keysForStrategy.add( tuesdayStrategyKey );
+			keysForStrategy.add( wednesdayStrategyKey );
+			keysForStrategy.add( thursdayStrategyKey );
+			keysForStrategy.add( fridayStrategyKey );
+
+			simulateForCycle(con, nysePickList, exportCycleSimulationReport, keysForStrategy);
+		}
+		
+		exportCycleSimulationReport.append( "</table></body></html>" );
+		
+		FileWriter writer = new FileWriter( EXPORT_FOLDER+"/ExportCycleSimulationReport.html" );
+		writer.append( exportCycleSimulationReport.toString() );
+		writer.close();
+	}
+
+	private void simulateForCycle(Connection con, List<NysePick> nysePickList, StringBuffer simulationReport, List<String> keysForStrategy) throws Exception{
+		simulationReport.append( "<tr>" );
+		NysePick npBuy = null, npSell = null;
+		for( int i=0; i<nysePickList.size(); i++ ){
+			simulationReport.append( "<td " );
+			npBuy = nysePickList.get(i);
+			simulationReport.append( "title='" +npBuy.toString()+ " => " +keysForStrategy.get(i)+ "' " );
+			
+			Nyse nyseBuy = getResult( con, npBuy.buyDate, npBuy.symbol);
+			if( nyseBuy == null ){
+				// Friday Holiday
+				Calendar c = Calendar.getInstance();
+				c.setTime( npBuy.buyDate );
+				
+				while( nyseBuy == null ){
+					c.add( Calendar.DATE, -1);
+					nyseBuy = getResult( con, c.getTime(), npBuy.symbol);
+				}
+			}
+			
+			Double expectedGain = nyseBuy.close + (nyseBuy.close * (0.60/100.0));
+			
+			if( nysePickList.size() > (i+1) ){
+				npSell = nysePickList.get(i+1);
+			}else{
+				npSell = nysePickList.get(i);
+				npSell = new NysePick(npSell.symbol, npSell.successPercent, new Date( npSell.buyDate.getTime() ));
+				
+				Calendar c = Calendar.getInstance();
+				c.setTime( npSell.buyDate );
+				c.add( Calendar.DATE, 1);
+				
+				npSell.buyDate = c.getTime();
+			}
+			
+			Nyse nyseSell = getResult( con, npSell.buyDate, npBuy.symbol);
+
+			if( nyseSell == null ){
+				simulationReport.append( "><B>Holiday</B>" );
+			}else{
+				simulationReport.append( " bgColor='" +getBgColor(keysForStrategy.get(i))+ "'" );
+				if( expectedGain > nyseSell.low && expectedGain < nyseSell.high ){
+					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+					simulationReport.append( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ expectedGain );
+				}else if( expectedGain < nyseSell.low ){
+					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+					simulationReport.append( "<BR>Profit (<B>Beyond Expectations</B>): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.low );
+				}else{
+					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+					simulationReport.append( "<BR><span style='background-color:red'>Loss:</span> Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.close );
+				}
+			}
+			
+			simulationReport.append( "</td>\n" );
+		}
+		simulationReport.append( "<tr>\n" );
+	}
+	
+	private String getBgColor(String keysForStrategy){
+		// 20wk_100%
+		String bgColor = "";
+		if( keysForStrategy.indexOf( "_50%" ) != -1 ){
+			bgColor = "#FF99CC";
+		}else if( keysForStrategy.indexOf( "_60%" ) != -1 ){
+			bgColor = "#FFCC99";
+		}else if( keysForStrategy.indexOf( "_70%" ) != -1 ){
+			bgColor = "#FFFF99";
+		}else if( keysForStrategy.indexOf( "_80%" ) != -1 ){
+			bgColor = "#CCFFCC";
+		}else if( keysForStrategy.indexOf( "_90%" ) != -1 ){
+			bgColor = "#CCFFFF";
+		}else if( keysForStrategy.indexOf( "_100%" ) != -1 ){
+			bgColor = "#99CCFF";
+		}
+		return bgColor;
+	}
+
+	
+	private void execute(Connection con) throws Exception{
 		// Step1: Generate required data till today.
 		for( int iteration = 0; ; iteration++){
 			boolean bMoreIterationsRequired = generateWeeklyReport(iteration, con);
@@ -165,6 +500,7 @@ public class Statistics {
 			}
 		}
 	}
+	
 	/* Step 1
 		1. Execute "D_Analysis_Percent_Move_GroupOnly_Main.jrxml" for following date ranges (2 weeks to 20 weeks = 10 reports)
 		
@@ -386,7 +722,6 @@ public class Statistics {
 		FileWriter writer = new FileWriter( EXPORT_FOLDER+"summary.txt" );
 		writer.append( sbSummaryOnly.toString() );
 		writer.close();
-
 	}
 	
 	private void simulate(Connection con, List<NysePick> nysePickList, Map<Integer, Integer> mTotalTradingDays, Map<Integer, Integer> mTotalSuccessDays, StringBuffer simulationReport) throws Exception{
