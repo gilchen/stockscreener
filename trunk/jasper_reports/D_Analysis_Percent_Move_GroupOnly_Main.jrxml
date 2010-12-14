@@ -60,12 +60,10 @@ select 'TYH' union
 select 'SDOW' union 
 select 'SPXU' union 
 select 'SQQQ' union 
-select 'SMDD' union 
 select 'SRTY' union 
 select 'FAZ' union 
 select 'TZA' union 
 select 'BGZ' union 
-select 'TYO' union 
 select 'TMV' union 
 select 'DPK' union 
 select 'EDZ' union 
