@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Utility {
 	public static String getContent(String sUrl) throws Exception {
@@ -26,6 +26,13 @@ public class Utility {
 		BigDecimal bd = new BigDecimal( d );
 		bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
 		return bd.doubleValue();
+	}
+
+	public static boolean areDatesEqual(final Date d1, final Date d2){
+		DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+		final String s1 = df.format(d1);
+		final String s2 = df.format(d2);
+		return s1.equals(s2);
 	}
 	
 //	public static void main(String args[]){
