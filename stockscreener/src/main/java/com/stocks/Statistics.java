@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.LineNumberReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -33,10 +35,13 @@ import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.export.JRCsvExporter;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
+import com.stocks.util.Utility;
+
 public class Statistics {
 	static final String RPT_FILE = "C:/Classroom/JSF/int_ref/workspace/trunk/jasper_reports/D_Analysis_Percent_Move_GroupOnly_Main.jrxml";
 	static final String EXPORT_FOLDER = "C:/Temp/stk/Analysis/reports/";
 	static final int MAX_WEEKS_IN_GROUP = 20;
+	static final Double EXPECTED_GAIN_PERCENT = 0.60;
 	
 	static Comparator comparator = new Comparator(){
 		public int compare(Object o1, Object o2) {
@@ -56,24 +61,39 @@ public class Statistics {
 	};
 	
 	public static void main(String args[]) throws Exception{
-		System.out.println( "Process Started @ " +new Date() );
+		long start = System.currentTimeMillis();
 		Statistics stats = new Statistics();
 		Connection con = stats.getConnection();
 
 		try{
-			// The second parameter is used for simulation purposes only. 
-			// Pass Integer.MAX_VALUE, if want to see strategy for next week.
-			//stats.execute(con, Integer.MAX_VALUE);
 			stats.exportCycleResults(con);
 		}finally{
 			stats.closeResource(null, null, con);
 		}
-		System.out.println( "Process Completed @ " +new Date() );
+		
+		long end = System.currentTimeMillis();
+		System.out.println( "Process Completed in " +(( (double)(end - start)/1000.0)/60.0)+ " mins. " );
 	}
 
+	// Recursively deletes path (including all files and folders under it.)
+	private void doDelete(File path) throws IOException{
+		if(path.isDirectory()) {
+			for (File child : path.listFiles()) {
+				doDelete(child);
+			}
+		}
+
+		if (!path.delete()) {
+			throw new IOException("Could not delete " + path);
+		}
+	}
 	
 	// Comment starts here
 	private void exportCycleResults(Connection con) throws Exception{
+		// Step: Cleanup the folder.
+		doDelete( new File(EXPORT_FOLDER) );
+		System.out.println( EXPORT_FOLDER + " deleted." );
+		
 		final StringBuffer exportCycleSimulationReport = new StringBuffer();
 		exportCycleSimulationReport.append( "<html><body>" );
 		
@@ -83,8 +103,13 @@ public class Statistics {
 		}
 		exportCycleSimulationReport.append( "<table border='1'>" );
 		
-		for(int iteration=0; iteration<=21; iteration++){
-			execute(con, iteration);
+		boolean bMoreIterationsRequired = true;
+		for(int iteration=0; (bMoreIterationsRequired = execute(con, iteration)); iteration++){
+			System.out.println( "\titeration: " +iteration+ ", bMoreIterationsRequired: " +bMoreIterationsRequired );
+			// Uncomment the line to call "execute()" only if all the old strategy files (next_week_strategy<iteration>.txt) are removed.
+			
+			
+			
 			// Simulate here based on next_week_summary<iteration>.txt.
 			// Step 1: Read next_week_strategy<iteration>.txt
 			final StringBuffer nextWeekStrategy = new StringBuffer();
@@ -158,7 +183,7 @@ public class Statistics {
 				}
 			}
 			
-			Double expectedGain = nyseBuy.close + (nyseBuy.close * (0.60/100.0));
+			Double expectedGain = nyseBuy.close + (nyseBuy.close * (EXPECTED_GAIN_PERCENT/100.0));
 			
 			if( nysePickList.size() > (i+1) ){
 				npSell = nysePickList.get(i+1);
@@ -216,13 +241,11 @@ public class Statistics {
 	}
 
 	
-	private void execute(Connection con, int optionalSimulationIteration) throws Exception{
+	private boolean execute(Connection con, int simulationIteration) throws Exception{
+		boolean bMoreIterationsRequired = true;
 		// Step1: Generate required data till today.
-		for( int iteration = 0; iteration <= optionalSimulationIteration; iteration++){
-			boolean bMoreIterationsRequired = generateWeeklyReport(iteration, con);
-			if( !bMoreIterationsRequired ){
-				break;
-			}
+		if( !generateWeeklyReport(simulationIteration, con) ){
+			return false;
 		}
 
 		// Get list of folders that contain .csv files 
@@ -243,7 +266,9 @@ public class Statistics {
 		// Step 2: Generate strategies for each .csv file
 		for(String folderName : folderList){
 			//System.out.println( folderName );
-			generateStrategy(EXPORT_FOLDER+"/"+folderName, con);
+			if( !new File( EXPORT_FOLDER+"/"+folderName+"/strategy.txt" ).exists() ){
+				generateStrategy(EXPORT_FOLDER+"/"+folderName, con);
+			}
 		}
 
 		// Step 3: Run/Simulate Strategies.
@@ -319,9 +344,11 @@ public class Statistics {
 			}
 		}
 		
-		FileWriter writer = new FileWriter( EXPORT_FOLDER+"/next_week_strategy" +optionalSimulationIteration+ ".txt" );
+		FileWriter writer = new FileWriter( EXPORT_FOLDER+"/next_week_strategy" +simulationIteration+ ".txt" );
 		writer.append( nextWeekStrategy.toString() );
 		writer.close();
+		
+		return bMoreIterationsRequired;
 	}
 	
 	/* Step 1
@@ -358,7 +385,14 @@ public class Statistics {
 		//cEndDate.add(Calendar.DATE, (iteration * 7));
 		//
 		
-		if( cEndDate.before( Calendar.getInstance() ) ){
+//		if( Utility.areDatesEqual(cEndDate.getTime(), Calendar.getInstance().getTime() ) || 
+//				cEndDate.before( Calendar.getInstance() ) ){
+		
+		Calendar cFridayOfThisWeek = Calendar.getInstance();
+		cFridayOfThisWeek.set( Calendar.DAY_OF_WEEK, Calendar.FRIDAY );
+		
+		if( Utility.areDatesEqual(cEndDate.getTime(), cFridayOfThisWeek.getTime() ) || 
+				cEndDate.before( cFridayOfThisWeek ) ){ // If endDate is before or equal to Friday of this week.
 			cStartDate.setTime( cEndDate.getTime() );
 			cStartDate.add(Calendar.DATE, 3);
 	
@@ -386,7 +420,7 @@ public class Statistics {
 		
 		params.put("pStartDate", startDate);
 		params.put("pEndDate", endDate);
-		params.put("pPercentMove", new Double("0.60"));
+		params.put("pPercentMove", new Double(EXPECTED_GAIN_PERCENT.toString()));
 		params.put("SUBREPORT_DIR", "C:\\Program Files\\JasperSoft\\iReport-3.0.0\\");
 		
 		JasperDesign design = JRXmlLoader.load( RPT_FILE );
@@ -567,7 +601,7 @@ public class Statistics {
 				}
 			}
 			
-			Double expectedGain = nyseBuy.close + (nyseBuy.close * (0.60/100.0));
+			Double expectedGain = nyseBuy.close + (nyseBuy.close * (EXPECTED_GAIN_PERCENT/100.0));
 			
 			if( nysePickList.size() > (i+1) ){
 				npSell = nysePickList.get(i+1);
@@ -698,13 +732,13 @@ public class Statistics {
 	}
 
 	private Date getDate(String str) throws Exception {
-		return new java.text.SimpleDateFormat("MM/dd/yyyy").parse( str );
+		return new SimpleDateFormat("MM/dd/yyyy").parse( str );
 	}
 	
 	private String getStrDate(Date dt) throws Exception{
-		return new java.text.SimpleDateFormat("MM/dd/yyyy").format( dt );
+		return new SimpleDateFormat("MM/dd/yyyy").format( dt );
 	}
-	
+
 	private Connection getConnection() throws Exception{
 		Class.forName("com.mysql.jdbc.Driver");
 		Connection connection = DriverManager.getConnection("jdbc:mysql://10.8.48.78/ind_stocks", "root", "password");
