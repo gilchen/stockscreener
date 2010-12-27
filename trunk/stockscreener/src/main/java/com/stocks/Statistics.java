@@ -1,6 +1,7 @@
 package com.stocks;
 
 import java.io.File;
+
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -39,9 +40,9 @@ import com.stocks.util.Utility;
 
 public class Statistics {
 	static final String RPT_FILE = "C:/Classroom/JSF/int_ref/workspace/trunk/jasper_reports/D_Analysis_Percent_Move_GroupOnly_Main.jrxml";
-	static final String EXPORT_FOLDER = "C:/Temp/stk/Analysis/reports/";
+	static final String EXPORT_FOLDER = "C:/Temp/stk/Analysis/reports/tmp/";
 	static final int MAX_WEEKS_IN_GROUP = 20;
-	static final Double EXPECTED_GAIN_PERCENT = 0.60;
+	static Double EXPECTED_GAIN_PERCENT = 0.60;
 	
 	static Comparator comparator = new Comparator(){
 		public int compare(Object o1, Object o2) {
@@ -49,11 +50,11 @@ public class Statistics {
 			KeyValDetails kvd2 = (KeyValDetails) o2;
 			
 			int ret = 0;
-			if( kvd1.value < kvd2.value ){
+			if( kvd1.value.intValue() < kvd2.value.intValue() ){
 				ret = -1;
-			}else if( kvd1.value == kvd2.value ){
+			}else if( kvd1.value.intValue() == kvd2.value.intValue() ){
 				ret = 0;
-			}else if( kvd1.value > kvd2.value ){
+			}else if( kvd1.value.intValue() > kvd2.value.intValue() ){
 				ret = 1;
 			}
 			return ret;
@@ -66,7 +67,13 @@ public class Statistics {
 		Connection con = stats.getConnection();
 
 		try{
-			stats.exportCycleResults(con);
+			// Another level of filtering to pick the right one for a weekday.
+			Double[] arrPercent = new Double[]{0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00};
+			//Double[] arrPercent = new Double[]{0.50, 0.60, 0.70, 0.80, 0.90, 1.00};
+			for( Double percent : arrPercent ){
+				EXPECTED_GAIN_PERCENT = percent;
+				stats.exportCycleResults(con);
+			}
 		}finally{
 			stats.closeResource(null, null, con);
 		}
@@ -77,14 +84,18 @@ public class Statistics {
 
 	// Recursively deletes path (including all files and folders under it.)
 	private void doDelete(File path) throws IOException{
-		if(path.isDirectory()) {
-			for (File child : path.listFiles()) {
-				doDelete(child);
+		if( path.exists() ){
+			if(path.isDirectory()) {
+				for (File child : path.listFiles()) {
+					doDelete(child);
+				}
 			}
-		}
-
-		if (!path.delete()) {
-			throw new IOException("Could not delete " + path);
+	
+			if (!path.delete()) {
+				throw new IOException("Could not delete " + path);
+			}
+		}else{
+			System.out.println( "Warning: Path not found." );
 		}
 	}
 	
@@ -106,10 +117,7 @@ public class Statistics {
 		boolean bMoreIterationsRequired = true;
 		for(int iteration=0; (bMoreIterationsRequired = execute(con, iteration)); iteration++){
 			System.out.println( "\titeration: " +iteration+ ", bMoreIterationsRequired: " +bMoreIterationsRequired );
-			// Uncomment the line to call "execute()" only if all the old strategy files (next_week_strategy<iteration>.txt) are removed.
-			
-			
-			
+
 			// Simulate here based on next_week_summary<iteration>.txt.
 			// Step 1: Read next_week_strategy<iteration>.txt
 			final StringBuffer nextWeekStrategy = new StringBuffer();
@@ -157,7 +165,7 @@ public class Statistics {
 		
 		exportCycleSimulationReport.append( "</table></body></html>" );
 		
-		FileWriter writer = new FileWriter( EXPORT_FOLDER+"/ExportCycleSimulationReport.html" );
+		FileWriter writer = new FileWriter( EXPORT_FOLDER+"/../ExportCycleSimulationReport (" +EXPECTED_GAIN_PERCENT+ ").html" );
 		writer.append( exportCycleSimulationReport.toString() );
 		writer.close();
 
@@ -203,16 +211,21 @@ public class Statistics {
 			if( nyseSell == null ){
 				simulationReport.append( "><B>Holiday</B>" );
 			}else{
+				double potential = ((nyseSell.high - nyseBuy.close)/nyseBuy.close)*100.0;
 				simulationReport.append( " bgColor='" +getBgColor(keysForStrategy.get(i))+ "'" );
 				if( expectedGain > nyseSell.low && expectedGain < nyseSell.high ){
 					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
-					simulationReport.append( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ expectedGain );
+					simulationReport.append( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ Utility.round(expectedGain) );
+					simulationReport.append( "&nbsp;Potential (" +Utility.round(potential)+ "%)");
 				}else if( expectedGain < nyseSell.low ){
 					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
 					simulationReport.append( "<BR>Profit (<B>Beyond Expectations</B>): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.low );
+					simulationReport.append( "&nbsp;Potential (" +Utility.round(potential)+ "%)");
 				}else{
 					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
 					simulationReport.append( "<BR><span style='background-color:red'>Loss:</span> Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.close );
+					double totalLoss = ((nyseBuy.close - nyseSell.close)/nyseSell.close)*100.0;
+					simulationReport.append( "&nbsp;Total Loss (" +Utility.round(totalLoss)+ "%)");
 				}
 			}
 			
@@ -312,31 +325,31 @@ public class Statistics {
 				String[] weekResults = summary.split(",");
 				if( i == 0 ){ // Monday
 					if( weekResults[1].indexOf( maxMonday+"%" ) != -1 ){
-						System.out.println( "Monday: " +summary );
+						//System.out.println( "Monday: " +summary );
 						nextWeekStrategy.append( summary ).append("\n");
 						break;
 					}
 				}else if( i == 1 ){ // Tuesday
 					if( weekResults[2].indexOf( maxTuesday+"%" ) != -1 ){
-						System.out.println( "Tuesday: " +summary );
+						//System.out.println( "Tuesday: " +summary );
 						nextWeekStrategy.append( summary ).append("\n");
 						break;
 					}
 				}else if( i == 2 ){ // Wednesday
 					if( weekResults[3].indexOf( maxWednesday+"%" ) != -1 ){
-						System.out.println( "Wednesday: " +summary );
+						//System.out.println( "Wednesday: " +summary );
 						nextWeekStrategy.append( summary ).append("\n");
 						break;
 					}
 				}else if( i == 3 ){ // Thursday
 					if( weekResults[4].indexOf( maxThursday+"%" ) != -1 ){
-						System.out.println( "Thursday: " +summary );
+						//System.out.println( "Thursday: " +summary );
 						nextWeekStrategy.append( summary ).append("\n");
 						break;
 					}
 				}else if( i == 4 ){ // Friday
 					if( weekResults[5].indexOf( maxFriday+"%" ) != -1 ){
-						System.out.println( "Friday: " +summary );
+						//System.out.println( "Friday: " +summary );
 						nextWeekStrategy.append( summary ).append("\n");
 						break;
 					}
@@ -724,7 +737,7 @@ public class Statistics {
 		Iterator<KeyValDetails> iterator = ts1.iterator();
 		while(iterator.hasNext()){
 			KeyValDetails o = iterator.next();
-			if( o.value > percent ){
+			if( o.value >= percent ){
 				return o;
 			}
 		}
