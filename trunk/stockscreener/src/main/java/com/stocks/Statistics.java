@@ -43,6 +43,8 @@ public class Statistics {
 	static final String EXPORT_FOLDER = "C:/Temp/stk/Analysis/reports/tmp/";
 	static final int MAX_WEEKS_IN_GROUP = 20;
 	static Double EXPECTED_GAIN_PERCENT = 0.60;
+	static final Integer[] iSuccessPercent = new Integer[]{10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+	static final Double[] dExpectedGainPercent = new Double[]{0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00};
 	
 	static Comparator comparator = new Comparator(){
 		public int compare(Object o1, Object o2) {
@@ -68,9 +70,7 @@ public class Statistics {
 
 		try{
 			// Another level of filtering to pick the right one for a weekday.
-			Double[] arrPercent = new Double[]{0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00};
-			//Double[] arrPercent = new Double[]{0.50, 0.60, 0.70, 0.80, 0.90, 1.00};
-			for( Double percent : arrPercent ){
+			for( Double percent : dExpectedGainPercent ){
 				EXPECTED_GAIN_PERCENT = percent;
 				stats.exportCycleResults(con);
 			}
@@ -79,7 +79,7 @@ public class Statistics {
 		}
 		
 		long end = System.currentTimeMillis();
-		System.out.println( "Process Completed in " +(( (double)(end - start)/1000.0)/60.0)+ " mins. " );
+		System.out.println( "Process Completed in " + Utility.round(( (double)(end - start)/1000.0)/60.0)+ " mins. " );
 	}
 
 	// Recursively deletes path (including all files and folders under it.)
@@ -108,15 +108,14 @@ public class Statistics {
 		final StringBuffer exportCycleSimulationReport = new StringBuffer();
 		exportCycleSimulationReport.append( "<html><body>" );
 		
-		Integer[] iPercent = new Integer[]{50, 60, 70, 80, 90, 100};
-		for( Integer percent : iPercent ){
+		for( Integer percent : iSuccessPercent ){
 			exportCycleSimulationReport.append( "<span style='background-color:" +getBgColor("_" +percent+ "%")+ "'>" +percent+ "</span> &nbsp;" );
 		}
-		exportCycleSimulationReport.append( "<table border='1'>" );
+		exportCycleSimulationReport.append( "\n<table border='1' cellspacing='0'>" );
 		
 		boolean bMoreIterationsRequired = true;
 		for(int iteration=0; (bMoreIterationsRequired = execute(con, iteration)); iteration++){
-			System.out.println( "\titeration: " +iteration+ ", bMoreIterationsRequired: " +bMoreIterationsRequired );
+			System.out.println( "\titeration: " +iteration );
 
 			// Simulate here based on next_week_summary<iteration>.txt.
 			// Step 1: Read next_week_strategy<iteration>.txt
@@ -212,7 +211,7 @@ public class Statistics {
 				simulationReport.append( "><B>Holiday</B>" );
 			}else{
 				double potential = ((nyseSell.high - nyseBuy.close)/nyseBuy.close)*100.0;
-				simulationReport.append( " bgColor='" +getBgColor(keysForStrategy.get(i))+ "'" );
+				simulationReport.append( " style='color:" +getBgColor(keysForStrategy.get(i))+ "'" );
 				if( expectedGain > nyseSell.low && expectedGain < nyseSell.high ){
 					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
 					simulationReport.append( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ Utility.round(expectedGain) );
@@ -237,18 +236,26 @@ public class Statistics {
 	private String getBgColor(String keysForStrategy){
 		// 20wk_100%
 		String bgColor = "";
-		if( keysForStrategy.indexOf( "_50%" ) != -1 ){
-			bgColor = "#FF99CC";
+		if( keysForStrategy.indexOf( "_10%" ) != -1 ){
+			bgColor = "#000000";
+		}else if( keysForStrategy.indexOf( "_20%" ) != -1 ){
+			bgColor = "#000099";
+		}else if( keysForStrategy.indexOf( "_30%" ) != -1 ){
+			bgColor = "#009900";
+		}else if( keysForStrategy.indexOf( "_40%" ) != -1 ){
+			bgColor = "#009999";
+		}else if( keysForStrategy.indexOf( "_50%" ) != -1 ){
+			bgColor = "#990000";
 		}else if( keysForStrategy.indexOf( "_60%" ) != -1 ){
-			bgColor = "#FFCC99";
+			bgColor = "#990099";
 		}else if( keysForStrategy.indexOf( "_70%" ) != -1 ){
-			bgColor = "#FFFF99";
+			bgColor = "#999900";
 		}else if( keysForStrategy.indexOf( "_80%" ) != -1 ){
-			bgColor = "#CCFFCC";
+			bgColor = "#999999";
 		}else if( keysForStrategy.indexOf( "_90%" ) != -1 ){
-			bgColor = "#CCFFFF";
+			bgColor = "#3399FF";
 		}else if( keysForStrategy.indexOf( "_100%" ) != -1 ){
-			bgColor = "#99CCFF";
+			bgColor = "#FF00FF";
 		}
 		return bgColor;
 	}
@@ -445,7 +452,7 @@ public class Statistics {
 		exporter.setParameter(JRExporterParameter.OUTPUT_FILE, new File(exportFileName));
 		exporter.exportReport();
 		//System.out.println( "Date Range: " +getStrDate(startDate)+"-"+getStrDate(endDate) );
-		System.out.println( "CSV Generated: " +exportFileName );
+		//System.out.println( "CSV Generated: " +exportFileName );
 	}
 	
 	private void generateStrategy(String csvFolder, Connection con) throws Exception{
@@ -471,12 +478,11 @@ public class Statistics {
 		//System.out.println( fileList );
 		
 		List<NysePick> strategyList = null;
-		Integer[] iPercent = new Integer[]{50, 60, 70, 80, 90, 100};
 
 		StringBuffer strategyBuffer = new StringBuffer("DataLength_Percent$Symbol,BuyOn,Success%$..");
 		for( String file : fileList ){
 			//System.out.println( "-> " + file );
-			for( Integer percent : iPercent ){
+			for( Integer percent : iSuccessPercent ){
 				strategyList = getStrategy( csvFolder+"/"+file, percent );
 
 				String dataLength = file.substring( file.indexOf("$")+1 , file.indexOf("wks.csv"));
@@ -525,10 +531,10 @@ public class Statistics {
 		
 		// Step 3: Run Strategy
 		StringBuffer sbSummaryOnly = new StringBuffer();
-		Integer[] iPercent = new Integer[]{50, 60, 70, 80, 90, 100};
+
 		int step = 2;
 		for( int numberOfWeeks=2; numberOfWeeks<=MAX_WEEKS_IN_GROUP; numberOfWeeks+=step ){
-			for( Integer percent : iPercent ){
+			for( Integer percent : iSuccessPercent ){
 				final Map<Integer, Integer> mTotalTradingDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalTradingDays
 				final Map<Integer, Integer> mTotalSuccessDays = new HashMap<Integer, Integer>(); //WeekDay Mon=1, TotalSuccessDays
 				final StringBuffer simulationReport = new StringBuffer();
