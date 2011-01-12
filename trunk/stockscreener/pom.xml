@@ -54,6 +54,27 @@
 
     <!-- Project dependencies -->
     <dependencies>
+    	<!-- 
+			mvn install:install-file -DgroupId=org.josql -DartifactId=josql -Dversion=2.2 -Dfile=JoSQL-2.2.jar -DgeneratePom=true -Dpackaging=jar
+			mvn install:install-file -DgroupId=com.gentlyweb -DartifactId=gentlyWEB-utils -Dversion=1.1 -Dfile=3rd-party-jars\gentlyWEB-utils-1.1.jar -DgeneratePom=true -Dpackaging=jar
+	   	-->
+		<dependency>
+		    <groupId>org.josql</groupId>
+		    <artifactId>josql</artifactId>
+		    <version>2.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.gentlyweb</groupId>
+		    <artifactId>gentlyWEB-utils</artifactId>
+		    <version>1.1</version>
+		</dependency>
+    
+		<dependency>
+		    <groupId>javax.transaction</groupId>
+		    <artifactId>jta</artifactId>
+		    <version>1.1</version>
+		</dependency>
+    
 		<dependency>
 		    <groupId>jasperreports</groupId>
 		    <artifactId>jasperreports</artifactId>
