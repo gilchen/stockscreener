@@ -16,8 +16,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 @Entity
 @Table(name = "nyse")
 @NamedQueries({
-	@NamedQuery(name = "stockBySymbol", query = "select a from Nyse a where a.nysePK.symbol = :symbol order by a.nysePK.tradeDate asc"),
-	@NamedQuery(name = "stockBySymbolBetweenTradeDates", query = "select a from Nyse a where a.nysePK.symbol = :symbol and a.nysePK.tradeDate >= :tradeStartDate and a.nysePK.tradeDate <= :tradeEndDate order by a.nysePK.tradeDate asc"),
+	@NamedQuery(name = "stockBySymbol", query = "select a from Nyse a where a.nysePK.symbol = :symbol and a.volume > 0 order by a.nysePK.tradeDate asc"),
+	@NamedQuery(name = "stockBySymbolBetweenTradeDates", query = "select a from Nyse a where a.nysePK.symbol = :symbol and date(a.nysePK.tradeDate) >= date(:tradeStartDate) and date(a.nysePK.tradeDate) <= date(:tradeEndDate) and a.volume > 0 order by a.nysePK.tradeDate asc"),
 	@NamedQuery(name = "allSymbols", query = "select a.nysePK.symbol from Nyse a where a.nysePK.tradeDate = (select max(b.nysePK.tradeDate) from Nyse b where b.nysePK.symbol='DJI.IDX') and a.nysePK.symbol not like '%.IDX' and a.nysePK.symbol not like '%-%' and a.close > 1")
 })
 public class Nyse implements Serializable{
@@ -41,6 +41,8 @@ public class Nyse implements Serializable{
 
     @Column(name="VOLUME")
     private Long volume;
+    
+    private transient Nyse previous;
 
 	public NysePK getNysePK() {
 		return nysePK;
@@ -135,4 +137,12 @@ public class Nyse implements Serializable{
         result = 31 * result + getNysePK().getSymbol().hashCode();
         return result;
     }
+
+	public Nyse getPrevious() {
+		return previous;
+	}
+
+	public void setPrevious(Nyse previous) {
+		this.previous = previous;
+	}
 }

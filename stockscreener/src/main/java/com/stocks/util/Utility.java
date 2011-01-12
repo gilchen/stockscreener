@@ -34,6 +34,14 @@ public class Utility {
 		final String s2 = df.format(d2);
 		return s1.equals(s2);
 	}
+
+	public static Date getDate(String str) throws Exception {
+		return new SimpleDateFormat("MM/dd/yyyy").parse( str );
+	}
+	
+	public static String getStrDate(Date dt) throws Exception{
+		return new SimpleDateFormat("MM/dd/yyyy").format( dt );
+	}
 	
 //	public static void main(String args[]){
 //		String arr[] = new String[]{"MMM", "ABB", "ABT", "ACL", "MO", "AMZN", "AXP", "AMGN", "AAPL", "AZN", "T", "AXAHY", "BBD", "STD", "BCS", "BRK.A", "BHP", "BBL", "BP", "BMY", "BTI", "CAJ", "CAT", "CVX", "LFC", "CHL", "SNP", "CSCO", "C", "CL", "CMCSA", "ABV", "COP", "CS", "CVS", "DB", "DT", "DEO", "EC", "LLY", "E", "XOM", "F", "FTE", "GE", "GSK", "GS", "GOOG", "HPQ", "HMC", "HBC", "INTC", "IBM", "JNJ", "JPM", "KFT", "LYG", "MCD", "MDT", "MRK", "MSFT", "MS", "NTT", "NOK", "NVS", "NVO", "DCM", "OXY", "ORCL", "PEP", "PTR", "PBR", "PFE", "PM", "QCOM", "RTP", "RY", "RDS.A", "SNY", "SAP", "SLB", "SI", "STO", "SU", "TGT", "TEF", "TEVA", "BNS", "BA", "KO", "HD", "PG", "DIS", "TD", "TOT", "USB", "UN", "UL", "UPS", "UTX", "VALE", "VZ", "V", "VOD", "WMT", "WFC", "WBK"};

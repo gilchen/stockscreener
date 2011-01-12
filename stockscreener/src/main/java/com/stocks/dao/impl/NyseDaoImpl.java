@@ -19,19 +19,32 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 	public List<Nyse> findAll() {
 		throw new RuntimeException("Not Implemented.");
 	}
+	
+	// Ensure nyseList contains list of only One symbol in ascending order of tradeDate (without filters on trade_date).
+	public void attachPrevious(List<Nyse> nyseList) {
+		for( int i=1; i<nyseList.size(); i++ ){
+			nyseList.get(i).setPrevious( nyseList.get(i-1) );
+		}
+	}
 
 	public List<Nyse> findStockBySymbol(final String symbol){
 		Query query = entityManager.createNamedQuery("stockBySymbol");
 		query.setParameter("symbol", symbol);
-		return query.getResultList();
+		List<Nyse> results = query.getResultList();
+		attachPrevious(results);
+		
+		return results;
 	}
-
+	
 	public List<Nyse> findStockBySymbolBetweenTradeDates(final String symbol, final Date tradeStartDate, final Date tradeEndDate){
 		Query query = entityManager.createNamedQuery("stockBySymbolBetweenTradeDates");
 		query.setParameter("symbol", symbol);
 		query.setParameter("tradeStartDate", tradeStartDate);
 		query.setParameter("tradeEndDate", tradeEndDate);
-		return query.getResultList();
+		List<Nyse> results = query.getResultList();
+		attachPrevious(results);
+		
+		return results;
 	}
 	
 	public List<String> getAllSymbols() {
