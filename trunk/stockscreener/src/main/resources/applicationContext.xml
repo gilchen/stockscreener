@@ -75,6 +75,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		<property name="bseDao" ref="bseDao" />
 		<property name="nyseDao" ref="nyseDao" />
 		<property name="reportDao" ref="reportDao" />
+		<property name="holidayDao" ref="holidayDao" />
     </bean>
 
     <bean id="bseImportService" class="com.stocks.service.impl.BseImportServiceImpl">
@@ -89,6 +90,18 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		<property name="nyseDao" ref="nyseDao" />
     </bean>
     <!-- End: Spring Services -->
+    
+    <!-- Start: Strategies -->
+    <bean id="pastWeekdaySuccessBasedStrategy" class="com.stocks.service.strategy.impl.PastWeekdaySuccessBasedStrategy">
+		<property name="stockService" ref="stockService" />
+    </bean>
+    <!-- End: Strategies -->
+    
+    <!-- Start: Strategy Simulator -->
+    <bean id="strategySimulator" class="com.stocks.service.strategysimulation.impl.StrategySimulator">
+		<property name="stockService" ref="stockService" />
+    </bean>
+    <!-- End: Strategy Simulator -->
     
     <!-- Start: Commands -->
     <bean id="abstractCommand" class="com.stocks.command.AbstractCommand" abstract="true">
@@ -175,6 +188,10 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     
     <bean id="reportDao"
     	class="com.stocks.dao.impl.ReportDaoImpl"
+    	parent="dao" />
+
+    <bean id="holidayDao"
+    	class="com.stocks.dao.impl.HolidayDaoImpl"
     	parent="dao" />
     <!-- End: DAO -->
 

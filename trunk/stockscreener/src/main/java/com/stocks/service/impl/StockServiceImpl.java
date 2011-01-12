@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.stocks.dao.AlertDao;
 import com.stocks.dao.BseDao;
 import com.stocks.dao.BseIciciMappingDao;
+import com.stocks.dao.HolidayDao;
 import com.stocks.dao.KeyValueDao;
 import com.stocks.dao.NyseAlertDao;
 import com.stocks.dao.NyseDao;
@@ -22,6 +23,7 @@ import com.stocks.model.BseIciciMapping;
 import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
 import com.stocks.model.NyseAlert;
+import com.stocks.model.NysePK;
 import com.stocks.model.Report;
 import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
@@ -42,6 +44,7 @@ public class StockServiceImpl implements StockService {
     private BseIciciMappingDao bseIciciMappingDao;
     private KeyValueDao keyValueDao;
     private ReportDao reportDao;
+    private HolidayDao holidayDao;
 
 	public AlertDao getAlertDao() {
 		return alertDao;
@@ -106,6 +109,15 @@ public class StockServiceImpl implements StockService {
 		this.reportDao = reportDao;
 	}
 
+	public HolidayDao getHolidayDao() {
+		return holidayDao;
+	}
+
+	@Required
+	public void setHolidayDao(HolidayDao holidayDao) {
+		this.holidayDao = holidayDao;
+	}
+
 	public List<Alert> getAllBseAlerts() {
 		return getAlertDao().findAll();
 	}
@@ -142,6 +154,10 @@ public class StockServiceImpl implements StockService {
     
     public List<Integer> getAllScCodes(){
     	return getBseDao().getAllScCodes();
+    }
+    
+    public Nyse read(NysePK nysePk) {
+    	return getNyseDao().read(nysePk);
     }
     
     public List<Nyse> findStockBySymbol(String symbol) {
@@ -225,5 +241,11 @@ public class StockServiceImpl implements StockService {
 		}
     }
     
-
+	public boolean isHoliday(Date date) {
+		return this.getHolidayDao().read(date) != null;
+	}
+	
+	public Date getPreviousBusinessDay(Date date) {
+		return this.getHolidayDao().getPreviousBusinessDay(date);
+	}
 }

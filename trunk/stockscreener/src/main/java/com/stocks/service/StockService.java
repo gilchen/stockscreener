@@ -9,6 +9,7 @@ import com.stocks.model.BseIciciMapping;
 import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
 import com.stocks.model.NyseAlert;
+import com.stocks.model.NysePK;
 import com.stocks.model.Report;
 import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
@@ -26,6 +27,7 @@ public interface StockService {
 	public List<Bse> findStockByScCode(final Integer scCode);
 	public List<Integer> getAllScCodes();
 	
+	public Nyse read(final NysePK nysePk);
 	public List<Nyse> findStockBySymbol(final String symbol);
 	public List<Nyse> findStockBySymbolBetweenTradeDates(final String symbol, final Date tradeStartDate, final Date tradeEndDate);
 	public List<String> getAllSymbols();
@@ -40,4 +42,7 @@ public interface StockService {
 	
 	void saveReport(Report report) throws Exception;
 	Report getReport(String reportName) throws Exception;
+	
+	boolean isHoliday(Date date);
+	Date getPreviousBusinessDay(Date date);
 }

@@ -43,8 +43,10 @@ public class Statistics {
 	static final String EXPORT_FOLDER = "C:/Temp/stk/Analysis/reports/tmp/";
 	static final int MAX_WEEKS_IN_GROUP = 20;
 	static Double EXPECTED_GAIN_PERCENT = 0.60;
-	static final Integer[] iSuccessPercent = new Integer[]{10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-	static final Double[] dExpectedGainPercent = new Double[]{0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00};
+	static final Integer[] iSuccessPercent = new Integer[]{20, 30, 40, 50, 60, 70, 80, 90, 100};
+	static final Double[] dExpectedGainPercent = new Double[]{0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00};
+//	static final Integer[] iSuccessPercent = new Integer[]{20};
+//	static final Double[] dExpectedGainPercent = new Double[]{0.40};
 	
 	static Comparator comparator = new Comparator(){
 		public int compare(Object o1, Object o2) {
@@ -108,13 +110,19 @@ public class Statistics {
 		final StringBuffer exportCycleSimulationReport = new StringBuffer();
 		exportCycleSimulationReport.append( "<html><body>" );
 		
-		for( Integer percent : iSuccessPercent ){
-			exportCycleSimulationReport.append( "<span style='background-color:" +getBgColor("_" +percent+ "%")+ "'>" +percent+ "</span> &nbsp;" );
-		}
+//		for( Integer percent : iSuccessPercent ){
+//			exportCycleSimulationReport.append( "<span style='background-color:" +getBgColor("_" +percent+ "%")+ "'>" +percent+ "</span> &nbsp;" );
+//		}
+		exportCycleSimulationReport.append( "<span>Change in Strategy Code in a column means Strategy broke that day. DO NOT follow if Strategy Code changes frequently in a column.</span> &nbsp;" );
 		exportCycleSimulationReport.append( "\n<table border='1' cellspacing='0'>" );
 		
 		boolean bMoreIterationsRequired = true;
-		for(int iteration=0; (bMoreIterationsRequired = execute(con, iteration)); iteration++){
+		for(int iteration=0; ; iteration++){
+			bMoreIterationsRequired = execute(con, iteration);
+			if( !bMoreIterationsRequired ){
+				break;
+			}
+			
 			System.out.println( "\titeration: " +iteration );
 
 			// Simulate here based on next_week_summary<iteration>.txt.
@@ -176,7 +184,7 @@ public class Statistics {
 		for( int i=0; i<nysePickList.size(); i++ ){
 			simulationReport.append( "<td " );
 			npBuy = nysePickList.get(i);
-			simulationReport.append( "title='" +npBuy.toString()+ " => " +keysForStrategy.get(i)+ "' " );
+			simulationReport.append( "title='" +npBuy.toString()+ " => " +keysForStrategy.get(i)+ "'>" );
 			
 			Nyse nyseBuy = getResult( con, npBuy.buyDate, npBuy.symbol);
 			if( nyseBuy == null ){
@@ -208,20 +216,20 @@ public class Statistics {
 			Nyse nyseSell = getResult( con, npSell.buyDate, npBuy.symbol);
 
 			if( nyseSell == null ){
-				simulationReport.append( "><B>Holiday</B>" );
+				simulationReport.append( "<B>Holiday</B>" );
 			}else{
 				double potential = ((nyseSell.high - nyseBuy.close)/nyseBuy.close)*100.0;
-				simulationReport.append( " style='color:" +getBgColor(keysForStrategy.get(i))+ "'" );
+				simulationReport.append( "<B>Strategy Code " +getStrategyCode(keysForStrategy.get(i))+ "</B><BR/>" );
 				if( expectedGain > nyseSell.low && expectedGain < nyseSell.high ){
-					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+					simulationReport.append( "Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
 					simulationReport.append( "<BR>Profit (As expected): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ Utility.round(expectedGain) );
 					simulationReport.append( "&nbsp;Potential (" +Utility.round(potential)+ "%)");
 				}else if( expectedGain < nyseSell.low ){
-					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+					simulationReport.append( "Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
 					simulationReport.append( "<BR>Profit (<B>Beyond Expectations</B>): Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.low );
 					simulationReport.append( "&nbsp;Potential (" +Utility.round(potential)+ "%)");
 				}else{
-					simulationReport.append( ">Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
+					simulationReport.append( "Buy " +nyseBuy.symbol+ " (" +npBuy.successPercent+ "%) " +" on " +getStrDate( nyseBuy.tradeDate )+ " @"+ nyseBuy.close );
 					simulationReport.append( "<BR><span style='background-color:red'>Loss:</span> Sell " +nyseSell.symbol+ " on " +getStrDate( nyseSell.tradeDate )+ " @"+ nyseSell.close );
 					double totalLoss = ((nyseBuy.close - nyseSell.close)/nyseSell.close)*100.0;
 					simulationReport.append( "&nbsp;Total Loss (" +Utility.round(totalLoss)+ "%)");
@@ -233,34 +241,122 @@ public class Statistics {
 		simulationReport.append( "<tr>\n" );
 	}
 	
-	private String getBgColor(String keysForStrategy){
+	private int getStrategyCode(String keyForStrategy){
 		// 20wk_100%
-		String bgColor = "";
-		if( keysForStrategy.indexOf( "_10%" ) != -1 ){
-			bgColor = "#000000";
-		}else if( keysForStrategy.indexOf( "_20%" ) != -1 ){
-			bgColor = "#000099";
-		}else if( keysForStrategy.indexOf( "_30%" ) != -1 ){
-			bgColor = "#009900";
-		}else if( keysForStrategy.indexOf( "_40%" ) != -1 ){
-			bgColor = "#009999";
-		}else if( keysForStrategy.indexOf( "_50%" ) != -1 ){
-			bgColor = "#990000";
-		}else if( keysForStrategy.indexOf( "_60%" ) != -1 ){
-			bgColor = "#990099";
-		}else if( keysForStrategy.indexOf( "_70%" ) != -1 ){
-			bgColor = "#999900";
-		}else if( keysForStrategy.indexOf( "_80%" ) != -1 ){
-			bgColor = "#999999";
-		}else if( keysForStrategy.indexOf( "_90%" ) != -1 ){
-			bgColor = "#3399FF";
-		}else if( keysForStrategy.indexOf( "_100%" ) != -1 ){
-			bgColor = "#FF00FF";
-		}
-		return bgColor;
+		List<String> list = new ArrayList<String>();
+		list.add("2wk_10%");
+		list.add("2wk_20%");
+		list.add("2wk_30%");
+		list.add("2wk_40%");
+		list.add("2wk_50%");
+		list.add("2wk_60%");
+		list.add("2wk_70%");
+		list.add("2wk_80%");
+		list.add("2wk_90%");
+		list.add("2wk_100%");
+
+		list.add("4wk_10%");
+		list.add("4wk_20%");
+		list.add("4wk_30%");
+		list.add("4wk_40%");
+		list.add("4wk_50%");
+		list.add("4wk_60%");
+		list.add("4wk_70%");
+		list.add("4wk_80%");
+		list.add("4wk_90%");
+		list.add("4wk_100%");
+
+		list.add("6wk_10%");
+		list.add("6wk_20%");
+		list.add("6wk_30%");
+		list.add("6wk_40%");
+		list.add("6wk_50%");
+		list.add("6wk_60%");
+		list.add("6wk_70%");
+		list.add("6wk_80%");
+		list.add("6wk_90%");
+		list.add("6wk_100%");
+
+		list.add("8wk_10%");
+		list.add("8wk_20%");
+		list.add("8wk_30%");
+		list.add("8wk_40%");
+		list.add("8wk_50%");
+		list.add("8wk_60%");
+		list.add("8wk_70%");
+		list.add("8wk_80%");
+		list.add("8wk_90%");
+		list.add("8wk_100%");
+
+		list.add("10wk_10%");
+		list.add("10wk_20%");
+		list.add("10wk_30%");
+		list.add("10wk_40%");
+		list.add("10wk_50%");
+		list.add("10wk_60%");
+		list.add("10wk_70%");
+		list.add("10wk_80%");
+		list.add("10wk_90%");
+		list.add("10wk_100%");
+
+		list.add("12wk_10%");
+		list.add("12wk_20%");
+		list.add("12wk_30%");
+		list.add("12wk_40%");
+		list.add("12wk_50%");
+		list.add("12wk_60%");
+		list.add("12wk_70%");
+		list.add("12wk_80%");
+		list.add("12wk_90%");
+		list.add("12wk_100%");
+
+		list.add("14wk_10%");
+		list.add("14wk_20%");
+		list.add("14wk_30%");
+		list.add("14wk_40%");
+		list.add("14wk_50%");
+		list.add("14wk_60%");
+		list.add("14wk_70%");
+		list.add("14wk_80%");
+		list.add("14wk_90%");
+		list.add("14wk_100%");
+
+		list.add("16wk_10%");
+		list.add("16wk_20%");
+		list.add("16wk_30%");
+		list.add("16wk_40%");
+		list.add("16wk_50%");
+		list.add("16wk_60%");
+		list.add("16wk_70%");
+		list.add("16wk_80%");
+		list.add("16wk_90%");
+		list.add("16wk_100%");
+
+		list.add("18wk_10%");
+		list.add("18wk_20%");
+		list.add("18wk_30%");
+		list.add("18wk_40%");
+		list.add("18wk_50%");
+		list.add("18wk_60%");
+		list.add("18wk_70%");
+		list.add("18wk_80%");
+		list.add("18wk_90%");
+		list.add("18wk_100%");
+
+		list.add("20wk_10%");
+		list.add("20wk_20%");
+		list.add("20wk_30%");
+		list.add("20wk_40%");
+		list.add("20wk_50%");
+		list.add("20wk_60%");
+		list.add("20wk_70%");
+		list.add("20wk_80%");
+		list.add("20wk_90%");
+		list.add("20wk_100%");
+
+		return list.indexOf( keyForStrategy );
 	}
 
-	
 	private boolean execute(Connection con, int simulationIteration) throws Exception{
 		boolean bMoreIterationsRequired = true;
 		// Step1: Generate required data till today.
