@@ -106,6 +106,8 @@ public class StrategySimulator implements IStrategySimulator {
 		sb.append( "<tr>");
 		int iGrandTotal = 0;
 		int iGrandTotalSuccess = 0;
+		
+		StringBuffer sbForMsExcel = new StringBuffer();
 		for( int weekDay=Calendar.MONDAY; weekDay<= Calendar.FRIDAY; weekDay++ ){
 			Integer totalTradingDays = mTotalTradingDays.get( weekDay );
 			Integer totalSuccessDays = mTotalSuccessDays.get( weekDay );
@@ -116,15 +118,26 @@ public class StrategySimulator implements IStrategySimulator {
 			
 			if( totalTradingDays != null && totalSuccessDays != null ){
 				iGrandTotalSuccess += totalSuccessDays;
-				sb.append( "<td>(" +totalSuccessDays+ "/" +totalTradingDays+ ") " +Utility.round( ((double)totalSuccessDays/(double)totalTradingDays) * 100.0)+ "%</td>");
+				sb.append( "<td>");
+				String str = "\t(" +totalSuccessDays+ "/" +totalTradingDays+ ")\t" +Utility.round( ((double)totalSuccessDays/(double)totalTradingDays) * 100.0)+ "%";
+				sb.append( str );
+				sb.append( "</td>" );
+				
+				sbForMsExcel.append( str );
 			}else{
 				sb.append( "<td></td>");
 			}
 		}
 		sb.append( "</tr>");
 
-		sb.append( "<tr><td align='center' colspan='5'>" +symbol+ "(" +iGrandTotalSuccess+ "/" +iGrandTotal+ ") " +Utility.round( ((double)iGrandTotalSuccess/(double)iGrandTotal) * 100.0)+ "%</td></tr>" );
+		sb.append( "<tr><td align='center' colspan='5'>" );
+		String str = symbol+ "(" +iGrandTotalSuccess+ "/" +iGrandTotal+ ")" +Utility.round( ((double)iGrandTotalSuccess/(double)iGrandTotal) * 100.0)+ "%";
+		sb.append( str );
+		sb.append( "</td></tr>" );
 		sb.append( "</table></body></html>" );
+		
+		sbForMsExcel.insert(0, str);
+		System.out.println( sbForMsExcel.toString() );
 		
 		File file = new File(RPT_FOLDER +symbol+"_rpt.html");
 		FileWriter writer = new FileWriter(file, false);

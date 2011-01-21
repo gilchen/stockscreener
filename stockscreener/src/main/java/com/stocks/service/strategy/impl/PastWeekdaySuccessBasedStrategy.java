@@ -49,6 +49,8 @@ public class PastWeekdaySuccessBasedStrategy implements IStrategy {
 				Nyse currentWeekDay = nyseSubList.get(i);
 				Nyse lastWeekDay = nyseSubList.get(i-1);
 				
+				//System.out.println( Utility.getStrDate( lastWeekDay.getNysePK().getTradeDate() )+" -- "+ Utility.getStrDate( currentWeekDay.getNysePK().getTradeDate() ) );
+				
 				Double cExpectedGain = currentWeekDay.getPrevious().getClose() + (currentWeekDay.getPrevious().getClose() * EXPECTED_GAIN/100.0);
 				if( lastWeekDay.getPrevious() != null ){
 					Double pExpectedGain = lastWeekDay.getPrevious().getClose() + (lastWeekDay.getPrevious().getClose() * EXPECTED_GAIN/100.0);
@@ -76,12 +78,13 @@ public class PastWeekdaySuccessBasedStrategy implements IStrategy {
 						sellDate.setTime( new Date( currentWeekDay.getNysePK().getTradeDate().getTime() ) );
 						sellDate.add(Calendar.DATE, 7);
 						
+						// Checking for Holiday once should be enough
+						if( getStockService().isHoliday( sellDate.getTime() ) ){
+							sellDate.add(Calendar.DATE, 7);
+							buyDate.add(Calendar.DATE, 7);
+						}
+
 						strategyList.add( new Strategy(currentWeekDay.getNysePK().getSymbol(), buyDate.getTime(), EXPECTED_GAIN, sellDate.getTime()) );
-
-//						if( i >= 36 ){
-//							System.out.println( "::: " +Utility.getStrDate(buyDate.getTime())+": "+currentWeekDay.getHigh()+" > " +cExpectedGain+", "+ lastWeekDay.getHigh() +": > "+ pExpectedGain );
-//						}
-
 					}
 				}
 			}
