@@ -36,7 +36,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
      -->
      <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://10.8.48.78/ind_stocks" />
+		<property name="url" value="jdbc:mysql://IN2-KASALR1-D1/ind_stocks" />
 		<property name="username" value="root" />
 		<property name="password" value="password" />
      </bean>
@@ -90,6 +90,13 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		<property name="nyseDao" ref="nyseDao" />
     </bean>
     <!-- End: Spring Services -->
+
+    <!-- Start: Statistics -->
+    <bean id="intraDayStatistics" class="com.stocks.service.statistics.IntraDayStatistics">
+		<property name="stockService" ref="stockService" />
+    </bean>
+    <!-- End: Statistics -->
+	
     
     <!-- Start: Strategies -->
     <bean id="pastWeekdaySuccessBasedStrategy" class="com.stocks.service.strategy.impl.PastWeekdaySuccessBasedStrategy">
