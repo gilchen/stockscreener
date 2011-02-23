@@ -14,7 +14,7 @@ import com.stocks.service.strategysimulation.impl.StrategySimulator;
 
 public class Caller {
 	final static String[] ETF_LIST = {"UDOW", "UPRO", "TQQQ", "UMDD", "URTY", "FAS", "TNA", "BGU", "TMF", "CZM", "DZK", "EDC", "ERX", "LBJ", "MWJ", "DRN", "SOXL", "TYH", "SDOW", "SPXU", "SQQQ", "SRTY", "FAZ", "TZA", "BGZ", "TMV", "DPK", "EDZ", "ERY", "MWN", "DRV", "SOXS", "TYP"};
-	//final static String[] ETF_LIST = {"ERY"};
+	//final static String[] ETF_LIST = {"INDL", "INDZ"};
 
 	private List<String> symbols;
 	
