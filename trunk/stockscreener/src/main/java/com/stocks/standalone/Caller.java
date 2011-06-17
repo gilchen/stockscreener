@@ -40,7 +40,7 @@ public class Caller {
 			StrategySimulator strategySimulator = (StrategySimulator) context.getBean("strategySimulator");
 			File file = strategySimulator.runStrategy(strategyList, IStrategy.EXPECTED_GAIN);
 			//System.out.println( "Report generated @ " +file.getAbsolutePath() );
-		}		
+		}
 		System.out.println( "Done." );
 		System.exit(0);
 	}

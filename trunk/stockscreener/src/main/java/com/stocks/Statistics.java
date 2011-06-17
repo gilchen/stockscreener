@@ -856,7 +856,7 @@ public class Statistics {
 
 	private Connection getConnection() throws Exception{
 		Class.forName("com.mysql.jdbc.Driver");
-		Connection connection = DriverManager.getConnection("jdbc:mysql://10.8.48.78/ind_stocks", "root", "password");
+		Connection connection = DriverManager.getConnection("jdbc:mysql://IN2-KASALR1-D1/ind_stocks", "root", "password");
 		return connection;
 	}
 	
