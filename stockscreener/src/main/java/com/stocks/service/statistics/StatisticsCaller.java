@@ -8,7 +8,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class StatisticsCaller {
 	//final static String[] ETF_LIST = {"UDOW", "UPRO", "TQQQ", "UMDD", "URTY", "FAS", "TNA", "BGU", "TMF", "CZM", "DZK", "EDC", "ERX", "LBJ", "MWJ", "DRN", "SOXL", "TYH", "SDOW", "SPXU", "SQQQ", "SRTY", "FAZ", "TZA", "BGZ", "TMV", "DPK", "EDZ", "ERY", "MWN", "DRV", "SOXS", "TYP"};
-	final static String[] ETF_LIST = {"SOXS"};
+	final static String[] ETF_LIST = {"TZA"};
 
 	private List<String> symbols;
 	
