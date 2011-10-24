@@ -3,7 +3,8 @@ package com.stocks;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,17 @@ public class ReportBean{
     private List<String> commandsToExecute;
     private String filterBseEventType;
     private String filterNyseEventType;
+    private Date startDate;
+    private Date endDate;
 
+    public ReportBean() {
+		Calendar dt = Calendar.getInstance();
+		setEndDate((Date) dt.getTime().clone());
+
+		dt.add( Calendar.DAY_OF_YEAR, -30*6 ); // 6 months ago
+		setStartDate( dt.getTime() );
+	}
+    
 	public ChainBase getReportChain() {
 		return reportChain;
 	}
@@ -94,9 +105,28 @@ public class ReportBean{
 		}
 	}
 
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
 	public void executeReportChain(ActionEvent ae){
-		Map<String, Collection<String>> commandsMap = new HashMap<String, Collection<String>>();
+		Map<String, Object> commandsMap = new HashMap<String, Object>();
 		commandsMap.put(AbstractCommand.COMMANDS_TO_EXECUTE, this.getCommandsToExecute());
+		commandsMap.put(AbstractCommand.START_DATE, this.getStartDate());
+		commandsMap.put(AbstractCommand.END_DATE, this.getEndDate());
+		
 		try{
 			reportChain.execute(new ContextBase( commandsMap ));
 			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Reports generated successfully.", "Reports generated successfully."));
@@ -164,6 +194,15 @@ public class ReportBean{
 	public void getNyseNPercentUpFromBottomSimulationReport(ActionEvent ae){
 		try {
 			Report report = getStockService().getReport(Report.ReportName.NyseNPercentUpFromBottomSimulationCommand.toString());
+			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
+		
+	public void getNyseNPercentUpFromBottomScanningSimulationReport(ActionEvent ae){
+		try {
+			Report report = getStockService().getReport(Report.ReportName.NyseNPercentUpFromBottomScanningSimulationCommand.toString());
 			setContent( report.getContent() );
 		} catch (Exception e) {
 			setContent( e.getMessage() );

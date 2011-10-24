@@ -24,6 +24,8 @@ public class NyseBreakingHighsEachTimeCommand extends AbstractCommand {
 
 	public boolean execute(Context context) throws Exception {
 		Collection<String> commandNames = (Collection<String>)context.get(COMMANDS_TO_EXECUTE);
+		setStartDate((Date) context.get(START_DATE));
+		setEndDate((Date) context.get(END_DATE));
 		if( commandNames.contains(this.getClass().getName()) ){
 			System.out.println( "Executing NyseBreakingHighsEachTimeCommand..." );
 			processNyse();
@@ -41,13 +43,13 @@ public class NyseBreakingHighsEachTimeCommand extends AbstractCommand {
 		List<Double> cClose = new ArrayList<Double>();
 
 		Calendar startDate = Calendar.getInstance();
-		startDate.setTime(tradeEndDateParam);
+		startDate.setTime(getEndDate());
 		startDate.add(Calendar.DATE, -31);
 
 		double ctr = 0.0;
 		for( final String symbol : symbols ){
 			cClose.clear();
-			List<Nyse> nyseList = getStockService().findStockBySymbolBetweenTradeDates(symbol, startDate.getTime(), tradeEndDateParam);
+			List<Nyse> nyseList = getStockService().findStockBySymbolBetweenTradeDates(symbol, startDate.getTime(), getEndDate());
 			for( final Nyse nyse : nyseList ){
 				cClose.add( nyse.getClose() );
 			}

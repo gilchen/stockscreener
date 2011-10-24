@@ -25,6 +25,22 @@
 				<f:selectItems value="#{reportBean.commands}" />
 			</h:selectManyListbox>
 			<br />
+			
+			<h:panelGroup>
+				<h:outputLabel value="StartDate: (MM/dd/yyyy) " />
+				<h:inputText value="#{reportBean.startDate}">
+					<f:convertDateTime pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:inputText>
+			</h:panelGroup>
+			
+			<h:panelGroup>
+				<h:outputLabel value="EndDate: (MM/dd/yyyy) " />
+				<h:inputText value="#{reportBean.endDate}">
+					<f:convertDateTime pattern="MM/dd/yyyy" timeZone="America/Indianapolis" />
+				</h:inputText>
+			</h:panelGroup>
+			<br />
+			
 			<ol>
 				<li>
 					<h:commandLink value="View Bse Alert" actionListener="#{reportBean.getBseAlertReport}" />
@@ -46,6 +62,7 @@
 				<li><h:commandLink value="View NyseNPercentCorrectionInMMonths" actionListener="#{reportBean.getNyseNPercentCorrectionInMMonthsReport}" /></li>
 				<li><h:commandLink value="View NyseNPercentUpFromBottom" actionListener="#{reportBean.getNyseNPercentUpFromBottomReport}" /></li>
 				<li><h:commandLink value="View NyseNPercentUpFromBottomSimulation" actionListener="#{reportBean.getNyseNPercentUpFromBottomSimulationReport}" /></li>
+				<li><h:commandLink value="View NyseNPercentUpFromBottomScanningSimulation" actionListener="#{reportBean.getNyseNPercentUpFromBottomScanningSimulationReport}" /></li>
 				<li><h:commandLink value="View NyseBreakingHighsEachTime" actionListener="#{reportBean.getNyseBreakingHighsEachTimeReport}" /></li>
 			</ol>
 			<br />

@@ -29,6 +29,7 @@
 	<classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.2.3/ehcache-1.2.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/ejb3-persistence/1.0.2.GA/ejb3-persistence-1.0.2.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/gentlyweb/gentlyweb-utils/1.1/gentlyWEB-utils-1.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.6.ga/hibernate-3.2.6.ga.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-annotations/3.3.1.GA/hibernate-annotations-3.3.1.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-commons-annotations/3.0.0.ga/hibernate-commons-annotations-3.0.0.ga.jar"/>
@@ -39,8 +40,10 @@
 	<classpathentry kind="var" path="M2_REPO/jfree/jcommon/1.0.0/jcommon-1.0.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/eclipse/jdtcore/3.1.0/jdtcore-3.1.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jfree/jfreechart/1.0.1/jfreechart-1.0.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/josql/josql/2.2/josql-2.2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/sun/facelets/jsf-facelets/1.1.11/jsf-facelets-1.1.11.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jstl/jstl/1.2/jstl-1.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/junit/junit/4.0/junit-4.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/myfaces/core/myfaces-api/1.2.2/myfaces-api-1.2.2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/myfaces/core/myfaces-impl/1.2.2/myfaces-impl-1.2.2.jar"/>
@@ -59,7 +62,7 @@
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-web/2.5.6/spring-web-2.5.6.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/myfaces/tomahawk/tomahawk/1.1.6/tomahawk-1.1.6.jar"/>
 	<classpathentry kind="var" path="M2_REPO/xml-apis/xml-apis/1.3.02/xml-apis-1.3.02.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/JasperSoft/iReport-3.0.0/lib/iReport.jar"/>
 	<classpathentry kind="lib" path="C:/Classroom/JSF/int_ref/workspace/trunk/jasper_reports"/>
+	<classpathentry kind="lib" path="C:/Program Files/JasperSoft/iReport-3.0.0/lib/iReport.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -1,5 +1,6 @@
 package com.stocks.dao.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -7,7 +8,6 @@ import javax.persistence.Query;
 
 import com.stocks.dao.AbstractDao;
 import com.stocks.dao.NyseDao;
-import com.stocks.model.Bse;
 import com.stocks.model.Nyse;
 import com.stocks.model.NysePK;
 

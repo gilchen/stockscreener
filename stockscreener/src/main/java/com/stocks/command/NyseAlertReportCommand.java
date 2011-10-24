@@ -22,6 +22,8 @@ public class NyseAlertReportCommand extends AbstractCommand {
 
 	public boolean execute(Context context) throws Exception {
 		Collection<String> commandNames = (Collection<String>)context.get(COMMANDS_TO_EXECUTE);
+		setStartDate((Date) context.get(START_DATE));
+		setEndDate((Date) context.get(END_DATE));
 		if( commandNames.contains(this.getClass().getName()) ){
 			System.out.println( "Executing NyseAlertReportCommand..." );
 			processNyseAlerts();
@@ -54,7 +56,7 @@ public class NyseAlertReportCommand extends AbstractCommand {
 		for( final List<NyseAlert> nyseAlerts : mSymbolNyseAlert.values() ){
 			cClose.clear();
 			//List<Nyse> nyseList = getStockService().findStockBySymbol(nyseAlerts.get(0).getSymbol());
-			List<Nyse> nyseList = getStockService().findStockBySymbolBetweenTradeDates(nyseAlerts.get(0).getSymbol(), tradeStartDateParam, tradeEndDateParam);
+			List<Nyse> nyseList = getStockService().findStockBySymbolBetweenTradeDates(nyseAlerts.get(0).getSymbol(), getStartDate(), getEndDate());
 			for(final Nyse nyse : nyseList){
 				cClose.add( nyse.getClose() );
 			}

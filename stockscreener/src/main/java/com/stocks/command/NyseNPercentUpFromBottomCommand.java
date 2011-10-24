@@ -27,8 +27,12 @@ public class NyseNPercentUpFromBottomCommand extends AbstractCommand {
 
 	public boolean execute(Context context) throws Exception {
 		Collection<String> commandNames = (Collection<String>)context.get(COMMANDS_TO_EXECUTE);
+		setStartDate((Date) context.get(START_DATE));
+		setEndDate((Date) context.get(END_DATE));
+
 		if( commandNames.contains(this.getClass().getName()) ){
 			System.out.println( "Executing NyseNPercentUpFromBottomCommand..." );
+			System.out.println( "*** It keeps printing symbols along that are found to be in recent uptrend." );
 			processNyse();
 		}
 		return Command.CONTINUE_PROCESSING;
@@ -41,12 +45,13 @@ public class NyseNPercentUpFromBottomCommand extends AbstractCommand {
 		sb.append( String.format("<B>Nyse Report (%s - %s percent Up from Bottom) - Generated on %s</B>%n", FROM_PERCENT, TO_PERCENT, new SimpleDateFormat("MMM dd, yyyy").format(new Date())));
 
 		List<String> symbols = getStockService().getAllSymbols();
+
 		List<Double> cClose = new ArrayList<Double>();
 
 		double ctr = 0.0;
 		for( final String symbol : symbols ){
 			cClose.clear();
-			List<Nyse> nyseList = getStockService().findStockBySymbolBetweenTradeDates(symbol, tradeStartDateParam, tradeEndDateParam);
+			List<Nyse> nyseList = getStockService().findStockBySymbolBetweenTradeDates(symbol, getStartDate(), getEndDate());
 			for( final Nyse nyse : nyseList ){
 				cClose.add( nyse.getClose() );
 			}
@@ -84,7 +89,7 @@ public class NyseNPercentUpFromBottomCommand extends AbstractCommand {
 			sb.append( String.format("Symbol: %s, Lowest: %s, [%s (%s) %s]%n", scCode, lowestPrice, fromPrice, lastClose, toPrice) );
 			//sb.append( String.format("Symbol: %s, From Percent: %s, To Percent: %s%n", scCode, FROM_PERCENT, TO_PERCENT) );
 			// http://chart.apis.google.com/chart?cht=lc&chs=200x100&chd=t:40,60,60,45,47,75,70,72&chxt=x,y&chxr=1,0,75
-			String url = GOOGLE_CHART_URL;
+			String url = GOOGLE_CHART_RECOMMENDED_BUY_URL;
 
 			url = url.replace("~NUM", String.valueOf(NUM++) );
 			NUM = NUM == 10 ? 0 : NUM;
@@ -94,7 +99,24 @@ public class NyseNPercentUpFromBottomCommand extends AbstractCommand {
 			final List<Double> cCloseList = Arrays.asList(cClose);
 			url = url.replace("~MIN", Collections.min(cCloseList).toString());
 			url = url.replace("~MAX", Collections.max(cCloseList).toString());
+			
+			url += GOOGLE_CHART_CHM_PARAM_VALUE.replace("~RECOMMENDED_BUY_PRICE", "Low@" +lowestPrice ).replace("~RECOMMENDED_BUY_INDEX", ""+(list.lastIndexOf(lowestPrice)) ) ;
 			sb.append( "<a href=\"http://www.google.com/finance?q=" +stockExchange+ ":" +scCode+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>\n" );
+			
+			// Start: Uptrend Check
+			List<Double> subList = list.subList(list.size()-10, list.size());
+			// Step 1: Get avg
+			Double avg = 0.0;
+			for(Double d : subList){
+				avg += d;
+			}
+			avg /= subList.size();
+			
+			// Step 2: Qualifies if lastClose > avg
+			if( list.get( list.size()-1 ) >= avg ){
+				System.out.println( String.format("%-5s -> wget --post-data=\"%s\" http://0.chart.apis.google.com/chart -O %s.png", scCode, url.substring( url.indexOf("?")+1 ), scCode) );
+			}
+			// End: Uptrend Check
 		}
 	}
 
