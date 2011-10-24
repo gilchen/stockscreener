@@ -5,13 +5,15 @@ import java.util.List;
 import com.stocks.util.Utility;
 
 public class CallerQuote {
-	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "ERX", "TZA", "AGQ", "ZSL", "UGL", "UCO", "UCD", "BAL"}; // "EWV", "EZJ", "UGL", "BAL"
-	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", "ERX", "TZA", "AGQ", "ZSL", "UGL", "UCO", "UCD", "BAL"}; // "BAL", "LIT", "UCO", "NLR", "TMF"
+	//final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "CMA", "HIG", "JNPR", "NBR", "NYX", "PCAR", "PPG", "SIAL"}; // "EWV", "EZJ", "UGL", "BAL"
+	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "AGQ", "BAL", "HD", "ERX", "NFLX", "SDOW", "UGL", "NBG" }; // "ADBE", "ECA", "F", "HST", "MU", "UAL", "NFLX", "AMZN", "VOD"
+	//final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", "ERX", "TZA", "AGQ", "ZSL", "UGL", "UCO", "INDL", "BAL", "EWJ"}; // "BAL", "LIT", "UCO", "NLR", "TMF"
+	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", "AGQ", "BAL", "HD", "ERX", "NFLX", "SDOW", "UGL", "NBG"}; // "BAL", "LIT", "UCO", "NLR", "TMF"
 	
 	final static String GOOGLE_URL = "http://www.google.com/finance?q=";
 	final static String CNBC_URL = "http://data.cnbc.com/quotes/";
 	
-	final static String ROW_FORMAT = "%-20s %-10s %-25s %-12s %s";
+	final static String ROW_FORMAT = "%-20s %-10s %-25s %-12s %-12s %-25s %-16s";
 
 	private List<String> symbols;
 	
@@ -30,6 +32,7 @@ public class CallerQuote {
 	 * @throws Exception
 	 */
 	public static void main( String args[  ] ) throws Exception {
+		System.out.println( String.format(ROW_FORMAT, "Symbol", "realTime", "range", "% Change", "time", "range52w", "range52w_pc") );
 		processGoogle();
 		//processCnbc();
 		System.out.println( "Done." );
@@ -83,7 +86,7 @@ public class CallerQuote {
 			}
 			
 			int index6 = sb.indexOf( "data-snapfield=\"range\"", index5 );
-			int index7 = sb.indexOf( "<span class=", index6+1 );
+			int index7 = sb.indexOf( "<td class=", index6+1 );
 			String range = "";
 			try{
 				range = sb.substring( sb.indexOf(">", index7+1)+1, sb.indexOf("<", index7+1) );
@@ -91,7 +94,28 @@ public class CallerQuote {
 			catch(Exception e){
 			}
 			
-			System.out.println( String.format(ROW_FORMAT, symbol, realTime.trim(), range.trim(), pcChange.trim(), time.trim()) );
+			int index8 = sb.indexOf( "data-snapfield=\"range_52week\"" );
+			int index9 = sb.indexOf( "<td class=", index8 );
+			String range52w = "", range52w_pc = "";
+			Double low52w = null, high52w = null;
+			try{
+				range52w = sb.substring( sb.indexOf(">", index9+1)+1, sb.indexOf("<", index9+1) ); // "20.76 - 42.75"
+				String[] arr = range52w.split("-");
+				low52w = new Double( arr[0].trim() );
+				high52w = new Double( arr[1].trim() );
+				
+				Double low52w_pc = 0.0; //IMHERE
+				Double high52w_pc = 0.0;
+				Double realTimePrice = new Double(realTime.trim());
+				low52w_pc = ((realTimePrice - low52w)/low52w)*100.0;
+				high52w_pc = ((realTimePrice - high52w)/high52w)*100.0;
+				
+				range52w_pc = Utility.round(low52w_pc) +"% / "+ Utility.round(high52w_pc)+"%";
+			}
+			catch(Exception e){
+			}
+			
+			System.out.println( String.format(ROW_FORMAT, symbol, realTime.trim(), range.trim(), pcChange.trim(), time.trim(), range52w, range52w_pc) );
 		}
 	}
 	
@@ -137,7 +161,7 @@ public class CallerQuote {
 				time = time.split(" ")[1];
 			}
 			
-			System.out.println( String.format(ROW_FORMAT, symbol, realTime.trim(), range.trim(), pcChange.trim(), time.trim()) );
+			System.out.println( String.format(ROW_FORMAT, symbol, realTime.trim(), range.trim(), pcChange.trim(), time.trim(), "", "") );
 		}
 	}
 

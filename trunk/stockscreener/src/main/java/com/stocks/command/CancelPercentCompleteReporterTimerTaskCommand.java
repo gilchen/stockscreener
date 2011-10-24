@@ -11,7 +11,7 @@ public class CancelPercentCompleteReporterTimerTaskCommand implements Command {
 	
 	public boolean execute(Context context) throws Exception {
 		System.out.println( "CancelPercentCompleteReporterTimerTaskCommand" );
-		this.getPercentCompleteReporter().cancel();
+		getPercentCompleteReporter().setLoggingEnabled(false);
 		return Command.PROCESSING_COMPLETE;
 	}
 

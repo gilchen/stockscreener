@@ -26,6 +26,7 @@ public class Report implements Serializable{
     	NyseNPercentCorrectionInMMonthsReportCommand,
     	NyseNPercentUpFromBottomCommand,
     	NyseNPercentUpFromBottomSimulationCommand,
+    	NyseNPercentUpFromBottomScanningSimulationCommand,
     	NyseBreakingHighsEachTimeCommand
     };
 

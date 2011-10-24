@@ -22,6 +22,9 @@ public class BseAlertReportCommand extends AbstractCommand {
 
 	public boolean execute(Context context) throws Exception {
 		Collection<String> commandNames = (Collection<String>)context.get(COMMANDS_TO_EXECUTE);
+		setStartDate((Date) context.get(START_DATE));
+		setEndDate((Date) context.get(END_DATE));
+		
 		if( commandNames.contains(this.getClass().getName()) ){
 			System.out.println( "Executing BseAlertReportCommand..." );
 			processBseAlerts();
@@ -54,7 +57,7 @@ public class BseAlertReportCommand extends AbstractCommand {
 		
 		for( final List<Alert> alerts : mSymbolAlert.values() ){
 			cClose.clear();
-			List<Bse> bseList = getStockService().findStockByScCodeAndTradeDate(alerts.get(0).getBseIciciMapping().getScCode(), tradeStartDateParam);
+			List<Bse> bseList = getStockService().findStockByScCodeAndTradeDate(alerts.get(0).getBseIciciMapping().getScCode(), getStartDate());
 			for(final Bse bse : bseList){
 				cClose.add( bse.getClose() );
 			}
