@@ -81,6 +81,19 @@ CREATE TABLE HOLIDAYS(
 	PRIMARY KEY(HOLIDAY)
 );
 
+CREATE TABLE NYSE_TX(
+	NYSE_TX_ID BIGINT AUTO_INCREMENT,
+	TRX_TYPE VARCHAR(20),
+	SYMBOL VARCHAR(30),
+	TX_DATE DATE,
+	PRICE DOUBLE,
+	QTY INT(5),
+	TX_FEE DOUBLE,
+	COMMENTS VARCHAR(100),
+	PRIMARY KEY (NYSE_TX_ID)
+);
+
+
 /*
 CREATE TEMPORARY TABLE TMP1(
 	ID BIGINT AUTO_INCREMENT,
@@ -180,4 +193,26 @@ SELECT
 		AND B.LOW < (A.CLOSE - (A.CLOSE * 0.00)) AND B.LOW > (A.CLOSE - (A.CLOSE * 0.02))
 	) _0_2;
 
+// Query to find symbols that are (5-10%) up from their 52 week lows
+// Considers trade_date to be last business day.
+// Considers 12 months of data only.
+select * from 
+	(select symbol, close, volume from nyse n1 where trade_date=(select max(trade_date) from nyse where symbol='DJI.IDX' and volume>0) and (symbol not like '%-%' and symbol not like '%.%') and (close*volume) > 100000000) a,
+	(select symbol 'symbol', min(low) 'min_low', max(high) 'max_high' from Nyse where trade_date between (CURDATE() - INTERVAL 12 MONTH) and CURDATE() and (symbol not like '%-%' and symbol not like '%.%') group by symbol) b
+where
+	a.symbol=b.symbol and
+	a.close between (b.min_low + (b.min_low*(5/100))) and (b.min_low + (b.min_low*(10/100)));
+
 */
+
+
+/*
+// Query to find best BSE BLUECHIPS
+select * from 
+	(select SC_CODE 'symbol', close, NO_OF_SHRS 'volume' from bse b1 where trade_date=(select max(trade_date) from bse where SC_CODE=532977 and NO_OF_SHRS>0) and (SC_CODE in (532977, 532454, 500103, 500087, 533278, 532868, 500010, 500180, 500182, 500440, 500696, 532174, 500209, 500875, 532532, 532286, 500510, 500520, 532500, 532541, 500312, 500325, 500112, 500900, 524715, 532540, 500570, 500400, 500470, 507685)) /*and (close*NO_OF_SHRS) > 100000000)*/) a,
+	(select SC_CODE 'symbol', min(low) 'min_low', max(high) 'max_high' from Bse where trade_date between (CURDATE() - INTERVAL 12 MONTH) and CURDATE() and (SC_CODE in (532977, 532454, 500103, 500087, 533278, 532868, 500010, 500180, 500182, 500440, 500696, 532174, 500209, 500875, 532532, 532286, 500510, 500520, 532500, 532541, 500312, 500325, 500112, 500900, 524715, 532540, 500570, 500400, 500470, 507685)) group by SC_CODE) b
+where
+	a.symbol=b.symbol;
+
+*/
+

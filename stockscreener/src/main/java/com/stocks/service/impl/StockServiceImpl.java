@@ -16,6 +16,7 @@ import com.stocks.dao.HolidayDao;
 import com.stocks.dao.KeyValueDao;
 import com.stocks.dao.NyseAlertDao;
 import com.stocks.dao.NyseDao;
+import com.stocks.dao.NyseTxDao;
 import com.stocks.dao.ReportDao;
 import com.stocks.model.Alert;
 import com.stocks.model.Bse;
@@ -24,6 +25,7 @@ import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
 import com.stocks.model.NyseAlert;
 import com.stocks.model.NysePK;
+import com.stocks.model.NyseTx;
 import com.stocks.model.Report;
 import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
@@ -45,6 +47,7 @@ public class StockServiceImpl implements StockService {
     private KeyValueDao keyValueDao;
     private ReportDao reportDao;
     private HolidayDao holidayDao;
+    private NyseTxDao nyseTxDao;
 
 	public AlertDao getAlertDao() {
 		return alertDao;
@@ -118,6 +121,15 @@ public class StockServiceImpl implements StockService {
 		this.holidayDao = holidayDao;
 	}
 
+	public NyseTxDao getNyseTxDao() {
+		return nyseTxDao;
+	}
+
+	@Required
+	public void setNyseTxDao(NyseTxDao nyseTxDao) {
+		this.nyseTxDao = nyseTxDao;
+	}
+
 	public List<Alert> getAllBseAlerts() {
 		return getAlertDao().findAll();
 	}
@@ -139,6 +151,18 @@ public class StockServiceImpl implements StockService {
 		return getNyseAlertDao().findAlertResultsByTrxType(trxType, isActive);
 	}
 
+	public void saveNyseTx(NyseTx nyseTx) throws Exception {
+		this.getNyseTxDao().save(nyseTx);
+	}
+	
+	public List<NyseTx> getAllNyseTransactions() {
+		return this.getNyseTxDao().findAll();
+	}
+	
+	public List<NyseTx> findNyseTransactionsBySymbol(String symbol) {
+		return this.getNyseTxDao().findNyseTransactionsBySymbol(symbol);
+	}
+	
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void saveNyseAlert(NyseAlert nyseAlert) throws Exception {
 		getNyseAlertDao().save(nyseAlert);

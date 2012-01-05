@@ -27,7 +27,8 @@ public class Report implements Serializable{
     	NyseNPercentUpFromBottomCommand,
     	NyseNPercentUpFromBottomSimulationCommand,
     	NyseNPercentUpFromBottomScanningSimulationCommand,
-    	NyseBreakingHighsEachTimeCommand
+    	NyseBreakingHighsEachTimeCommand,
+    	NyseTxReportCommand
     };
 
     @Id
