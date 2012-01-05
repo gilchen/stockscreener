@@ -76,6 +76,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		<property name="nyseDao" ref="nyseDao" />
 		<property name="reportDao" ref="reportDao" />
 		<property name="holidayDao" ref="holidayDao" />
+		<property name="nyseTxDao" ref="nyseTxDao" />
     </bean>
 
     <bean id="bseImportService" class="com.stocks.service.impl.BseImportServiceImpl">
@@ -134,6 +135,8 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 
 	<bean id="nyseBreakingHighsEachTimeCommand" class="com.stocks.command.NyseBreakingHighsEachTimeCommand" parent="abstractCommand" />
 
+	<bean id="nyseTxReportCommand" class="com.stocks.command.NyseTxReportCommand" parent="abstractCommand" />
+
 	<bean id="reportChain" class="com.stocks.command.ChainBase">
 		<constructor-arg type="java.util.Collection">
 			<list value-type="org.apache.commons.chain.Command">
@@ -150,6 +153,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 				<ref bean="nyseNPercentUpFromBottomSimulationCommand" />
 				<ref bean="nyseNPercentUpFromBottomScanningSimulationCommand" />
 				<ref bean="nyseBreakingHighsEachTimeCommand" />
+				<ref bean="nyseTxReportCommand" />
 				<bean class="com.stocks.command.CancelPercentCompleteReporterTimerTaskCommand">
 					<property name="percentCompleteReporter" ref="percentCompleteReporter" />
 				</bean>
@@ -204,6 +208,11 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
     <bean id="holidayDao"
     	class="com.stocks.dao.impl.HolidayDaoImpl"
     	parent="dao" />
+
+	<bean id="nyseTxDao"
+		class="com.stocks.dao.impl.NyseTxDaoImpl"
+		parent="dao" />
+
     <!-- End: DAO -->
 
 </beans>

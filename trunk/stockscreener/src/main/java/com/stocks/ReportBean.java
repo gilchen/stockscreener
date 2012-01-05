@@ -218,6 +218,15 @@ public class ReportBean{
 		}
 	}
 
+	public void getNyseTxReport(ActionEvent ae){
+		try {
+			Report report = getStockService().getReport(Report.ReportName.NyseTxReportCommand.toString());
+			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
+	
 	public void filterBseAlertReport(ActionEvent ae){
 		try {
 			Report report = getStockService().getReport(Report.ReportName.BseAlertReportCommand.toString());

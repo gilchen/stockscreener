@@ -10,6 +10,7 @@ import com.stocks.model.KeyValue;
 import com.stocks.model.Nyse;
 import com.stocks.model.NyseAlert;
 import com.stocks.model.NysePK;
+import com.stocks.model.NyseTx;
 import com.stocks.model.Report;
 import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
@@ -45,4 +46,9 @@ public interface StockService {
 	
 	boolean isHoliday(Date date);
 	Date getPreviousBusinessDay(Date date);
+	
+	void saveNyseTx(NyseTx nyseTx) throws Exception;
+	List<NyseTx> getAllNyseTransactions();
+	List<NyseTx> findNyseTransactionsBySymbol(final String symbol);
+	
 }
