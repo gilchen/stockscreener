@@ -17,6 +17,8 @@ import java.util.zip.ZipInputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +67,14 @@ public class BseImportServiceImpl implements ImportService{
 		this.bseDao = bseDao;
 	}
 
+//	public static void main(String... args) throws Exception{
+//		ApplicationContext context = new FileSystemXmlApplicationContext("src/main/resources/applicationContext.xml");
+//		Object obj = context.getBean("bseImportService");
+//		ImportService importService = (ImportService) obj;
+//		importService.importData();
+//	}
+	
+	
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void importData() throws Exception{
 		KeyValue keyValue = getStockService().getKeyValue( BSE_IMPORT_KEY );
@@ -144,7 +154,6 @@ public class BseImportServiceImpl implements ImportService{
 			System.out.println( "Importing ..." );
 			while( (line = reader.readLine()) != null ){
 				columns = line.split("[,]", -1);
-				
 				BsePK bsePK = new BsePK(calendar.getTime(), new Integer(columns[0]));
 				Bse bse = new Bse();
 				bse.setBsePK(bsePK);
@@ -156,7 +165,7 @@ public class BseImportServiceImpl implements ImportService{
 				bse.setLow(new Double(columns[6]));
 				bse.setClose(new Double(columns[7]));
 				bse.setLast(new Double(columns[8]));
-				bse.setPrevClose(new Double(columns[9]));
+				bse.setPrevClose(new Double(columns[9].equals("") ? "0.00" : columns[9])); // For new scrips it can be null.
 				bse.setNoTrades(new Long(columns[10]));
 				bse.setNoOfShares(new Long(columns[11]));
 				bse.setNetTurnover(new Double(columns[12]));

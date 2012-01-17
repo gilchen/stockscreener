@@ -90,4 +90,26 @@ public abstract class AbstractCommand implements Command{
 		}
 		return sb.substring(0, sb.length()-4);
 	}
+	
+	protected String toHttpPostString(String get, String scCode){
+		StringBuffer sb = new StringBuffer();
+		// Step 1: Create Image tag
+		sb.append( String.format("<a href='javascript:void(0)' onclick='process%s()'><img id='img_%s' width='1000' height='300' src='images/spacer.jpg' border='1'></a>\n", scCode, scCode) );
+		sb.append( String.format("<script language='javascript'>") ).append("\n");
+		sb.append( String.format("function process%s(){", scCode) ).append("\n");
+		sb.append( String.format("\tstr%s = '%s';", scCode, get.substring(get.indexOf("?")+1)) ).append("\n");
+		sb.append( String.format("\tvar oXHR%s = new XMLHttpRequest();", scCode) ).append("\n");
+		sb.append( String.format("\toXHR%s.open('POST', 'https://chart.googleapis.com/chart');", scCode) ).append("\n");
+		sb.append( String.format("\toXHR%s.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');", scCode) ).append("\n");
+		sb.append( String.format("\toXHR%s.responseType = 'arraybuffer';", scCode) ).append("\n");
+		sb.append( String.format("\toXHR%s.onload = function (oEvent) {", scCode) ).append("\n");
+		sb.append( String.format("\t\tvar arrayBuffer%s = oXHR%s.response;", scCode, scCode) ).append("\n");
+		sb.append( String.format("\t\tsetChart( base64ArrayBuffer( arrayBuffer%s ), 'img_%s' );", scCode, scCode) ).append("\n");
+		sb.append( String.format("\t}") ).append("\n");
+		sb.append( String.format("\toXHR%s.send(str%s);", scCode, scCode) ).append("\n");
+		sb.append( String.format("}") ).append("\n");
+		sb.append( String.format("</script>") ).append("\n");
+
+		return sb.toString();
+	}
 }
