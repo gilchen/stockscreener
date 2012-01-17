@@ -9,8 +9,8 @@ public class CallerQuote {
 	//final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "ABX", "AGNC", "AU", "BA", "BTI", "DIA", "EWT", "GDX", "GG", "HYG", "IEF", "JNK", "LH", "MCK", "MDT", "MRK", "OEF", "PCL", "VALE", "WAT", "WY", "XLV", "YUM" };
 	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "BAL", "NFLX", "SDOW", "IRE", "-", "ERX", "UCO", "-", "UGL", "NBG" }; //"AGG", "AGNC", "BAX", "BND", "BSX", "CFT", "FXY", "GMCR", "JNJ", "KO", "KR", "LLY", "LQD", "NFLX", "NLY", "NVS", "PCG", "PCS", "PG", "SPXU", "SYK", "SYY", "T", "TIP", "TWM", "TZA", "WDC", "WHR", "XLP"
 	//final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE" };
-	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AA", "AVP", "BTU", "CSC", "ECA", "FTR", "MCP", "RIG", "RIMM", "S", "AGQ", "BAL", "NFLX", "SDOW", "IRE", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "WHR", "NBG", "INDL", "NLR" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
-	//final static String[] CNBC_ETF_LIST = {"LVS", "WYNN", "MGM", "MPEL", "PNK", "BYD", "ASCA", "MCRI", "ARHN", "CNTY", "TWOC"}; //{"CUK", "CCL", "HOT", "H", "WYN", "RCL", "CHH", "GET", "SNSTA", "BXG"};
+	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AA", "AVP", "BTU", "CSC", "ECA", "FTR", "MCP", "RIG", "RIMM", "S", "AGQ", "BAL", "NFLX", "SDOW", "IRE", "NBG", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "PCX" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
+	//final static String[] CNBC_ETF_LIST = {"PCX"}; //{"LVS", "MGM", "CCL", "RCL"};
 	
 	final static String GOOGLE_URL = "http://www.google.com/finance?q=";
 	final static String CNBC_URL = "http://data.cnbc.com/quotes/";
