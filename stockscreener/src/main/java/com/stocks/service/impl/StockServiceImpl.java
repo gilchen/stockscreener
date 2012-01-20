@@ -199,6 +199,15 @@ public class StockServiceImpl implements StockService {
     public List<String> getAllSymbols() {
     	return getNyseDao().getAllSymbols();
     }
+
+    public List<String> getAllSymbolsAsOnGivenDate(Date tradeDate) {
+    	return getNyseDao().getAllSymbolsAsOnGivenDate(tradeDate);
+    }
+    
+    public List<Date> getAllTradingDates(){
+    	return getNyseDao().getAllTradingDates();
+    }
+
     
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void saveBseIciciMapping(BseIciciMapping bseIciciMapping) throws Exception {

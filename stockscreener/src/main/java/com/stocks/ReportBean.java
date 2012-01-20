@@ -236,6 +236,15 @@ public class ReportBean{
 		}
 	}
 	
+	public void getNyseTrailingSetSimulationWithPastSituationReport(ActionEvent ae){
+		try {
+			Report report = getStockService().getReport(Report.ReportName.NyseTrailingSetSimulationWithPastSituationCommand.toString());
+			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
+	
 	public void filterBseAlertReport(ActionEvent ae){
 		try {
 			Report report = getStockService().getReport(Report.ReportName.BseAlertReportCommand.toString());
