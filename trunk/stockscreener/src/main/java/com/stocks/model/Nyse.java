@@ -18,7 +18,9 @@ import org.apache.commons.lang.builder.ToStringStyle;
 @NamedQueries({
 	@NamedQuery(name = "stockBySymbol", query = "select a from Nyse a where a.nysePK.symbol = :symbol and a.volume > 0 order by a.nysePK.tradeDate asc"),
 	@NamedQuery(name = "stockBySymbolBetweenTradeDates", query = "select a from Nyse a where a.nysePK.symbol = :symbol and date(a.nysePK.tradeDate) >= date(:tradeStartDate) and date(a.nysePK.tradeDate) <= date(:tradeEndDate) and a.volume > 0 order by a.nysePK.tradeDate asc"),
-	@NamedQuery(name = "allSymbols", query = "select a.nysePK.symbol from Nyse a where a.nysePK.tradeDate = (select max(b.nysePK.tradeDate) from Nyse b where b.nysePK.symbol='DJI.IDX') and a.nysePK.symbol not like '%.IDX' and a.nysePK.symbol not like '%-%' and a.nysePK.symbol not like '%.%' and a.close > 1 and a.nysePK.symbol in (select c.nysePK.symbol from Nyse c where c.nysePK.tradeDate = (select max(d.nysePK.tradeDate) from Nyse d where d.nysePK.symbol='DJI.IDX') and (c.close*c.volume) > 100000000 )")
+	@NamedQuery(name = "allSymbols", query = "select a.nysePK.symbol from Nyse a where a.nysePK.tradeDate = (select max(b.nysePK.tradeDate) from Nyse b where b.nysePK.symbol='DJI.IDX') and a.nysePK.symbol not like '%.IDX' and a.nysePK.symbol not like '%-%' and a.nysePK.symbol not like '%.%' and a.close > 1 and a.nysePK.symbol in (select c.nysePK.symbol from Nyse c where c.nysePK.tradeDate = (select max(d.nysePK.tradeDate) from Nyse d where d.nysePK.symbol='DJI.IDX') and (c.close*c.volume) > 100000000 )"),
+	@NamedQuery(name = "allSymbolsAsOnGivenDate", query = "select a.nysePK.symbol from Nyse a where a.nysePK.tradeDate = :tradeDate and a.nysePK.symbol not like '%-%' and a.nysePK.symbol not like '%.%' and a.close > 1 and (a.close*a.volume) > 100000000"),
+	@NamedQuery(name = "allTradingDates", query = "select a.nysePK.tradeDate from Nyse a where a.nysePK.symbol='DJI.IDX' and a.close > 1 order by a.nysePK.tradeDate")
 })
 
 // "allSymbols" considers stocks that trade for more than $250 mln recently.

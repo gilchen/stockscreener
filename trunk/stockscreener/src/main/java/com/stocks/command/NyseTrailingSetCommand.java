@@ -45,8 +45,8 @@ public class NyseTrailingSetCommand extends AbstractCommand {
 		
 		Calendar cStartDate = Calendar.getInstance();
 		cStartDate.set(Calendar.YEAR, 2009);
-		cStartDate.set(Calendar.MONDAY, Calendar.APRIL);
-		cStartDate.set(Calendar.DATE, 26);
+		cStartDate.set(Calendar.MONTH, Calendar.JANUARY);
+		cStartDate.set(Calendar.DATE, 1);
 		
 		nyseTrailingSetCommand.setStartDate(cStartDate.getTime());
 		nyseTrailingSetCommand.setEndDate(new Date());
@@ -62,7 +62,7 @@ public class NyseTrailingSetCommand extends AbstractCommand {
 		setEndDate((Date) context.get(END_DATE));
 
 		if( commandNames.contains(this.getClass().getName()) ){
-			System.out.println( "Executing NyseTrailingSetCommand..." );
+			System.out.println( "Executing NyseTrailingSetCommand... (Ensure Start Date is 01/01/2009.)" );
 			processNyse();
 		}
 		return Command.CONTINUE_PROCESSING;
@@ -74,7 +74,7 @@ public class NyseTrailingSetCommand extends AbstractCommand {
 		sb.append( "<pre>\n" );
 		sb.append( String.format("<B>Nyse Trailing Set Report (%s - %s percent Up from Bottom) - Generated on %s</B>%n", FROM_PERCENT, TO_PERCENT, new SimpleDateFormat("MMM dd, yyyy").format(new Date())));
 
-		//List<String> symbols = Arrays.asList(new String[]{"AA", "BAC", "HPQ"}); //getStockService().getAllSymbols();
+		//List<String> symbols = Arrays.asList(new String[]{"PCX"}); //getStockService().getAllSymbols();
 		List<String> symbols = getStockService().getAllSymbols();
 		
 		List<Double> cClose = new ArrayList<Double>();
@@ -212,5 +212,10 @@ class BuySellInfo{
 
 	public void setSellIndex(Integer sellIndex) {
 		this.sellIndex = sellIndex;
+	}
+	
+	@Override
+	public String toString() {
+		return "BuyIndex: " +this.getBuyIndex()+ ", SellIndex: " +this.getSellIndex();
 	}
 }

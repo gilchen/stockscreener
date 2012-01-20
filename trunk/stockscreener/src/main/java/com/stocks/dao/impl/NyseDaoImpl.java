@@ -51,6 +51,19 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 		return entityManager.createNamedQuery("allSymbols").getResultList();
 	}
 	
+	public List<String> getAllSymbolsAsOnGivenDate(Date tradeDate) {
+		Query query = entityManager.createNamedQuery("allSymbolsAsOnGivenDate");
+		query.setParameter("tradeDate", tradeDate);
+		List<String> results = query.getResultList();
+		
+		return results;
+	}
+	
+	public List<Date> getAllTradingDates(){
+		return entityManager.createNamedQuery("allTradingDates").getResultList();
+	}
+	
+	
 	public List<Object[]> findUpwardMovingStocks(final Integer interval, final Double averagePercentage){
 		final StringBuffer sbSql = new StringBuffer();
 		sbSql.append("select"); 
