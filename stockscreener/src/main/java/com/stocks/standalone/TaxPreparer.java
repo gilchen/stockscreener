@@ -14,6 +14,8 @@ import com.stocks.service.StockService;
 import com.stocks.util.Utility;
 
 public class TaxPreparer {
+	private static String OUTPUT = "CSV"; // HTML, CSV
+	
 	public static void main(String args[]) throws Exception {
 		ApplicationContext context = new FileSystemXmlApplicationContext("src/main/resources/applicationContext.xml");
 		StockService stockService = (StockService) context.getBean("stockService");
@@ -133,15 +135,22 @@ public class TaxPreparer {
 		}
 		
 		// Step 4: Print it out
-		//System.out.println( String.format("%s,%s,%s,%s,%s,%s,%s", "Description", "Date Sold", "Sales Proceeds", "Date Acquired", "Cost", "Wash Sale", "Adjustment Amount") );
 		StringBuilder sb = new StringBuilder();
-		sb.append("<TABLE BORDER=1>" );
-		sb.append( "<TR><TD>Description</TD> <TD>Sales Proceeds</TD> <TD>Cost</TD> <TD>Wash Sale</TD> <TD>Adjustment Amount</TD><TD>Basis Comments</TD></TR>" );
-		for(final CsvFormat csvFormat : csvFormatList){
-			sb.append( csvFormat );
+		
+		if( OUTPUT.equals("HTML") ){
+			sb.append("<TABLE BORDER=1>" );
+			sb.append( "<TR><TD>Description</TD> <TD>Sales Proceeds</TD> <TD>Cost</TD> <TD>Wash Sale</TD> <TD>Adjustment Amount</TD><TD>Basis Comments</TD></TR>" );
+		}else if( OUTPUT.equals("CSV") ){
+			sb.append( String.format("%s,%s,%s,%s,%s,%s,%s", "Description", "Date Sold", "Sales Proceeds", "Date Acquired", "Cost", "Wash Sale", "Adjustment Amount") ).append("\n");
 		}
-		sb.append("</TABLE>" );
-		Utility.saveContent("C:/Temp/Stk/tax.html", sb.toString());
+		for(final CsvFormat csvFormat : csvFormatList){
+			sb.append( csvFormat ).append("\n");
+		}
+
+		if( OUTPUT.equals("HTML") ){
+			sb.append("</TABLE>" );
+		}
+		Utility.saveContent("C:/Temp/Stk/tax." +OUTPUT, sb.toString());
 	}
 	
 	private Map<String, List<NyseTx>> getNyseTxMap(final String trxType, final List<NyseTx> allNyseTxList){
@@ -191,13 +200,14 @@ public class TaxPreparer {
 			this.basisComments = basisComments;
 		}
 		
-		public Double getCost(){
+		public Double getCostIncludingBasis(){
 			Double cost = 0.0;
 			if( bNyseTxList != null && !bNyseTxList.isEmpty() ){
 				for(final NyseTx nyseTx : bNyseTxList){
 					cost += ((nyseTx.getPrice() * nyseTx.getQty()) + nyseTx.getTxFee());
 				}
 			}
+			cost += (this.getBasis() != null ? this.getBasis() : 0.0);
 			return cost;
 		}
 		public Double getSalesProceeds(){
@@ -205,7 +215,7 @@ public class TaxPreparer {
 			return salesProceeds;
 		}
 		public Double getAdjustmentAmount(){
-			return getSalesProceeds() - getCost();
+			return getSalesProceeds() - getCostIncludingBasis();
 		}
 		public boolean isWashSale(){
 			if( getAdjustmentAmount() < 0 ){ // Loss
@@ -221,43 +231,65 @@ public class TaxPreparer {
 		}
 		
 		@Override
-		public String toString() {
-			//System.out.println( "<TD>Description</TD> <TD>Sales Proceeds</TD> <TD>Cost</TD> <TD>Wash Sale</TD> <TD>Adjustment Amount</TD>" );
-			final Double salesProceeds = Math.abs(Utility.round((sNyseTx.getPrice() * sNyseTx.getQty()) - sNyseTx.getTxFee()));
+		public String toString(){
 			final StringBuilder sb = new StringBuilder();
-			sb.append("<TR>");
 			
-			sb.append("<TD><TABLE><TR><TD>SYM</TD><TD>TYP</TD><TD>DT</TD><TD>P</TD><TD>QTY</TD></TR>");
-			sb.append("<TR>").append( this.getsNyseTx() ).append("</TR>");
-			if( this.getbNyseTxList() != null && !this.getbNyseTxList().isEmpty() ){
-				for(final NyseTx nyseTx : this.getbNyseTxList()){
-					sb.append("<TR>").append( nyseTx ).append("</TR>");
+			if( OUTPUT.equals("HTML") ){
+				final Double salesProceeds = Math.abs(Utility.round((sNyseTx.getPrice() * sNyseTx.getQty()) - sNyseTx.getTxFee()));
+				sb.append("<TR>");
+				
+				sb.append("<TD><TABLE><TR><TD>SYM</TD><TD>TYP</TD><TD>DT</TD><TD>P</TD><TD>QTY</TD></TR>");
+				sb.append("<TR>").append( this.getsNyseTx() ).append("</TR>");
+				if( this.getbNyseTxList() != null && !this.getbNyseTxList().isEmpty() ){
+					for(final NyseTx nyseTx : this.getbNyseTxList()){
+						sb.append("<TR>").append( nyseTx ).append("</TR>");
+					}
+				}else{
+					sb.append( "<TR><TD COLSPAN='5'>NOT KNOWN</TD></TR>" );
 				}
-			}else{
-				sb.append( "<TR><TD COLSPAN='5'>NOT KNOWN</TD></TR>" );
+				sb.append("</TABLE></TD>");
+				
+				sb.append("<TD align=right>");
+				sb.append(salesProceeds);
+				sb.append("</TD>");
+	
+				sb.append("<TD align=right>");
+				sb.append(this.getCostIncludingBasis());
+				sb.append("</TD>");
+	
+				sb.append("<TD>");
+				sb.append(this.isWashSale() ? "W" : "&nbsp;");
+				sb.append("</TD>");
+	
+				sb.append("<TD align=right>");
+				sb.append(this.isWashSale() ? getAdjustmentAmount() : "&nbsp;");
+				sb.append("</TD>");
+				
+				sb.append("<TD>");
+				sb.append( (this.getBasisComments() != null ? this.getBasisComments() : "&nbsp;" ));
+				sb.append("</TD></TR>");
+			}else if( OUTPUT.equals("CSV") ){
+				// "Description", "Date Sold", "Sales Proceeds", "Date Acquired", "Cost", "Wash Sale", "Adjustment Amount"
+				sb.append( sNyseTx.getQty() ).append( " shares of " ).append( sNyseTx.getSymbol() ).append(",");
+				try {
+					sb.append( Utility.getStrDate( sNyseTx.getTxDate() ) ).append(",");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				sb.append( this.getSalesProceeds() ).append(",");
+				if( this.getbNyseTxList() != null && !this.getbNyseTxList().isEmpty() && this.getbNyseTxList().size() == 1 ){
+					try {
+						sb.append( Utility.getStrDate( this.getbNyseTxList().get(0).getTxDate() ) ).append(",");
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}else{
+					sb.append( "VARIOUS" ).append(",");
+				}
+				sb.append( this.getCostIncludingBasis() ).append(",");
+				sb.append(this.isWashSale() ? "W" : "").append(",");
+				sb.append(this.isWashSale() ? getAdjustmentAmount() : "");
 			}
-			sb.append("</TABLE></TD>");
-			
-			sb.append("<TD align=right>");
-			sb.append(salesProceeds);
-			sb.append("</TD>");
-
-			sb.append("<TD align=right>");
-			sb.append(this.getCost() +(this.getBasis() != null ? this.getBasis() : 0.0));
-			sb.append("</TD>");
-
-			sb.append("<TD>");
-			sb.append(this.isWashSale() ? "W" : "&nbsp;");
-			sb.append("</TD>");
-
-			sb.append("<TD align=right>");
-			sb.append(this.isWashSale() ? getAdjustmentAmount() : "&nbsp;");
-			sb.append("</TD>");
-			
-			sb.append("<TD>");
-			sb.append( (this.getBasisComments() != null ? this.getBasisComments() : "&nbsp;" ));
-			sb.append("</TD></TR>");
-
 			return sb.toString();
 		}
 	}
