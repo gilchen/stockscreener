@@ -1,6 +1,5 @@
 package com.stocks.command;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +15,21 @@ public abstract class AbstractCommand implements Command{
 	public static final String COMMANDS_TO_EXECUTE = "COMMANDS_TO_EXECUTE";
 	public static final String START_DATE = "START_DATE";
 	public static final String END_DATE = "END_DATE";
+	public static final Long DOLLAR_VxC = 100000000L;
+	
+/*
+  Following table is used to determine value for RupeeVxC (Snapshot as of 2/8/2012)
+	VxC    #OfQualifyingStocks  TotalBuy  TotalSell TotalPending  Success%
+	======================================================================
+	500cr      43                   1         1         0           100%
+	250cr     136                   1         1         0           100%
+	100cr     318                   9         7         2            78%
+	 50cr     516                  17        13         4            76%
+	 25cr     756                  54        41        13            76%
+	 10cr    1123                 182       139        43            76%
+	  5cr    1457                 313       231        82            74%
+*/
+	public static final Long RUPEE_VxC  = 10000000L * 25; // 25cr
 
 	protected static final String GOOGLE_CHART_URL = "http://~NUM.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:~DATA&chg=0,2,1,1&chds=~MIN,~MAX"; //&chtt=~TITLE
 	protected static final String GOOGLE_CHART_RECOMMENDED_BUY_URL = "http://~NUM.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:~DATA&chg=0,2,1,1&chds=~MIN,~MAX&chm=";

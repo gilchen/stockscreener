@@ -140,6 +140,8 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 	<bean id="nyseTrailingSetCommand" class="com.stocks.command.NyseTrailingSetCommand" parent="abstractCommand" />
 	
 	<bean id="nyseTrailingSetSimulationWithPastSituationCommand" class="com.stocks.command.NyseTrailingSetSimulationWithPastSituationCommand" parent="abstractCommand" />
+	
+	<bean id="bseTrailingSetSimulationWithPastSituationCommand" class="com.stocks.command.BseTrailingSetSimulationWithPastSituationCommand" parent="abstractCommand" />
 
 	<bean id="reportChain" class="com.stocks.command.ChainBase">
 		<constructor-arg type="java.util.Collection">
@@ -160,6 +162,7 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 				<ref bean="nyseTxReportCommand" />
 				<ref bean="nyseTrailingSetCommand" />
 				<ref bean="nyseTrailingSetSimulationWithPastSituationCommand" />
+				<ref bean="bseTrailingSetSimulationWithPastSituationCommand" />
 				<bean class="com.stocks.command.CancelPercentCompleteReporterTimerTaskCommand">
 					<property name="percentCompleteReporter" ref="percentCompleteReporter" />
 				</bean>

@@ -51,9 +51,8 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 		return entityManager.createNamedQuery("allSymbols").getResultList();
 	}
 	
-	public List<String> getAllSymbolsAsOnGivenDate(Date tradeDate) {
-		Query query = entityManager.createNamedQuery("allSymbolsAsOnGivenDate");
-		query.setParameter("tradeDate", tradeDate);
+	public List<String> getAllSymbolsWithExpectedVxC() {
+		Query query = entityManager.createNamedQuery("allSymbolsWithExpectedVxC");
 		List<String> results = query.getResultList();
 		
 		return results;

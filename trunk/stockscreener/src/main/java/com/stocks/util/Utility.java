@@ -1,6 +1,7 @@
 package com.stocks.util;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -20,6 +21,12 @@ public class Utility {
 		}
 		in.close();
 		return content.toString();
+	}
+	
+	public static void saveContent(String path, String content) throws Exception{
+		FileWriter writer = new FileWriter(path);
+		writer.append(content);
+		writer.close();
 	}
 
 	public static Double round(Double d){
@@ -41,6 +48,11 @@ public class Utility {
 	
 	public static String getStrDate(Date dt) throws Exception{
 		return new SimpleDateFormat("MM/dd/yyyy").format( dt );
+	}
+	
+	public static long getDaysDiffBetween(Date date1, Date date2){
+		long diff = date1.getTime() - date2.getTime();
+		return Math.abs(diff / (1000 * 60 * 60 * 24));
 	}
 	
 //	public static void main(String args[]){

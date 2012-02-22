@@ -19,8 +19,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Entity
 @Table(name = "nyse_tx")
 @NamedQueries({
-	@NamedQuery(name = "allNyseTransactions", query = "select a from NyseTx a order by a.symbol, a.txDate"),
-	@NamedQuery(name = "nyseTransactionsBySymbol", query = "select a from NyseTx a where a.symbol=:symbol order by a.symbol, a.txDate")
+	@NamedQuery(name = "allNyseTransactions", query = "select a from NyseTx a order by a.symbol, a.txDate, a.nyseTxId"),
+	@NamedQuery(name = "nyseTransactionsBySymbol", query = "select a from NyseTx a where a.symbol=:symbol order by a.symbol, a.txDate, a.nyseTxId")
 })
 public class NyseTx implements Serializable{
     private final static long serialVersionUID = 2l;
@@ -50,103 +50,69 @@ public class NyseTx implements Serializable{
     @Column(name = "COMMENTS", length = 100)
     private String comments;
     
-
-
     public Long getNyseTxId() {
 		return nyseTxId;
 	}
-
-
 
 	public void setNyseTxId(Long nyseTxId) {
 		this.nyseTxId = nyseTxId;
 	}
 
-
-
 	public String getTrxType() {
 		return trxType;
 	}
-
-
 
 	public void setTrxType(String trxType) {
 		this.trxType = trxType;
 	}
 
-
-
 	public String getSymbol() {
 		return symbol;
 	}
-
-
 
 	public void setSymbol(String symbol) {
 		this.symbol = symbol;
 	}
 
-
-
 	public Date getTxDate() {
 		return txDate;
 	}
-
-
 
 	public void setTxDate(Date txDate) {
 		this.txDate = txDate;
 	}
 
-
-
 	public Double getPrice() {
 		return price;
 	}
-
-
 
 	public void setPrice(Double price) {
 		this.price = price;
 	}
 
-
-
 	public Integer getQty() {
 		return qty;
 	}
-
-
 
 	public void setQty(Integer qty) {
 		this.qty = qty;
 	}
 
-
-
 	public Double getTxFee() {
 		return txFee;
 	}
-
-
 
 	public void setTxFee(Double txFee) {
 		this.txFee = txFee;
 	}
 
-
-
 	public String getComments() {
 		return comments;
 	}
 
-
-
 	public void setComments(String comments) {
 		this.comments = comments;
 	}
-
-
 
 	@Override
 	public int hashCode() {
@@ -164,8 +130,6 @@ public class NyseTx implements Serializable{
 		result = prime * result + ((txFee == null) ? 0 : txFee.hashCode());
 		return result;
 	}
-
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -219,13 +183,12 @@ public class NyseTx implements Serializable{
 		return true;
 	}
 
-
-
 	public String toString() {
-        return getSymbol() +", "+
-        	getTrxType() +", "+
-        	new SimpleDateFormat("MMM dd, yyyy").format(getTxDate()) +", "+
-        	getPrice();
+        return "<TD>" +getSymbol() +"</TD>"+
+        	"<TD>" +getTrxType() +"</TD>"+
+        	"<TD>" +new SimpleDateFormat("MMM dd, yyyy").format(getTxDate()) +"</TD>"+
+        	"<TD align=right>" +getPrice() +"</TD>"+
+        	"<TD align=right>" +getQty()+ "</TD>";
     }
 
 }
