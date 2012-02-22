@@ -27,12 +27,13 @@ public interface StockService {
 	public List<Bse> findStockByScCodeAndTradeDate(final Integer scCode, final Date tradeDate);
 	public List<Bse> findStockByScCode(final Integer scCode);
 	public List<Integer> getAllScCodes();
+	public List<Integer> getAllScCodesWithExpectedVxC();
 	
 	public Nyse read(final NysePK nysePk);
 	public List<Nyse> findStockBySymbol(final String symbol);
 	public List<Nyse> findStockBySymbolBetweenTradeDates(final String symbol, final Date tradeStartDate, final Date tradeEndDate);
 	public List<String> getAllSymbols();
-	public List<String> getAllSymbolsAsOnGivenDate(Date tradeDate);
+	public List<String> getAllSymbolsWithExpectedVxC();
 	public List<Date> getAllTradingDates();
 	public List<Object[]> findUpwardMovingStocks(final Integer interval, final Double averagePercentage);
 

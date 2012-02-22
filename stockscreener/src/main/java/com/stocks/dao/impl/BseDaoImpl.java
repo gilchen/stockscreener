@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
+import com.stocks.command.AbstractCommand;
 import com.stocks.dao.AbstractDao;
 import com.stocks.dao.BseDao;
 import com.stocks.model.Bse;
@@ -34,6 +35,10 @@ public class BseDaoImpl extends AbstractDao implements BseDao {
 	
 	public List<Integer> getAllScCodes() {
 		return entityManager.createNamedQuery("allScCodes").getResultList();
+	}
+	
+	public List<Integer> getAllScCodesWithExpectedVxC(){
+		return entityManager.createNativeQuery("select distinct sc_code from (select sc_code from bse where sc_type='Q' and (close*NO_OF_SHRS) >= " +AbstractCommand.RUPEE_VxC+ " order by sc_code) a").getResultList();
 	}
 
 	public Bse read(BsePK bsePK) {

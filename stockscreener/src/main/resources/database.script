@@ -213,6 +213,16 @@ select * from
 	(select SC_CODE 'symbol', min(low) 'min_low', max(high) 'max_high' from Bse where trade_date between (CURDATE() - INTERVAL 12 MONTH) and CURDATE() and (SC_CODE in (532977, 532454, 500103, 500087, 533278, 532868, 500010, 500180, 500182, 500440, 500696, 532174, 500209, 500875, 532532, 532286, 500510, 500520, 532500, 532541, 500312, 500325, 500112, 500900, 524715, 532540, 500570, 500400, 500470, 507685)) group by SC_CODE) b
 where
 	a.symbol=b.symbol;
+-------------------------
+
+// Query to find best BSE Stocks
+select * from 
+	(select SC_CODE 'symbol', close, NO_OF_SHRS 'volume' from bse b1 where trade_date=(select max(trade_date) from bse where SC_CODE=532977 and NO_OF_SHRS>0) and (close*NO_OF_SHRS) > 100000000) a,
+	(select SC_CODE 'symbol', min(low) 'min_low', max(high) 'max_high' from Bse where trade_date between (CURDATE() - INTERVAL 12 MONTH) and CURDATE() group by SC_CODE) b
+where
+	a.symbol=b.symbol and
+	a.close between (b.min_low + (b.min_low*(5/100))) and (b.min_low + (b.min_low*(10/100)));
+
 
 */
 

@@ -10,4 +10,5 @@ public interface BseDao extends Dao<Bse, BsePK> {
 	public List<Bse> findStockByScCodeAndTradeDate(final Integer scCode, final Date tradeDate);
 	public List<Bse> findStockByScCode(final Integer scCode);
 	public List<Integer> getAllScCodes();
+	public List<Integer> getAllScCodesWithExpectedVxC();
 }

@@ -200,8 +200,12 @@ public class StockServiceImpl implements StockService {
     	return getNyseDao().getAllSymbols();
     }
 
-    public List<String> getAllSymbolsAsOnGivenDate(Date tradeDate) {
-    	return getNyseDao().getAllSymbolsAsOnGivenDate(tradeDate);
+    public List<String> getAllSymbolsWithExpectedVxC() {
+    	return getNyseDao().getAllSymbolsWithExpectedVxC();
+    }
+    
+    public List<Integer> getAllScCodesWithExpectedVxC(){
+    	return getBseDao().getAllScCodesWithExpectedVxC();
     }
     
     public List<Date> getAllTradingDates(){

@@ -244,6 +244,15 @@ public class ReportBean{
 			setContent( e.getMessage() );
 		}
 	}
+
+	public void getBseTrailingSetSimulationWithPastSituationReport(ActionEvent ae){
+		try {
+			Report report = getStockService().getReport(Report.ReportName.BseTrailingSetSimulationWithPastSituationCommand.toString());
+			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
 	
 	public void filterBseAlertReport(ActionEvent ae){
 		try {
