@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,7 +15,9 @@ public class Utility {
 		StringBuffer content = new StringBuffer();
 
 		URL url = new URL(sUrl);
-		BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+		final URLConnection urlConnection = url.openConnection();
+		urlConnection.setUseCaches(false);
+		BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 		String inputLine;
 		while ((inputLine = in.readLine()) != null) {
 			content.append(inputLine);

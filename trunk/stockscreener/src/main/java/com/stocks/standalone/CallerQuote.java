@@ -6,12 +6,14 @@ import java.util.List;
 import com.stocks.util.Utility;
 
 public class CallerQuote {
-	//final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "ABX", "AGNC", "AU", "BA", "BTI", "DIA", "EWT", "GDX", "GG", "HYG", "IEF", "JNK", "LH", "MCK", "MDT", "MRK", "OEF", "PCL", "VALE", "WAT", "WY", "XLV", "YUM" };
-	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "BAL", "NFLX", "SDOW", "IRE", "-", "ERX", "UCO", "-", "UGL", "NBG" }; //"AGG", "AGNC", "BAX", "BND", "BSX", "CFT", "FXY", "GMCR", "JNJ", "KO", "KR", "LLY", "LQD", "NFLX", "NLY", "NVS", "PCG", "PCS", "PG", "SPXU", "SYK", "SYY", "T", "TIP", "TWM", "TZA", "WDC", "WHR", "XLP"
+	final static String[] BSE_LIST = {"500355", "511672", "533639", "533499", "590076", "532747", "509715", "533266", "533676", "532212", "533286"};
+	final static String[] GOOGLE_ETF_LIST = {"500355", "511672", "533639", "533499", "590076", "532747", "509715", "533266", "533676", "532212", "533286"};
+	//final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "BAL", "NFLX", "SDOW", "IRE", "-", "ERX", "UCO", "-", "UGL", "NBG" }; //"AGG", "AGNC", "BAX", "BND", "BSX", "CFT", "FXY", "GMCR", "JNJ", "KO", "KR", "LLY", "LQD", "NFLX", "NLY", "NVS", "PCG", "PCS", "PG", "SPXU", "SYK", "SYY", "T", "TIP", "TWM", "TZA", "WDC", "WHR", "XLP"
 	//final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE" };
-	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AEM", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "S", "SDOW", "UNG", "TBT", "AMZN", "UPL", "ACI", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "DMND", "NFX" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
-	//final static String[] CNBC_ETF_LIST = {"ABX", "COST", "HSY", "NVS", "T", "TGT", "UNG", "VZ", "WLP", "ABC", "ACI", "AGG", "CCL", "K", "LQD", "PEP", "SJM", "COG", "DMND", "FTR", "NFX"};
+	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AEM", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "TBT", "AMZN", "UPL", "ACI", "DMND", "TZA", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "NFX", "BTU", "ANR" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
+	//final static String[] CNBC_ETF_LIST = {"ANR", "BTU", "ACI"};
 	
+	final static String BSE_URL    = "http://www.bseindia.com/bseplus/StockReach/AdvStockReach.aspx?scripcode=~SCRIPCODE&section=tab1&IsPF=undefined&random=0.22032093349844217";
 	final static String GOOGLE_URL = "http://www.google.com/finance?q=";
 	final static String CNBC_URL = "http://data.cnbc.com/quotes/";
 	final static String CNBC_URL_EXTN = "http://apps.cnbc.com/company/quote/index.asp?symbol=";
@@ -43,15 +45,70 @@ public class CallerQuote {
 		System.out.println( String.format(ROW_FORMAT, "Symbol", "realTime", "range", "% Change", "time", "range52w", "range52w_pc") );
 		//processGoogle();
 		processCnbc();
+		//processBse();
 		System.out.println( "*range52w_pc: (Closely Above +" +RECOMMENDATION_52W_APPRECIATION_PC+ "% & Anything Below " +RECOMMENDATION_52W_CORRECTION_PC+ "% is good)" );
 		System.out.println( "Done." );
+	}
+
+	
+	/**
+	 * For processing bse feed.
+	 * 
+	 */
+	private static void processBse() throws Exception{
+		final String SECTION = "#SECTION#";
+		final String HASH = "#@#";
+		for( String symbol : BSE_LIST ){
+			final StringBuffer sb = new StringBuffer( Utility.getContent( BSE_URL.replace("~SCRIPCODE", symbol) ) );
+			int indexOfSection = -1;
+			indexOfSection = sb.indexOf(SECTION, indexOfSection+1);
+			
+			int indexOfHash = indexOfSection;
+			for(int i=0; i<6; i++){
+				indexOfHash = sb.indexOf(HASH, indexOfHash+1);
+			}
+			String lastClose = sb.substring(indexOfHash+HASH.length(), sb.indexOf(HASH, indexOfHash+1));
+			
+			for(int i=0; i<3; i++){
+				indexOfSection = sb.indexOf(SECTION, indexOfSection+1);
+			}
+			
+			indexOfHash = indexOfSection;
+			for(int i=0; i<4; i++){
+				indexOfHash = sb.indexOf(HASH, indexOfHash+1);
+			}
+			
+			int nextIndexOfHash = sb.indexOf(HASH, indexOfHash+1);
+			String high = sb.substring(indexOfHash+HASH.length(), nextIndexOfHash);
+			String low = sb.substring(nextIndexOfHash+HASH.length(), sb.indexOf(HASH, nextIndexOfHash+1));
+			
+			String range52w = low +" - "+ high;
+			
+			double low52w = NF.parse( low.trim() ).doubleValue();
+			double high52w = NF.parse( high.trim() ).doubleValue();
+			
+			//System.out.println( lastClose +", "+ low +" - "+ high );
+			
+			Double low52w_pc = 0.0;
+			Double high52w_pc = 0.0;
+			Double realTimePrice = NF.parse(lastClose.trim()).doubleValue();
+			low52w_pc = ((realTimePrice - low52w)/low52w)*100.0;
+			high52w_pc = ((realTimePrice - high52w)/high52w)*100.0;
+			
+			String range52w_pc = Utility.round(low52w_pc) +"% / "+ Utility.round(high52w_pc)+"%";
+			if( (low52w_pc >= RECOMMENDATION_52W_APPRECIATION_PC && low52w_pc <= RECOMMENDATION_52W_APPRECIATION_PC+5.0)
+					&& high52w_pc <= RECOMMENDATION_52W_CORRECTION_PC ){
+				range52w_pc += " (HOT STOCK. See Comments*)";
+			}
+			
+			System.out.println( String.format(ROW_FORMAT, symbol, realTimePrice.toString(), "", "", "", range52w, range52w_pc) );
+		}
 	}
 	
 	/**
 	 * For processing google feed.
 	 * 
 	 */
-	
 	private static void processGoogle() throws Exception{
 		for( String symbol : GOOGLE_ETF_LIST ){
 			if( symbol.equals("-") ){

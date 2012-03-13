@@ -254,6 +254,15 @@ public class ReportBean{
 		}
 	}
 	
+	public void getBseBounceFrom52WkReport(ActionEvent ae){
+		try {
+			Report report = getStockService().getReport(Report.ReportName.BseBounceFrom52WkReportCommand.toString());
+			setContent( report.getContent() );
+		} catch (Exception e) {
+			setContent( e.getMessage() );
+		}
+	}
+	
 	public void filterBseAlertReport(ActionEvent ae){
 		try {
 			Report report = getStockService().getReport(Report.ReportName.BseAlertReportCommand.toString());
