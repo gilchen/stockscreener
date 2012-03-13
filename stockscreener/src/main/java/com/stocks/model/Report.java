@@ -31,7 +31,8 @@ public class Report implements Serializable{
     	NyseTxReportCommand,
     	NyseTrailingSetCommand,
     	NyseTrailingSetSimulationWithPastSituationCommand,
-    	BseTrailingSetSimulationWithPastSituationCommand
+    	BseTrailingSetSimulationWithPastSituationCommand,
+    	BseBounceFrom52WkReportCommand
     };
 
     @Id
