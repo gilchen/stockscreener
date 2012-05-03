@@ -1,6 +1,5 @@
 package com.stocks.dao.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +28,7 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 
 	public List<Nyse> findStockBySymbol(final String symbol){
 		Query query = entityManager.createNamedQuery("stockBySymbol");
+		query.setHint("org.hibernate.fetchSize", "500");
 		query.setParameter("symbol", symbol);
 		List<Nyse> results = query.getResultList();
 		attachPrevious(results);
@@ -38,6 +38,7 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 	
 	public List<Nyse> findStockBySymbolBetweenTradeDates(final String symbol, final Date tradeStartDate, final Date tradeEndDate){
 		Query query = entityManager.createNamedQuery("stockBySymbolBetweenTradeDates");
+		query.setHint("org.hibernate.fetchSize", "500");
 		query.setParameter("symbol", symbol);
 		query.setParameter("tradeStartDate", tradeStartDate);
 		query.setParameter("tradeEndDate", tradeEndDate);
@@ -48,18 +49,19 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 	}
 	
 	public List<String> getAllSymbols() {
-		return entityManager.createNamedQuery("allSymbols").getResultList();
+		return entityManager.createNamedQuery("allSymbols").setHint("org.hibernate.fetchSize", "500").getResultList();
 	}
 	
 	public List<String> getAllSymbolsWithExpectedVxC() {
 		Query query = entityManager.createNamedQuery("allSymbolsWithExpectedVxC");
+		query.setHint("org.hibernate.fetchSize", "500");
 		List<String> results = query.getResultList();
 		
 		return results;
 	}
 	
 	public List<Date> getAllTradingDates(){
-		return entityManager.createNamedQuery("allTradingDates").getResultList();
+		return entityManager.createNamedQuery("allTradingDates").setHint("org.hibernate.fetchSize", "500").getResultList();
 	}
 	
 	
@@ -86,6 +88,7 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 		sql = sql.replaceAll("~pAveragePercentage", averagePercentage.toString());
 		System.out.println( "sql: " +sql );
 		Query query = entityManager.createNativeQuery(sql);
+		query.setHint("org.hibernate.fetchSize", "500");
 		List<Object[]> result = query.getResultList();
 		return result;
 	}

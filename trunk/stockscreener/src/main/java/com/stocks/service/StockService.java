@@ -54,4 +54,6 @@ public interface StockService {
 	List<NyseTx> getAllNyseTransactions();
 	List<NyseTx> findNyseTransactionsBySymbol(final String symbol);
 	
+	void syncUpSummary52WkNyse();
+	void syncUpSummary52WkBse();
 }

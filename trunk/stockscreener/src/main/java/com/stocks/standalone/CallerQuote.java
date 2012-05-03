@@ -6,12 +6,12 @@ import java.util.List;
 import com.stocks.util.Utility;
 
 public class CallerQuote {
-	final static String[] BSE_LIST = {"500355", "511672", "533639", "533499", "590076", "532747", "509715", "533266", "533676", "532212", "533286"};
-	final static String[] GOOGLE_ETF_LIST = {"500355", "511672", "533639", "533499", "590076", "532747", "509715", "533266", "533676", "532212", "533286"};
-	//final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "BAL", "NFLX", "SDOW", "IRE", "-", "ERX", "UCO", "-", "UGL", "NBG" }; //"AGG", "AGNC", "BAX", "BND", "BSX", "CFT", "FXY", "GMCR", "JNJ", "KO", "KR", "LLY", "LQD", "NFLX", "NLY", "NVS", "PCG", "PCS", "PG", "SPXU", "SYK", "SYY", "T", "TIP", "TWM", "TZA", "WDC", "WHR", "XLP"
+	final static String[] BSE_LIST = {"500010", "500312", "532343", "532461", "532696", "632461"};
+	//final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "ANR", "BTU", "ACI"};
+	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AEM", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "AMZN", "UPL", "ACI", "DMND", "TZA", "ANR", "-", "ERX", "UCO", "-", "UGL", "INDL", "NLR", "NFX", "BTU" }; //"AGG", "AGNC", "BAX", "BND", "BSX", "CFT", "FXY", "GMCR", "JNJ", "KO", "KR", "LLY", "LQD", "NFLX", "NLY", "NVS", "PCG", "PCS", "PG", "SPXU", "SYK", "SYY", "T", "TIP", "TWM", "TZA", "WDC", "WHR", "XLP"
 	//final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE" };
-	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AEM", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "TBT", "AMZN", "UPL", "ACI", "DMND", "TZA", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "NFX", "BTU", "ANR" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
-	//final static String[] CNBC_ETF_LIST = {"ANR", "BTU", "ACI"};
+	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "TZA", "ANR", "CTRP", "BVSN", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "NFX", "BTU", "DYN" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
+	//final static String[] CNBC_ETF_LIST = {"OTT"};
 	
 	final static String BSE_URL    = "http://www.bseindia.com/bseplus/StockReach/AdvStockReach.aspx?scripcode=~SCRIPCODE&section=tab1&IsPF=undefined&random=0.22032093349844217";
 	final static String GOOGLE_URL = "http://www.google.com/finance?q=";

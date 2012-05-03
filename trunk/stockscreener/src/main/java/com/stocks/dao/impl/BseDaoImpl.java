@@ -22,6 +22,7 @@ public class BseDaoImpl extends AbstractDao implements BseDao {
 	
 	public List<Bse> findStockByScCodeAndTradeDate(final Integer scCode, final Date tradeDate){
 		Query query = entityManager.createNamedQuery("stockByScCodeAndTradeDate");
+		query.setHint("org.hibernate.fetchSize", "500");
 		query.setParameter("scCode", scCode);
 		query.setParameter("tradeDate", tradeDate);
 		return query.getResultList();
@@ -29,16 +30,17 @@ public class BseDaoImpl extends AbstractDao implements BseDao {
 	
 	public List<Bse> findStockByScCode(Integer scCode) {
 		Query query = entityManager.createNamedQuery("stockByScCode");
+		query.setHint("org.hibernate.fetchSize", "500");
 		query.setParameter("scCode", scCode);
 		return query.getResultList();
 	}
 	
 	public List<Integer> getAllScCodes() {
-		return entityManager.createNamedQuery("allScCodes").getResultList();
+		return entityManager.createNamedQuery("allScCodes").setHint("org.hibernate.fetchSize", "500").getResultList();
 	}
 	
 	public List<Integer> getAllScCodesWithExpectedVxC(){
-		return entityManager.createNativeQuery("select distinct sc_code from (select sc_code from bse where sc_type='Q' and (close*NO_OF_SHRS) >= " +AbstractCommand.RUPEE_VxC+ " order by sc_code) a").getResultList();
+		return entityManager.createNativeQuery("select distinct sc_code from (select sc_code from bse where sc_type='Q' and (close*NO_OF_SHRS) >= " +AbstractCommand.RUPEE_VxC+ " order by sc_code) a").setHint("org.hibernate.fetchSize", "500").getResultList();
 	}
 
 	public Bse read(BsePK bsePK) {

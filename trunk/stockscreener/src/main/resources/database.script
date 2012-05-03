@@ -93,6 +93,23 @@ CREATE TABLE NYSE_TX(
 	PRIMARY KEY (NYSE_TX_ID)
 );
 
+CREATE TABLE SUMMARY_52_WK_NYSE(
+	SNAPSHOT_DT DATE,
+	SYMBOL VARCHAR(30),
+	MIN_LOW DOUBLE,
+	MAX_HIGH DOUBLE,
+	MIN_CLOSE DOUBLE,
+	MAX_CLOSE DOUBLE
+);
+
+CREATE TABLE SUMMARY_52_WK_BSE(
+	SNAPSHOT_DT DATE,
+	SC_CODE INT(11),
+	MIN_LOW DOUBLE,
+	MAX_HIGH DOUBLE,
+	MIN_CLOSE DOUBLE,
+	MAX_CLOSE DOUBLE
+);
 
 /*
 CREATE TEMPORARY TABLE TMP1(
@@ -198,31 +215,51 @@ SELECT
 // Considers 12 months of data only.
 select * from 
 	(select symbol, close, volume from nyse n1 where trade_date=(select max(trade_date) from nyse where symbol='DJI.IDX' and volume>0) and (symbol not like '%-%' and symbol not like '%.%') and (close*volume) > 100000000) a,
-	(select symbol 'symbol', min(low) 'min_low', max(high) 'max_high' from Nyse where trade_date between (CURDATE() - INTERVAL 12 MONTH) and CURDATE() and (symbol not like '%-%' and symbol not like '%.%') group by symbol) b
+	SUMMARY_52_WK_NYSE b
 where
 	a.symbol=b.symbol and
 	a.close between (b.min_low + (b.min_low*(5/100))) and (b.min_low + (b.min_low*(10/100)));
 
 */
 
+/*
+Query 1 (More than 70% Down from 52W-High)
+=======
+select * from 
+	(select symbol, close, volume from nyse n1 where trade_date=(select max(trade_date) from nyse where symbol='DJI.IDX' and volume>0) and (symbol not like '%-%' and symbol not like '%.%') and (close*volume) > 100000000) a,
+	SUMMARY_52_WK_NYSE b
+where
+	a.symbol=b.symbol and
+	a.close <= (b.max_high - (b.max_high*(70/100)));
+
+
+Query 2 (More than 70% Down from 52W-High and Last Close <= $1)
+=======
+select * from 
+	(select symbol, close, volume from nyse n1 where trade_date=(select max(trade_date) from nyse where symbol='DJI.IDX' and volume>0) and (symbol not like '%-%' and symbol not like '%.%') and close <= 1) a,
+	SUMMARY_52_WK_NYSE b
+where
+	a.symbol=b.symbol and
+	a.close <= (b.max_high - (b.max_high*(70/100)));
+*/
+
 
 /*
 // Query to find best BSE BLUECHIPS
 select * from 
-	(select SC_CODE 'symbol', close, NO_OF_SHRS 'volume' from bse b1 where trade_date=(select max(trade_date) from bse where SC_CODE=532977 and NO_OF_SHRS>0) and (SC_CODE in (532977, 532454, 500103, 500087, 533278, 532868, 500010, 500180, 500182, 500440, 500696, 532174, 500209, 500875, 532532, 532286, 500510, 500520, 532500, 532541, 500312, 500325, 500112, 500900, 524715, 532540, 500570, 500400, 500470, 507685)) /*and (close*NO_OF_SHRS) > 100000000)*/) a,
-	(select SC_CODE 'symbol', min(low) 'min_low', max(high) 'max_high' from Bse where trade_date between (CURDATE() - INTERVAL 12 MONTH) and CURDATE() and (SC_CODE in (532977, 532454, 500103, 500087, 533278, 532868, 500010, 500180, 500182, 500440, 500696, 532174, 500209, 500875, 532532, 532286, 500510, 500520, 532500, 532541, 500312, 500325, 500112, 500900, 524715, 532540, 500570, 500400, 500470, 507685)) group by SC_CODE) b
+	(select SC_CODE, close, NO_OF_SHRS 'volume' from bse b1 where trade_date=(select max(trade_date) from bse where SC_CODE=532977 and NO_OF_SHRS>0) and (SC_CODE in (532977, 532454, 500103, 500087, 533278, 532868, 500010, 500180, 500182, 500440, 500696, 532174, 500209, 500875, 532532, 532286, 500510, 500520, 532500, 532541, 500312, 500325, 500112, 500900, 524715, 532540, 500570, 500400, 500470, 507685)) /*and (close*NO_OF_SHRS) > 100000000)*/) a,
+	(select * from SUMMARY_52_WK_BSE where (SC_CODE in (532977, 532454, 500103, 500087, 533278, 532868, 500010, 500180, 500182, 500440, 500696, 532174, 500209, 500875, 532532, 532286, 500510, 500520, 532500, 532541, 500312, 500325, 500112, 500900, 524715, 532540, 500570, 500400, 500470, 507685))) b
 where
-	a.symbol=b.symbol;
+	a.SC_CODE=b.SC_CODE;
 -------------------------
 
 // Query to find best BSE Stocks
 select * from 
-	(select SC_CODE 'symbol', close, NO_OF_SHRS 'volume' from bse b1 where trade_date=(select max(trade_date) from bse where SC_CODE=532977 and NO_OF_SHRS>0) and (close*NO_OF_SHRS) > 100000000) a,
-	(select SC_CODE 'symbol', min(low) 'min_low', max(high) 'max_high' from Bse where trade_date between (CURDATE() - INTERVAL 12 MONTH) and CURDATE() group by SC_CODE) b
+	(select SC_CODE, close, NO_OF_SHRS 'volume' from bse b1 where trade_date=(select max(trade_date) from bse where SC_CODE=532977 and NO_OF_SHRS>0) and (close*NO_OF_SHRS) > 100000000) a,
+	SUMMARY_52_WK_BSE b
 where
-	a.symbol=b.symbol and
+	a.SC_CODE=b.SC_CODE and
 	a.close between (b.min_low + (b.min_low*(5/100))) and (b.min_low + (b.min_low*(10/100)));
-
 
 */
 

@@ -13,11 +13,11 @@ public class AlertDaoImpl extends AbstractDao implements AlertDao {
 	}
 
 	public List<Alert> findAll() {
-		return entityManager.createNamedQuery("allAlerts").getResultList();
+		return entityManager.createNamedQuery("allAlerts").setHint("org.hibernate.fetchSize", "500").getResultList();
 	}
 	
 	public List<AlertResult> findAlertResultsByTrxType(String trxType, String isActive) {
-		return entityManager.createNamedQuery("allAlertResultsByTrxType").setParameter("trxType", trxType).setParameter("isActive", isActive).getResultList();
+		return entityManager.createNamedQuery("allAlertResultsByTrxType").setHint("org.hibernate.fetchSize", "500").setParameter("trxType", trxType).setParameter("isActive", isActive).getResultList();
 	}
 
 	public Alert read(Long id) {
