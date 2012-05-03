@@ -62,6 +62,7 @@ public class NyseImportServiceImpl implements ImportService{
 		importForStockExchange( NASDAQ_IMPORT_KEY, "NASDAQ" );
 		importForStockExchange( AMEX_IMPORT_KEY, "AMEX" );
 		importForStockExchange( GLOBAL_INDICES_IMPORT_KEY, "INDEX" );
+		System.out.println( "Done. Import Completed." );
 	}
 	
 	private void importForStockExchange(final String key, final String stockExchange) throws Exception{

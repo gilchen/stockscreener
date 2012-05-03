@@ -116,6 +116,8 @@ public class ImportDataBean{
 	public void importBse(final ActionEvent ae){
 		try {
 			this.getBseImportService().importData();
+			this.getStockService().syncUpSummary52WkBse();
+			
 			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Bse Data Imported", "Bse Data Imported"));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -126,6 +128,8 @@ public class ImportDataBean{
 	public void importNyse(final ActionEvent ae){
 		try {
 			this.getNyseImportService().importData();
+			this.getStockService().syncUpSummary52WkNyse();
+			
 			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Nyse Data Imported", "Nyse Data Imported"));
 		} catch (Exception e) {
 			e.printStackTrace();

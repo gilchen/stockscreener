@@ -49,8 +49,12 @@ public class Utility {
 		return new SimpleDateFormat("MM/dd/yyyy").parse( str );
 	}
 	
-	public static String getStrDate(Date dt) throws Exception{
+	public static String getStrDate(Date dt){
 		return new SimpleDateFormat("MM/dd/yyyy").format( dt );
+	}
+	
+	public static String getStrTime(Date dt){
+		return new SimpleDateFormat("HH:mm:ss").format( dt );
 	}
 	
 	public static long getDaysDiffBetween(Date date1, Date date2){
@@ -58,12 +62,58 @@ public class Utility {
 		return Math.abs(diff / (1000 * 60 * 60 * 24));
 	}
 	
-//	public static void main(String args[]){
+	/**
+	 * Converts 1K to 1000, 1.2K to 1200 for K, M and B (thousands, millions and billions)
+	 * @param strNum e.g 1K
+	 * @return
+	 */
+	public static String convertFinancials(String strNum){
+		String k = "000";
+		String m = k + k;
+		String b = m + k;
+		
+		String result = strNum.toUpperCase().trim();
+
+		if( result.endsWith("K") ){
+			if( result.indexOf(".") != -1 ){
+				int filler = (result.length()-2) - result.indexOf(".");
+				k = k.substring(filler);
+			}
+			result = result.replace("K", k).replace(".", "");
+		}else if( result.endsWith("M") ){
+			if( result.indexOf(".") != -1 ){
+				int filler = (result.length()-2) - result.indexOf(".");
+				m = m.substring(filler);
+			}
+			result = result.replace("M", m).replace(".", "");
+		}else if( result.endsWith("B") ){
+			if( result.indexOf(".") != -1 ){
+				int filler = (result.length()-2) - result.indexOf(".");
+				b = b.substring(filler);
+			}
+			result = result.replace("B", b).replace(".", "");
+		} 
+		
+		//System.out.println( strNum +" --> "+result );
+		return result;
+	}
+	
+	public static void main(String args[]){
 //		String arr[] = new String[]{"MMM", "ABB", "ABT", "ACL", "MO", "AMZN", "AXP", "AMGN", "AAPL", "AZN", "T", "AXAHY", "BBD", "STD", "BCS", "BRK.A", "BHP", "BBL", "BP", "BMY", "BTI", "CAJ", "CAT", "CVX", "LFC", "CHL", "SNP", "CSCO", "C", "CL", "CMCSA", "ABV", "COP", "CS", "CVS", "DB", "DT", "DEO", "EC", "LLY", "E", "XOM", "F", "FTE", "GE", "GSK", "GS", "GOOG", "HPQ", "HMC", "HBC", "INTC", "IBM", "JNJ", "JPM", "KFT", "LYG", "MCD", "MDT", "MRK", "MSFT", "MS", "NTT", "NOK", "NVS", "NVO", "DCM", "OXY", "ORCL", "PEP", "PTR", "PBR", "PFE", "PM", "QCOM", "RTP", "RY", "RDS.A", "SNY", "SAP", "SLB", "SI", "STO", "SU", "TGT", "TEF", "TEVA", "BNS", "BA", "KO", "HD", "PG", "DIS", "TD", "TOT", "USB", "UN", "UL", "UPS", "UTX", "VALE", "VZ", "V", "VOD", "WMT", "WFC", "WBK"};
 //		String djia[] = new String[]{"MMM", "AA", "AXP", "T", "BAC", "BA", "CAT", "CVX", "CSCO", "KO", "DD", "XOM", "GE", "HPQ", "HD", "INTC", "IBM", "JNJ", "JPM", "KFT", "MCD", "MRK", "MSFT", "PFE", "PG", "TRV", "UTX", "VZ", "WMT", "DIS"};
 //		List<String> arrList = new ArrayList(Arrays.asList(arr));
 //		List<String> djiaList = new ArrayList(Arrays.asList(djia));
 //		arrList.removeAll(djiaList);
 //		System.out.println( arrList );
-//	}
+		convertFinancials( "1.2K" );
+		convertFinancials( "1.22K" );
+		convertFinancials( "1.222K" );
+		convertFinancials( "1.3m" );
+		convertFinancials( "1.33m" );
+		convertFinancials( "1.5b" );
+		convertFinancials( "1.55b" );
+		convertFinancials( "1k" );
+		convertFinancials( "2m" );
+		convertFinancials( "3b" );
+	}
 }

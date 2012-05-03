@@ -13,11 +13,11 @@ public class NyseAlertDaoImpl extends AbstractDao implements NyseAlertDao {
 	}
 
 	public List<NyseAlert> findAll() {
-		return entityManager.createNamedQuery("allNyseAlerts").getResultList();
+		return entityManager.createNamedQuery("allNyseAlerts").setHint("org.hibernate.fetchSize", "500").getResultList();
 	}
 	
 	public List<NyseAlertResult> findAlertResultsByTrxType(final String trxType, final String isActive) {
-		return entityManager.createNamedQuery("allNyseAlertResultsByTrxType").setParameter("trxType", trxType).setParameter("isActive", isActive).getResultList();
+		return entityManager.createNamedQuery("allNyseAlertResultsByTrxType").setHint("org.hibernate.fetchSize", "500").setParameter("trxType", trxType).setParameter("isActive", isActive).getResultList();
 	}
 	
 	public NyseAlert read(Long id) {

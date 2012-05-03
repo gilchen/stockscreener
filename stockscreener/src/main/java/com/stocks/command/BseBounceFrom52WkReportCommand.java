@@ -199,12 +199,14 @@ public class BseBounceFrom52WkReportCommand extends AbstractCommand {
 				return;
 			}
 			
-			final double lastClose = bseList.get(bseList.size()-1).getClose();
+			Bse lastTrade = bseList.get(bseList.size()-1);
+			final double lastClose = lastTrade.getClose();
+			final boolean enoughTrading = (lastClose * lastTrade.getNoOfShares() >= 10000000); //Trading >= 1 Crore
 			
 			double lowerRange = min + (min * RANGE_LOWER_PERCENT);
 			double higherRange = min + (min * RANGE_HIGHER_PERCENT);
 			
-			if( lastClose >= lowerRange && lastClose <= higherRange ){
+			if( enoughTrading && (lastClose >= lowerRange && lastClose <= higherRange) ){
 				String range52w_pc = "";
 				Double low52w_pc = 0.0;
 				Double high52w_pc = 0.0;

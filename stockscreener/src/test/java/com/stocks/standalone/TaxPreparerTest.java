@@ -53,7 +53,7 @@ public class TaxPreparerTest extends TestCase {
 	public void testProcess(){
 		TaxPreparer taxPreparer = new TaxPreparer();
 		try {
-			taxPreparer.process(nyseTxList);
+			taxPreparer.process(nyseTxList, 2011);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -85,6 +85,7 @@ public class BseImportServiceImpl implements ImportService{
 		calendar.add(Calendar.DAY_OF_MONTH, 1);
 
 		downloadFile(calendar);
+		System.out.println( "Done. Import Completed." );
 	}
 	
 	private void downloadFile(final Calendar calendar) throws Exception{

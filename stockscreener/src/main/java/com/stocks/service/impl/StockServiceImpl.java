@@ -18,6 +18,8 @@ import com.stocks.dao.NyseAlertDao;
 import com.stocks.dao.NyseDao;
 import com.stocks.dao.NyseTxDao;
 import com.stocks.dao.ReportDao;
+import com.stocks.dao.Summary52WkBseDao;
+import com.stocks.dao.Summary52WkNyseDao;
 import com.stocks.model.Alert;
 import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
@@ -48,6 +50,8 @@ public class StockServiceImpl implements StockService {
     private ReportDao reportDao;
     private HolidayDao holidayDao;
     private NyseTxDao nyseTxDao;
+    private Summary52WkNyseDao summary52WkNyseDao;
+    private Summary52WkBseDao summary52WkBseDao;
 
 	public AlertDao getAlertDao() {
 		return alertDao;
@@ -128,6 +132,24 @@ public class StockServiceImpl implements StockService {
 	@Required
 	public void setNyseTxDao(NyseTxDao nyseTxDao) {
 		this.nyseTxDao = nyseTxDao;
+	}
+
+	public Summary52WkNyseDao getSummary52WkNyseDao() {
+		return summary52WkNyseDao;
+	}
+
+	@Required
+	public void setSummary52WkNyseDao(Summary52WkNyseDao summary52WkNyseDao) {
+		this.summary52WkNyseDao = summary52WkNyseDao;
+	}
+
+	public Summary52WkBseDao getSummary52WkBseDao() {
+		return summary52WkBseDao;
+	}
+
+	@Required
+	public void setSummary52WkBseDao(Summary52WkBseDao summary52WkBseDao) {
+		this.summary52WkBseDao = summary52WkBseDao;
 	}
 
 	public List<Alert> getAllBseAlerts() {
@@ -284,5 +306,15 @@ public class StockServiceImpl implements StockService {
 	
 	public Date getPreviousBusinessDay(Date date) {
 		return this.getHolidayDao().getPreviousBusinessDay(date);
+	}
+	
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+	public void syncUpSummary52WkNyse() {
+		this.getSummary52WkNyseDao().syncUp();
+	}
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+	public void syncUpSummary52WkBse() {
+		this.getSummary52WkBseDao().syncUp();
 	}
 }

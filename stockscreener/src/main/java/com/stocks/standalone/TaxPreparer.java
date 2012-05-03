@@ -1,6 +1,7 @@
 package com.stocks.standalone;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,16 +23,16 @@ public class TaxPreparer {
 
 		// Step 1: Pull all Buy/Sell Transactions
 		TaxPreparer taxPreparer = new TaxPreparer();
-		taxPreparer.process(stockService.getAllNyseTransactions());
+		taxPreparer.process(stockService.getAllNyseTransactions(), 2011);
 
 		System.out.println( "Done." );
 		System.exit(0);
 	}
 	
-	public void process(final List<NyseTx> allNyseTxList) throws Exception{
+	public void process(final List<NyseTx> allNyseTxList, final int taxReportingYear) throws Exception{
 		// Step 2: Organize Buy/Sell Transactions in separate maps.
-		final Map<String, List<NyseTx>> bNyseTxMap = getNyseTxMap("B", allNyseTxList);
-		final Map<String, List<NyseTx>> sNyseTxMap = getNyseTxMap("S", allNyseTxList);
+		final Map<String, List<NyseTx>> bNyseTxMap = getNyseTxMap("B", allNyseTxList, taxReportingYear);
+		final Map<String, List<NyseTx>> sNyseTxMap = getNyseTxMap("S", allNyseTxList, taxReportingYear);
 		
 		// Step 3:
 		final List<CsvFormat> csvFormatList = new ArrayList<CsvFormat>();
@@ -52,6 +53,11 @@ public class TaxPreparer {
 					Integer sQty = sNyseTx.getQty();
 					
 					for( final NyseTx bNyseTx : bNyseTxFromMap  ){
+						// Do not consider this Buy Trx if it was executed after Sale Trx.
+						if( bNyseTx.getTxDate().compareTo(sNyseTx.getTxDate()) > 0 ){
+							continue;
+						}
+						
 						Integer consumedQty = 0;
 						if( bNyseTx.getQty() > 0 ){
 							final NyseTx nyseTx = new NyseTx();
@@ -153,9 +159,16 @@ public class TaxPreparer {
 		Utility.saveContent("C:/Temp/Stk/tax." +OUTPUT, sb.toString());
 	}
 	
-	private Map<String, List<NyseTx>> getNyseTxMap(final String trxType, final List<NyseTx> allNyseTxList){
+	private Map<String, List<NyseTx>> getNyseTxMap(final String trxType, final List<NyseTx> allNyseTxList, final int taxReportingYear){
 		final Map<String, List<NyseTx>> map = new HashMap<String, List<NyseTx>>();
+		
 		for( final NyseTx nyseTx : allNyseTxList ){
+			
+			// Do not count Sale Transaction for an year other than the TaxReportingYear.
+			if( (trxType.equals("S") && nyseTx.getTxDate().getYear() != taxReportingYear) ){
+				continue;
+			}
+			
 			if( nyseTx.getTrxType().equals(trxType) ){
 				List<NyseTx> nyseTxList = map.get( nyseTx.getSymbol() );
 				if( nyseTxList == null ){

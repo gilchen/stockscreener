@@ -12,11 +12,11 @@ public class NyseTxDaoImpl extends AbstractDao implements NyseTxDao {
 	}
 
 	public List<NyseTx> findAll() {
-		return entityManager.createNamedQuery("allNyseTransactions").getResultList();
+		return entityManager.createNamedQuery("allNyseTransactions").setHint("org.hibernate.fetchSize", "500").getResultList();
 	}
 	
 	public List<NyseTx> findNyseTransactionsBySymbol(final String symbol) {
-		return entityManager.createNamedQuery("nyseTransactionsBySymbol").setParameter("symbol", symbol).getResultList();
+		return entityManager.createNamedQuery("nyseTransactionsBySymbol").setHint("org.hibernate.fetchSize", "500").setParameter("symbol", symbol).getResultList();
 	}
 	
 	public NyseTx read(Long id) {
