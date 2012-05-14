@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<current_snapshot>
+	<symbols>
+		.DJIA, .SPX, COMP, .FTSE, .FCHI, .GDAXI, AEM, AGQ, BAL, FTR, NFLX, RIMM, S, SDOW, UNG, TBT, AMZN, UPL, ACI, DMND, ERX, UCO, CLCV1, UGL, INDL, NLR, NFX
+	</symbols>
+	<filter_checks>
+		<filter_check>
+			<name>LARGE</name>
+			<range_correction_52_wk>35-100</range_correction_52_wk>
+			<range_market_cap>10b-100t</range_market_cap>
+			<min_shares_outstanding>1000t</min_shares_outstanding>
+		</filter_check>
+
+		<filter_check>
+			<name>MID</name>
+			<range_correction_52_wk>50-100</range_correction_52_wk>
+			<range_market_cap>1b-10b</range_market_cap>
+			<min_shares_outstanding>1000t</min_shares_outstanding>
+		</filter_check>
+
+		<filter_check>
+			<name>SMALL</name>
+			<range_correction_52_wk>70-100</range_correction_52_wk>
+			<range_market_cap>500m-1b</range_market_cap>
+			<min_shares_outstanding>1000t</min_shares_outstanding>
+		</filter_check>
+
+		<filter_check>
+			<name>PENNY</name>
+			<range_correction_52_wk>80-100</range_correction_52_wk>
+			<range_market_cap>50m-1t</range_market_cap>
+			<min_shares_outstanding>70m</min_shares_outstanding>
+		</filter_check>
+		
+	</filter_checks>
+</current_snapshot>

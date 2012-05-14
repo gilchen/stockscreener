@@ -7,10 +7,13 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Utility {
+	final static DecimalFormat df = new DecimalFormat("###,###.##");
+	
 	public static String getContent(String sUrl) throws Exception {
 		StringBuffer content = new StringBuffer();
 
@@ -62,6 +65,11 @@ public class Utility {
 		return Math.abs(diff / (1000 * 60 * 60 * 24));
 	}
 	
+	public static String getFormattedNumber(Number number){
+		return number != null ? df.format(number) : null;
+	}
+
+	
 	/**
 	 * Converts 1K to 1000, 1.2K to 1200 for K, M and B (thousands, millions and billions)
 	 * @param strNum e.g 1K
@@ -71,6 +79,7 @@ public class Utility {
 		String k = "000";
 		String m = k + k;
 		String b = m + k;
+		String t = b + k;
 		
 		String result = strNum.toUpperCase().trim();
 
@@ -92,6 +101,12 @@ public class Utility {
 				b = b.substring(filler);
 			}
 			result = result.replace("B", b).replace(".", "");
+		}else if( result.endsWith("T") ){
+			if( result.indexOf(".") != -1 ){
+				int filler = (result.length()-2) - result.indexOf(".");
+				t = t.substring(filler);
+			}
+			result = result.replace("T", t).replace(".", "");
 		} 
 		
 		//System.out.println( strNum +" --> "+result );
@@ -105,6 +120,7 @@ public class Utility {
 //		List<String> djiaList = new ArrayList(Arrays.asList(djia));
 //		arrList.removeAll(djiaList);
 //		System.out.println( arrList );
+/*
 		convertFinancials( "1.2K" );
 		convertFinancials( "1.22K" );
 		convertFinancials( "1.222K" );
@@ -112,8 +128,17 @@ public class Utility {
 		convertFinancials( "1.33m" );
 		convertFinancials( "1.5b" );
 		convertFinancials( "1.55b" );
-		convertFinancials( "1k" );
-		convertFinancials( "2m" );
+		convertFinancials( "3k" );
+		convertFinancials( "3m" );
 		convertFinancials( "3b" );
+		convertFinancials( "3.1t" );
+*/
+		
+/*		
+		System.out.println( getFormattedNumber( null ) );
+		System.out.println( getFormattedNumber( 0.00 ) );
+		System.out.println( getFormattedNumber( 123456789.50 ) );
+		System.out.println( getFormattedNumber( 123456789012.00 ) );
+*/
 	}
 }
