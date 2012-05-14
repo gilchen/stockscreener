@@ -10,13 +10,14 @@ public class CallerQuote {
 	//final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "ANR", "BTU", "ACI"};
 	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AEM", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "AMZN", "UPL", "ACI", "DMND", "TZA", "ANR", "-", "ERX", "UCO", "-", "UGL", "INDL", "NLR", "NFX", "BTU" }; //"AGG", "AGNC", "BAX", "BND", "BSX", "CFT", "FXY", "GMCR", "JNJ", "KO", "KR", "LLY", "LQD", "NFLX", "NLY", "NVS", "PCG", "PCS", "PG", "SPXU", "SYK", "SYY", "T", "TIP", "TWM", "TZA", "WDC", "WHR", "XLP"
 	//final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE" };
-	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "TZA", "ANR", "CTRP", "BVSN", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "NFX", "BTU", "DYN" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
-	//final static String[] CNBC_ETF_LIST = {"OTT"};
+	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "TZA", "ANR", "CTRP", "BVSN", "TIV", "SYNC", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "NFX", "BTU", "DYN" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
+	//final static String[] CNBC_ETF_LIST = {"MMM", "AA", "AXP", "T", "BAC", "BA", "CAT", "CVX", "CSCO", "KO", "DD", "XOM", "GE", "HPQ", "HD", "INTC", "IBM", "JNJ", "JPM", "KFT", "MCD", "MRK", "MSFT", "PFE", "PG", "TRV", "UTX", "VZ", "WMT", "DIS"};
 	
 	final static String BSE_URL    = "http://www.bseindia.com/bseplus/StockReach/AdvStockReach.aspx?scripcode=~SCRIPCODE&section=tab1&IsPF=undefined&random=0.22032093349844217";
 	final static String GOOGLE_URL = "http://www.google.com/finance?q=";
 	final static String CNBC_URL = "http://data.cnbc.com/quotes/";
 	final static String CNBC_URL_EXTN = "http://apps.cnbc.com/company/quote/index.asp?symbol=";
+	final static String CNBC_URL_EXTN_COMPANY_PROFILE = "http://apps.cnbc.com/view.asp?country=US&uid=stocks/summary&symbol=";
 	
 	final static String ROW_FORMAT = "%-20s %-10s %-25s %-12s %-12s %-25s %-16s";
 	
@@ -208,6 +209,7 @@ public class CallerQuote {
 			
 			final StringBuffer sb = new StringBuffer( Utility.getContent( CNBC_URL +symbol ) );
 			final StringBuffer sbExtn = new StringBuffer( Utility.getContent(CNBC_URL_EXTN +symbol) );
+			//final StringBuffer sbExtnCompPro = new StringBuffer( Utility.getContent( CNBC_URL_EXTN_COMPANY_PROFILE +symbol ) );
 			
 			String realTime = "";
 			String pcChange = "";
@@ -280,6 +282,12 @@ public class CallerQuote {
 				time = time.replace("\"", "");
 				time = time.split(" ")[1];
 			}
+			
+//			String industry = "";
+//			int index5 = sbExtnCompPro.indexOf( "Industry:" );
+//			if( index5 != -1 ){
+//				industry = sbExtnCompPro.substring( index5+10, sbExtnCompPro.indexOf("</div>", index5+10) ).trim();
+//			}
 			
 			System.out.println( String.format(ROW_FORMAT, symbol, realTime.trim(), range.trim(), pcChange.trim(), time.trim(), range52w, range52w_pc) );
 		}
