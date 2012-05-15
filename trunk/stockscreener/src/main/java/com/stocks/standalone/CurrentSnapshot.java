@@ -36,7 +36,7 @@ public class CurrentSnapshot {
 	final static String CNBC_URL_EXTN = "http://apps.cnbc.com/company/quote/index.asp?symbol=";
 	final static String CNBC_URL_EXTN_COMPANY_PROFILE = "http://apps.cnbc.com/view.asp?country=US&uid=stocks/summary&symbol=";
 
-	final static String ROW_FORMAT = "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n";
+	final static String ROW_FORMAT = "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n";
 
 	final static Double RECOMMENDATION_52W_CORRECTION_PC = -40.00;
 	final static Double RECOMMENDATION_52W_APPRECIATION_PC = 9.00;
@@ -61,11 +61,11 @@ public class CurrentSnapshot {
 			Document doc = dBuilder.parse( CurrentSnapshot.class.getResourceAsStream("/CurrentSnapshot.xml") );
 			doc.getDocumentElement().normalize();
 
-			System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+			//System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 			CNBC_ETF_LIST = getTagValue("symbols", doc.getDocumentElement()).replaceAll(" ", "").split(",");
 
 			NodeList nList = doc.getElementsByTagName("filter_check");
-			System.out.println("-----------------------");
+			//System.out.println("-----------------------");
 
 			for (int temp = 0; temp < nList.getLength(); temp++) {
 
@@ -74,15 +74,6 @@ public class CurrentSnapshot {
 
 					Element eElement = (Element) nNode;
 
-//					System.out.println("name : "
-//							+ getTagValue("name", eElement));
-//					System.out.println("range_correction_52_wk : "
-//							+ getTagValue("range_correction_52_wk", eElement));
-//					System.out.println("range_market_cap : "
-//							+ getTagValue("range_market_cap", eElement));
-//					System.out.println("min_shares_outstanding : "
-//							+ getTagValue("min_shares_outstanding", eElement));
-					
 					String name = getTagValue("name", eElement);
 					String sRange = getTagValue("range_correction_52_wk", eElement);
 					String sMinMarketCap = getTagValue("range_market_cap", eElement);
@@ -113,7 +104,7 @@ public class CurrentSnapshot {
 		NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
 		Node nValue = (Node) nlList.item(0);
 
-		return nValue.getNodeValue();
+		return nValue.getNodeValue().trim();
 	}
 
 	/**
@@ -124,47 +115,7 @@ public class CurrentSnapshot {
 	 */
 	public static void main(String args[]) throws Exception {
 		loadConfigurationFromXml();
-		//if(true) return;
 
-/*		
-		Properties properties = new Properties();
-		properties.load(CurrentSnapshot.class
-				.getResourceAsStream("/CurrentSnapshot.properties"));
-		CNBC_ETF_LIST = properties.getProperty("symbols").replaceAll(" ", "")
-				.split(",");
-
-		listFilterCheck.clear();
-		if (properties.getProperty(KEY_FILTER_CHECKS) != null) {
-			String[] arrFilterChecks = properties
-					.getProperty(KEY_FILTER_CHECKS).split(";");
-			for (String sFilterCheck : arrFilterChecks) {
-				String[] checks = sFilterCheck.split("[|]");
-				String category = checks[0];
-				String sRange = checks[1];
-				String sMinMarketCap = checks[2];
-				String sMinSharesOutstanding = checks[3];
-
-				int indexOfDash = sRange.indexOf("-");
-				Range correctionRange52wk = new CurrentSnapshot().new Range(
-						new Long(sRange.substring(0, indexOfDash)), new Long(
-								sRange.substring(indexOfDash + 1)));
-
-				indexOfDash = sMinMarketCap.indexOf("-");
-				Range minMarketCapRange = new CurrentSnapshot().new Range(
-						new Long(Utility.convertFinancials(sMinMarketCap
-								.substring(0, indexOfDash))), new Long(
-								Utility.convertFinancials(sMinMarketCap
-										.substring(indexOfDash + 1))));
-				Long minSharesOutstanding = new Long(
-						Utility.convertFinancials(sMinSharesOutstanding));
-
-				FilterCheck filterCheck = new CurrentSnapshot().new FilterCheck(
-						category, correctionRange52wk, minMarketCapRange,
-						minSharesOutstanding);
-				listFilterCheck.add(filterCheck);
-			}
-		}
-*/
 		System.out.println("Configuration (CORRECTION_52_WK must match, then either of (MIN_MARKET_CAP or MIN_OUTSTANDING_SHARES) )");
 		System.out.println("=======================================================================================================");
 		for (FilterCheck filterCheck : listFilterCheck) {
@@ -175,12 +126,26 @@ public class CurrentSnapshot {
 		final StringBuilder sbuf = new StringBuilder();
 		final StringBuilder sbufRejects = new StringBuilder();
 
-		String header = String.format(ROW_FORMAT, "Symbol", "realTime",
-				"range", "% Change", "time", "range52wL", "range52wH",
-				"range52wL_pc", "range52wH_pc", "Mkt Cap",
-				"Mkt Cap (Expanded)", "10-Day Avg Vol",
-				"10-Day Avg Vol (Expanded)", "P/E", "Beta", "Industry",
-				"Reject Reason");
+		String header = String.format(ROW_FORMAT, 
+				"Symbol", 
+				"range52wL_pc", 
+				"range52wH_pc", 
+				"Mkt Cap (Expanded)", 
+				"10-Day Avg Vol (Expanded)", 
+				"Filter Name",
+				"realTime",
+				"range", 
+				"% Change", 
+				"time", 
+				"range52wL", 
+				"range52wH",
+				"Mkt Cap",
+				"10-Day Avg Vol",
+				"P/E", 
+				"Beta", 
+				"Industry",
+				"Reject Reason"
+			);
 		sbuf.append(header);
 		sbufRejects.append(header);
 		processCnbc(sbuf, sbufRejects);
@@ -398,18 +363,19 @@ public class CurrentSnapshot {
 					sbuf.append(String.format(
 							ROW_FORMAT,
 							symbol,
+							range52wL_pc,
+							range52wH_pc,
+							Utility.convertFinancials(mktCap),
+							Utility.convertFinancials(avgVol_10Days),
+							matchingFilterCheck.getFilterName(),
 							realTime,
 							range,
 							pcChange,
 							time,
 							low52w.toString(),
 							high52w.toString(),
-							range52wL_pc,
-							range52wH_pc,
 							mktCap,
-							Utility.convertFinancials(mktCap),
 							avgVol_10Days,
-							Utility.convertFinancials(avgVol_10Days),
 							pe,
 							beta,
 							industry,
@@ -417,13 +383,26 @@ public class CurrentSnapshot {
 									+ (rejectReason + "-->"
 											+ matchingFilterCheck.toString() + "\"")));
 				} else {
-					sbufRejects.append(String.format(ROW_FORMAT, symbol,
-							realTime, range, pcChange, time, low52w.toString(),
-							high52w.toString(), range52wL_pc, range52wH_pc,
-							mktCap, Utility.convertFinancials(mktCap),
+					sbufRejects.append(String.format(
+							ROW_FORMAT, 
+							symbol,
+							range52wL_pc, 
+							range52wH_pc,
+							Utility.convertFinancials(mktCap),
+							Utility.convertFinancials(avgVol_10Days), 
+							"",
+							realTime, 
+							range, 
+							pcChange, 
+							time, 
+							low52w.toString(),
+							high52w.toString(), 
+							mktCap, 
 							avgVol_10Days,
-							Utility.convertFinancials(avgVol_10Days), pe, beta,
-							industry, rejectReason));
+							pe, 
+							beta,
+							industry, 
+							rejectReason));
 				}
 			} catch (Exception e) {
 				// e.printStackTrace();
@@ -481,11 +460,10 @@ public class CurrentSnapshot {
 
 		@Override
 		public String toString() {
-			return "FilterCheck [filterName=" + filterName
+			return "FilterCheck [name=" + filterName
 					+ ", correctionRange52Wk=" + correctionRange52Wk
-					+ ", minMarketCapRange=" + minMarketCapRange
-					+ ", minSharesOutstanding="
-					+ Utility.getFormattedNumber(minSharesOutstanding) + "]";
+					+ ", marketCapRange=" + minMarketCapRange
+					+ ", minSharesOutstanding=" + Utility.getFormattedNumber(minSharesOutstanding) + "]";
 		}
 	}
 
@@ -508,9 +486,7 @@ public class CurrentSnapshot {
 
 		@Override
 		public String toString() {
-			return "Range [min=" + Utility.getFormattedNumber(min) + ", max="
-					+ Utility.getFormattedNumber(max) + "]";
+			return "Range(" + Utility.getFormattedNumber(min) +" - "+ Utility.getFormattedNumber(max) + ")";
 		}
-
 	}
 }
