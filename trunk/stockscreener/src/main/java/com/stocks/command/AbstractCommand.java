@@ -29,7 +29,7 @@ public abstract class AbstractCommand implements Command{
 	 10cr    1123                 182       139        43            76%
 	  5cr    1457                 313       231        82            74%
 */
-	public static final Long RUPEE_VxC  = 10000000L * 25; // 25cr
+	public static final Long RUPEE_VxC  = 10000000L * 10; // 15cr
 
 	protected static final String GOOGLE_CHART_URL = "http://~NUM.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:~DATA&chg=0,2,1,1&chds=~MIN,~MAX"; //&chtt=~TITLE
 	protected static final String GOOGLE_CHART_RECOMMENDED_BUY_URL = "http://~NUM.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:~DATA&chg=0,2,1,1&chds=~MIN,~MAX&chm=";
