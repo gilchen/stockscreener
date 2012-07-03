@@ -223,24 +223,23 @@ where
 */
 
 /*
-Query 1 (More than 70% Down from 52W-High)
+Query 1 (More than 80% Down from 52W-High)
 =======
 select * from 
-	(select symbol, close, volume from nyse n1 where trade_date=(select max(trade_date) from nyse where symbol='DJI.IDX' and volume>0) and (symbol not like '%-%' and symbol not like '%.%') and (close*volume) > 100000000) a,
+	(select symbol, close, volume from nyse n1 where trade_date=(select max(trade_date) from nyse where symbol='DJI.IDX' and volume>0) and (symbol not like '%-%' and symbol not like '%.%') and (close*volume) > 1000000) a,
 	SUMMARY_52_WK_NYSE b
 where
 	a.symbol=b.symbol and
-	a.close <= (b.max_high - (b.max_high*(70/100)));
+	a.close <= (b.max_high - (b.max_high*(80/100)));
 
-
-Query 2 (More than 70% Down from 52W-High and Last Close <= $1)
+Query 2 (More than 85% Down from 52W-High and Last Close <= $1)
 =======
 select * from 
 	(select symbol, close, volume from nyse n1 where trade_date=(select max(trade_date) from nyse where symbol='DJI.IDX' and volume>0) and (symbol not like '%-%' and symbol not like '%.%') and close <= 1) a,
 	SUMMARY_52_WK_NYSE b
 where
 	a.symbol=b.symbol and
-	a.close <= (b.max_high - (b.max_high*(70/100)));
+	a.close <= (b.max_high - (b.max_high*(85/100)));
 */
 
 
