@@ -7,10 +7,10 @@ import com.stocks.util.Utility;
 
 public class CallerQuote {
 	final static String[] BSE_LIST = {"500010", "500087", "500103", "500112", "500180", "500182", "500209", "500312", "500325", "500400", "500440", "500470", "500510", "500520", "500570", "500696", "500875", "500900", "507685", "524715", "532174", "532286", "532454", "532500", "532532", "532540", "532541", "532868", "532977", "533278"};
-	//final static String[] GOOGLE_ETF_LIST = {"BPAX", "SVNT", "CRME", "PCX"};
-	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "BVSN", "TIV", "NBG", "SAPX", "TVIX", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "NFX", "SYNC" };
-	final static String[] CNBC_ETF_LIST = {"CRME" };
-	//final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "BVSN", "TIV", "NBG", "SAPX", "TVIX", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "NFX", "SYNC" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
+	//final static String[] GOOGLE_ETF_LIST = {"MMM", "AA", "AXP", "T", "BAC", "BA", "CAT", "CVX", "CSCO", "KO", "DD", "XOM", "GE", "HPQ", "HD", "INTC", "IBM", "JNJ", "JPM", "KFT", "MCD", "MRK", "MSFT", "PFE", "PG", "TRV", "UTX", "VZ", "WMT", "DIS"};
+	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "BVSN", "TVLY", "NBG", "SAPX", "TVIX", "AA", "SAN", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "NFX", "SYNC", "CLWR", "TEF", "GFA" };
+	//final static String[] CNBC_ETF_LIST = {"CRME" };
+	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "BVSN", "TVLY", "NBG", "SAPX", "TVIX", "AA", "SAN", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "NLR", "NFX", "SYNC", "CLWR", "TEF", "GFA" }; // "BAL", "LIT", "UCO", "NLR", "TMF", "RIG", "CREE", "ECA", 
 	//final static String[] CNBC_ETF_LIST = {"ACI", "ARLP", "ANR", "AHGP", "BTU", "CNX"};
 	//final static String[] CNBC_ETF_LIST = {"UYM", "SMN",  "UGE", "SZK",  "UCC", "SCC",  "UYG", "SKF",  "RXL", "RXD",  "UXI", "SIJ",  "DIG", "DUG",  "URE", "SRS",  "LTL", "TLL",  "USD", "SSG",  "ROM", "REW",  "UPW", "SDP",  "UCO", "SCO",  "UGL", "GLL",  "UST", "PST",  "UBT", "TBT"};
 	
@@ -45,8 +45,8 @@ public class CallerQuote {
 	 */
 	public static void main( String args[  ] ) throws Exception {
 		System.out.println( String.format(ROW_FORMAT, "Symbol", "realTime", "range", "% Change", "time", "range52w", "range52w_pc") );
-		processGoogle();
-		//processCnbc();
+		//processGoogle();
+		processCnbc();
 		//processBse();
 		System.out.println( "*range52w_pc: (Closely Above +" +RECOMMENDATION_52W_APPRECIATION_PC+ "% & Anything Below " +RECOMMENDATION_52W_CORRECTION_PC+ "% is good)" );
 		System.out.println( "Done." );

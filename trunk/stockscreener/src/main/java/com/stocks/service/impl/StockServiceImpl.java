@@ -20,6 +20,7 @@ import com.stocks.dao.NyseTxDao;
 import com.stocks.dao.ReportDao;
 import com.stocks.dao.Summary52WkBseDao;
 import com.stocks.dao.Summary52WkNyseDao;
+import com.stocks.dao.Summary52WkNyseDao.DURATION;
 import com.stocks.model.Alert;
 import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
@@ -310,7 +311,9 @@ public class StockServiceImpl implements StockService {
 	
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void syncUpSummary52WkNyse() {
-		this.getSummary52WkNyseDao().syncUp();
+		this.getSummary52WkNyseDao().syncUp(DURATION._52_);
+		this.getSummary52WkNyseDao().syncUp(DURATION._104_);
+		this.getSummary52WkNyseDao().syncUp(DURATION._156_);
 	}
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)

@@ -154,8 +154,8 @@
 				<entry>
 					<buy-date>01/01/2000</buy-date>
 					<qty>11</qty>
-					<price>5.34</price>
-					<!-- Original BuyPrice before Split: $21.36 -->
+					<price>21.36</price>
+					<!-- Original BuyPrice before Split: $5.34 -->
 				</entry>
 			</entries>
 		</position>
@@ -286,6 +286,26 @@
 					<buy-date>01/01/2000</buy-date>
 					<qty>17</qty>
 					<price>5.86</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>AA</symbol>
+			<entries>
+				<entry>
+					<buy-date>07/05/2012</buy-date>
+					<qty>55</qty>
+					<price>9.04</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>SAN</symbol>
+			<entries>
+				<entry>
+					<buy-date>07/06/2012</buy-date>
+					<qty>66</qty>
+					<price>6.05</price>
 				</entry>
 			</entries>
 		</position>
