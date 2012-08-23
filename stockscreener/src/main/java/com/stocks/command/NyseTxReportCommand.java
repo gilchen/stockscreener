@@ -138,6 +138,8 @@ public class NyseTxReportCommand extends AbstractCommand {
 
 			sb.append( "<a href=\"http://www.google.com/finance?q=" +STOCK_EXCHANGE+ ":" +nyseTransactions.get(0).getSymbol()+ "\" target=\"_new\"><img border=\"0\" src=\"" +url+ "\"></a>\n" );
 
+			System.out.println( String.format("wget --post-data=\"%s\" http://0.chart.apis.google.com/chart -O %s.png", url.substring( url.indexOf("?")+1 ), nyseTransactions.get(0).getSymbol()) );
+			
 			ctr += nyseTransactions.size();
 			getPercentCompleteReporter().setPercentComplete( (ctr / nyseTxList.size()) * 100.00 );
 		}

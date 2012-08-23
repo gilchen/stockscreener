@@ -311,9 +311,9 @@ public class StockServiceImpl implements StockService {
 	
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public void syncUpSummary52WkNyse() {
-		this.getSummary52WkNyseDao().syncUp(DURATION._52_);
-		this.getSummary52WkNyseDao().syncUp(DURATION._104_);
 		this.getSummary52WkNyseDao().syncUp(DURATION._156_);
+		this.getSummary52WkNyseDao().syncUp(DURATION._104_);
+		this.getSummary52WkNyseDao().syncUp(DURATION._52_);
 	}
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
