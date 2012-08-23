@@ -123,8 +123,8 @@ public class BseImportServiceImpl implements ImportService{
 				}
 				System.out.println( "::: Downloaded to " +sPath );
 			}else{
-				System.out.println( ":( Error " +httpURLConnection.getResponseCode()+". Retrying..." );
-				downloadFile(calendar);
+				System.out.println( "********** :( Error " +httpURLConnection.getResponseCode() );
+				//downloadFile(calendar);
 			}
 		}
 		

@@ -21,10 +21,6 @@ import org.w3c.dom.NodeList;
 import com.stocks.util.Utility;
 
 public class CurrentSnapshot {
-	public enum RejectReason {
-		NONE, MARKET_CAP_UNAVAILABLE, CORRECTION_52_WK_UNAVAILABLE, NO_FILTER_CHECK_FOUND, OUTSIDE_ALLOWED_CORRECTION_RANGE, NEITHER_CONDITION_MATCHED
-	};
-
 	static String[] CNBC_ETF_LIST = null;
 
 	final static String KEY_FILTER_CHECKS = "FILTER_CHECKS";
@@ -80,6 +76,7 @@ public class CurrentSnapshot {
 					String sRange = getTagValue("range_correction_52_wk", eElement);
 					String sMinMarketCap = getTagValue("range_market_cap", eElement);
 					String sMinSharesOutstanding = getTagValue("min_shares_outstanding", eElement);
+					String sDailyAvgTradeValue = getTagValue("daily_avg_trade_value", eElement);
 
 					int indexOfDash = sRange.indexOf("-");
 					Range correctionRange52wk = new CurrentSnapshot().new Range(
@@ -92,8 +89,9 @@ public class CurrentSnapshot {
 							new Long(Utility.convertFinancials(sMinMarketCap.substring(indexOfDash + 1))));
 					
 					Long minSharesOutstanding = new Long(Utility.convertFinancials(sMinSharesOutstanding));
+					Long dailyAvgTradeValue   = new Long(Utility.convertFinancials(sDailyAvgTradeValue));
 
-					FilterCheck filterCheck = new CurrentSnapshot().new FilterCheck(name, correctionRange52wk, minMarketCapRange, minSharesOutstanding);
+					FilterCheck filterCheck = new CurrentSnapshot().new FilterCheck(name, correctionRange52wk, minMarketCapRange, minSharesOutstanding, dailyAvgTradeValue);
 					listFilterCheck.add(filterCheck);
 				}
 			}
@@ -164,15 +162,16 @@ public class CurrentSnapshot {
 				"Mkt Cap",
 				"10-Day Avg Vol (Expanded)",
 				"10-Day Avg Vol",
+				"Daily Avg Trade Value",
 				"P/E",
 				"Beta",
 				"Div/Yield",
 				"Analyst Consensus",
-				"Filter Name",
+				//"Filter Name",
 				"time",
 				"range52wL",
 				"range52wH",
-				"Reject Reason"
+				"Best Match"
 			);
 		final String headerPositions = String.format(ROW_FORMAT_POSITIONS, "Symbol", "Buy Date", "Price", "Qty", "Real-Time", "Profit/Loss %");
 		
@@ -204,8 +203,6 @@ public class CurrentSnapshot {
 		for (String symbol : set) {
 			symbol = symbol.trim();
 			System.out.println("Pulling [" + symbol + "]");
-
-			RejectReason rejectReason = RejectReason.NONE;
 
 			try {
 				// Start: Pull Data
@@ -256,6 +253,13 @@ public class CurrentSnapshot {
 					avgVol_10Days = sbExtn.substring(index3 + 16,
 							sbExtn.indexOf("<", index3 + 1));
 					avgVol_10Days = avgVol_10Days.trim().replaceAll(",", "");
+				}
+				
+				String dailyAvgTradeValue = "";
+				try{
+					dailyAvgTradeValue = "\"$" +Utility.getFormattedInteger( Double.parseDouble(Utility.convertFinancials(avgVol_10Days)) * Double.parseDouble(realTime) )+ "\"";
+				}
+				catch(Exception e){
 				}
 
 				String range52w = "", range52wL_pc = "", range52wH_pc = "";
@@ -373,9 +377,9 @@ public class CurrentSnapshot {
 						continue;
 					}
 				}
-				
-				final List<FilterCheck> filterChecks = getFilterChecksByCorrection(Math
-						.abs(correction52wk));
+
+/*
+				final List<FilterCheck> filterChecks = getFilterChecksByCorrection(Math.abs(correction52wk));
 				FilterCheck matchingFilterCheck = null;
 				if (mktCap != null) {
 
@@ -385,13 +389,9 @@ public class CurrentSnapshot {
 							// One of the following conditions must be met.
 							// Condition 1
 							try {
-								Long lMktCap = new Long(
-										Utility.convertFinancials(mktCap));
-								if (lMktCap > filterCheck
-										.getMinMarketCapRange().getMin()
-										&& lMktCap <= filterCheck
-												.getMinMarketCapRange()
-												.getMax()) {
+								Long lMktCap = new Long(Utility.convertFinancials(mktCap));
+								if (lMktCap > filterCheck.getMinMarketCapRange().getMin()
+										&& lMktCap <= filterCheck.getMinMarketCapRange().getMax()) {
 									otherCondition = true;
 								}
 							} catch (Exception e) {
@@ -401,13 +401,10 @@ public class CurrentSnapshot {
 							if (!otherCondition) {
 								// Condition 2
 								try {
-									Long lMktCap = new Long(
-											Utility.convertFinancials(mktCap));
-									Double currentPrice = new Double(realTime
-											.trim().replaceAll(",", ""));
+									Long lMktCap = new Long(Utility.convertFinancials(mktCap));
+									Double currentPrice = new Double(realTime.trim().replaceAll(",", ""));
 
-									if ((lMktCap / currentPrice) > filterCheck
-											.getMinSharesOutstanding()) {
+									if ((lMktCap / currentPrice) > filterCheck.getMinSharesOutstanding()) {
 										otherCondition = true;
 									}
 								} catch (Exception e) {
@@ -430,8 +427,11 @@ public class CurrentSnapshot {
 				} else {
 					rejectReason = RejectReason.MARKET_CAP_UNAVAILABLE;
 				}
-
-				if (rejectReason == RejectReason.NONE) {
+*/
+				
+				final String bestMatchingFilterCheckWithRating = getBestMatchingFilterCheckWithRating(range52wH_pc, Utility.convertFinancials(mktCap), realTime, dailyAvgTradeValue);
+				
+				if (bestMatchingFilterCheckWithRating != null) {
 					sbuf.append(String.format(
 							ROW_FORMAT,
 							symbol,
@@ -445,17 +445,17 @@ public class CurrentSnapshot {
 							mktCap,
 							Utility.convertFinancials(avgVol_10Days),
 							avgVol_10Days,
+							dailyAvgTradeValue,
 							pe,
 							beta,
 							divYield,
 							analystConsensus,
-							matchingFilterCheck.getFilterName(),
+							//matchingFilterCheck.getFilterName(),
 							time,
 							low52w.toString(),
 							high52w.toString(),
-							"\""
-									+ (rejectReason + "-->"
-											+ matchingFilterCheck.toString() + "\"")));
+							"\""+bestMatchingFilterCheckWithRating+"\""
+						));
 				} else {
 					sbufRejects.append(String.format(
 							ROW_FORMAT,
@@ -470,18 +470,19 @@ public class CurrentSnapshot {
 							mktCap,
 							Utility.convertFinancials(avgVol_10Days),
 							avgVol_10Days,
+							dailyAvgTradeValue,
 							pe,
 							beta,
 							divYield,
 							analystConsensus,
-							"",
+							//"",
 							time,
 							low52w.toString(),
 							high52w.toString(),
-							rejectReason));
+							""));
 				}
 			} catch (Exception e) {
-				// e.printStackTrace();
+				//e.printStackTrace();
 
 				sbuf.append("Exception in getting data for " + symbol).append(
 						"\n");
@@ -490,19 +491,64 @@ public class CurrentSnapshot {
 			}
 		}
 	}
-
-	private static List<FilterCheck> getFilterChecksByCorrection(
-			Double correction52Wk) {
-		final List<FilterCheck> filterChecks = new ArrayList<FilterCheck>();
-		for (FilterCheck filterCheck : listFilterCheck) {
-			if (correction52Wk > filterCheck.getCorrectionRange52Wk().getMin()
-					&& correction52Wk <= filterCheck.getCorrectionRange52Wk()
-							.getMax()) {
-				filterChecks.add(filterCheck);
+	
+	private static String getBestMatchingFilterCheckWithRating(String range52wH_pc, String mktCap, String realTime, String dailyAvgTradeValue){
+		Double d52wH_pc = Math.abs(new Double( range52wH_pc.replace("%", "") ));
+		Double dMktCap = new Double( mktCap );
+		Double dRealTime = new Double( realTime.trim().replaceAll(",", "") );
+		Double dDailyAvgTradeValue = new Double( dailyAvgTradeValue.trim().replaceAll(",", "").replaceAll("\\$", "").replaceAll("\"", "") );
+		Double dMinSharesOutstanding = dMktCap / dRealTime;
+		
+		int iBestMatch = 0;
+		FilterCheck bestFilterCheck = null;
+		
+		for (final FilterCheck filterCheck : listFilterCheck) {
+			int totalMatches = 0;
+			// Check 1
+			if( d52wH_pc > filterCheck.getCorrectionRange52Wk().getMin() && d52wH_pc <= filterCheck.getCorrectionRange52Wk().getMax() ){
+				totalMatches++;
+			}
+			
+			// Check 2
+			if( dMktCap >= filterCheck.getMinMarketCapRange().getMin() && dMktCap <= filterCheck.getMinMarketCapRange().getMax() ){
+				totalMatches++;
+			}
+			
+			// Check 3
+			if( dMinSharesOutstanding >= filterCheck.getMinSharesOutstanding() ){
+				totalMatches++;
+			}
+			
+			// Check 4
+			if( dDailyAvgTradeValue >= filterCheck.getDailyAvgTradeValue() ){
+				totalMatches++;
+			}
+			
+			if( totalMatches > iBestMatch ){
+				iBestMatch = totalMatches;
+				bestFilterCheck = filterCheck;
 			}
 		}
-		return filterChecks;
+		
+		if( bestFilterCheck == null ){
+			return null;
+		}else{
+			return iBestMatch +" --> " +bestFilterCheck;
+		}
 	}
+
+//	private static List<FilterCheck> getFilterChecksByCorrection(
+//			Double correction52Wk) {
+//		final List<FilterCheck> filterChecks = new ArrayList<FilterCheck>();
+//		for (FilterCheck filterCheck : listFilterCheck) {
+//			if (correction52Wk > filterCheck.getCorrectionRange52Wk().getMin()
+//					&& correction52Wk <= filterCheck.getCorrectionRange52Wk()
+//							.getMax()) {
+//				filterChecks.add(filterCheck);
+//			}
+//		}
+//		return filterChecks;
+//	}
 
 	class Entry{
 		private String symbol;
@@ -547,13 +593,15 @@ public class CurrentSnapshot {
 		private Range correctionRange52Wk;
 		private Range minMarketCapRange;
 		private Long minSharesOutstanding;
+		private Long dailyAvgTradeValue;
 
 		public FilterCheck(String filterName, Range correctionRange52Wk,
-				Range minMarketCapRange, Long minSharesOutstanding) {
+				Range minMarketCapRange, Long minSharesOutstanding, Long dailyAvgTradeValue) {
 			this.filterName = filterName;
 			this.correctionRange52Wk = correctionRange52Wk;
 			this.minMarketCapRange = minMarketCapRange;
 			this.minSharesOutstanding = minSharesOutstanding;
+			this.dailyAvgTradeValue = dailyAvgTradeValue;
 		}
 
 		public String getFilterName() {
@@ -572,12 +620,17 @@ public class CurrentSnapshot {
 			return minSharesOutstanding;
 		}
 
+		public Long getDailyAvgTradeValue() {
+			return dailyAvgTradeValue;
+		}
+
 		@Override
 		public String toString() {
 			return "FilterCheck [name=" + filterName
 					+ ", correctionRange52Wk=" + correctionRange52Wk
 					+ ", marketCapRange=" + minMarketCapRange
-					+ ", minSharesOutstanding=" + Utility.getFormattedNumber(minSharesOutstanding) + "]";
+					+ ", minSharesOutstanding=" + Utility.getFormattedNumber(minSharesOutstanding)
+					+ ", dailyAvgTradeValue=" +Utility.getFormattedInteger(dailyAvgTradeValue)+ "]";
 		}
 	}
 

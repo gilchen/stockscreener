@@ -13,6 +13,7 @@ import java.util.Date;
 
 public class Utility {
 	final static DecimalFormat df = new DecimalFormat("###,###.##");
+	final static DecimalFormat dfInteger = new DecimalFormat("###,###");
 	
 	public static String getContent(String sUrl) throws Exception {
 		StringBuffer content = new StringBuffer();
@@ -69,6 +70,9 @@ public class Utility {
 		return number != null ? df.format(number) : null;
 	}
 
+	public static String getFormattedInteger(Number number){
+		return number != null ? dfInteger.format(number) : null;
+	}
 	
 	/**
 	 * Converts 1K to 1000, 1.2K to 1200 for K, M and B (thousands, millions and billions)

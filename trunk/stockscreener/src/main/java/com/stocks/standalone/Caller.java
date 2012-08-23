@@ -13,8 +13,8 @@ import com.stocks.service.strategy.impl.PastWeekdaySuccessBasedStrategy;
 import com.stocks.service.strategysimulation.impl.StrategySimulator;
 
 public class Caller {
-	final static String[] ETF_LIST = {"UDOW", "UPRO", "TQQQ", "UMDD", "URTY", "FAS", "TNA", "BGU", "TMF", "CZM", "DZK", "EDC", "ERX", "LBJ", "MWJ", "DRN", "SOXL", "TYH", "SDOW", "SPXU", "SQQQ", "SRTY", "FAZ", "TZA", "BGZ", "TMV", "DPK", "EDZ", "ERY", "MWN", "DRV", "SOXS", "TYP"};
-	//final static String[] ETF_LIST = {"INDL", "INDZ"};
+	//final static String[] ETF_LIST = {"UDOW", "UPRO", "TQQQ", "UMDD", "URTY", "FAS", "TNA", "BGU", "TMF", "CZM", "DZK", "EDC", "ERX", "LBJ", "MWJ", "DRN", "SOXL", "TYH", "SDOW", "SPXU", "SQQQ", "SRTY", "FAZ", "TZA", "BGZ", "TMV", "DPK", "EDZ", "ERY", "MWN", "DRV", "SOXS", "TYP"};
+	final static String[] ETF_LIST = {"DRV", "TZA", "SRTY", "TMV", "FAZ", "YINN"};
 
 	private List<String> symbols;
 	
@@ -32,8 +32,8 @@ public class Caller {
 		
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.DATE, 1);
-		calendar.set(Calendar.MONDAY, Calendar.MARCH);
-		calendar.set(Calendar.YEAR, 2010);
+		calendar.set(Calendar.MONDAY, Calendar.JANUARY);
+		calendar.set(Calendar.YEAR, 2011);
 
 		for(String symbol : ETF_LIST){
 			final List<Strategy> strategyList = pastWeekdaySuccessBasedStrategy.getStrategyList( calendar.getTime(), symbol );
