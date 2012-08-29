@@ -24,7 +24,7 @@ public class Utility {
 		BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 		String inputLine;
 		while ((inputLine = in.readLine()) != null) {
-			content.append(inputLine);
+			content.append(inputLine).append("\n");
 		}
 		in.close();
 		return content.toString();
