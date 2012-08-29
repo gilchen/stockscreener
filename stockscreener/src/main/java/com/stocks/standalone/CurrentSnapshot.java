@@ -31,7 +31,7 @@ public class CurrentSnapshot {
 	final static String CNBC_URL_EXTN = "http://apps.cnbc.com/company/quote/index.asp?symbol=";
 	final static String CNBC_URL_EXTN_COMPANY_PROFILE = "http://apps.cnbc.com/view.asp?country=US&uid=stocks/summary&symbol=";
 
-	final static String ROW_FORMAT = "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n";
+	final static String ROW_FORMAT = "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n";
 	final static String ROW_FORMAT_POSITIONS = "%s,%s,%s,%s,%s,%s%n";
 
 	final static Double RECOMMENDATION_52W_CORRECTION_PC = -40.00;
@@ -167,7 +167,7 @@ public class CurrentSnapshot {
 				"Beta",
 				"Div/Yield",
 				"Analyst Consensus",
-				//"Filter Name",
+				"Shares Outstanding",
 				"time",
 				"range52wL",
 				"range52wH",
@@ -318,6 +318,14 @@ public class CurrentSnapshot {
 							sbExtn.indexOf("<", index5 + 30));
 					mktCap = mktCap.trim().replaceAll(",", "");
 				}
+				
+				String sharesOutstanding = "";
+				index5 = sbExtn.indexOf("Shares Outstanding");
+				if (index5 != -1) {
+					sharesOutstanding = sbExtn.substring(index5 + 38,
+							sbExtn.indexOf("<", index5 + 38));
+					sharesOutstanding = sharesOutstanding.trim().replaceAll(",", "");
+				}
 
 				int index6 = sbExtn.indexOf("Price/Earnings");
 				if (index6 != -1) {
@@ -450,7 +458,7 @@ public class CurrentSnapshot {
 							beta,
 							divYield,
 							analystConsensus,
-							//matchingFilterCheck.getFilterName(),
+							sharesOutstanding,
 							time,
 							low52w.toString(),
 							high52w.toString(),
@@ -475,7 +483,7 @@ public class CurrentSnapshot {
 							beta,
 							divYield,
 							analystConsensus,
-							//"",
+							sharesOutstanding,
 							time,
 							low52w.toString(),
 							high52w.toString(),
