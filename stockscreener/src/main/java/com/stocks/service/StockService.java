@@ -12,6 +12,7 @@ import com.stocks.model.NyseAlert;
 import com.stocks.model.NysePK;
 import com.stocks.model.NyseTx;
 import com.stocks.model.Report;
+import com.stocks.model.SymbolMetadata;
 import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
 
@@ -56,4 +57,6 @@ public interface StockService {
 	
 	void syncUpSummary52WkNyse();
 	void syncUpSummary52WkBse();
+	
+	SymbolMetadata getSymbolMetadata(String symbol);
 }

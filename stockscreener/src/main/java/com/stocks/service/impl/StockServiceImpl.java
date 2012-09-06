@@ -21,6 +21,7 @@ import com.stocks.dao.ReportDao;
 import com.stocks.dao.Summary52WkBseDao;
 import com.stocks.dao.Summary52WkNyseDao;
 import com.stocks.dao.Summary52WkNyseDao.DURATION;
+import com.stocks.dao.SymbolMetadataDao;
 import com.stocks.model.Alert;
 import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
@@ -30,6 +31,7 @@ import com.stocks.model.NyseAlert;
 import com.stocks.model.NysePK;
 import com.stocks.model.NyseTx;
 import com.stocks.model.Report;
+import com.stocks.model.SymbolMetadata;
 import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
 import com.stocks.service.StockService;
@@ -53,6 +55,16 @@ public class StockServiceImpl implements StockService {
     private NyseTxDao nyseTxDao;
     private Summary52WkNyseDao summary52WkNyseDao;
     private Summary52WkBseDao summary52WkBseDao;
+    private SymbolMetadataDao symbolMetadataDao;
+
+	public SymbolMetadataDao getSymbolMetadataDao() {
+		return symbolMetadataDao;
+	}
+
+	@Required
+	public void setSymbolMetadataDao(SymbolMetadataDao symbolMetadataDao) {
+		this.symbolMetadataDao = symbolMetadataDao;
+	}
 
 	public AlertDao getAlertDao() {
 		return alertDao;
@@ -320,4 +332,8 @@ public class StockServiceImpl implements StockService {
 	public void syncUpSummary52WkBse() {
 		this.getSummary52WkBseDao().syncUp();
 	}
+    
+    public SymbolMetadata getSymbolMetadata(String symbol) {
+    	return getSymbolMetadataDao().read(symbol);
+    }
 }
