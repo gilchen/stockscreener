@@ -437,7 +437,7 @@ public class CurrentSnapshot {
 				}
 */
 				
-				final String bestMatchingFilterCheckWithRating = getBestMatchingFilterCheckWithRating(range52wH_pc, Utility.convertFinancials(mktCap), realTime, dailyAvgTradeValue);
+				final String bestMatchingFilterCheckWithRating = getBestMatchingFilterCheckWithRating(range52wH_pc, Utility.convertFinancials(mktCap), Utility.convertFinancials(sharesOutstanding), dailyAvgTradeValue);
 				
 				if (bestMatchingFilterCheckWithRating != null) {
 					sbuf.append(String.format(
@@ -500,12 +500,11 @@ public class CurrentSnapshot {
 		}
 	}
 	
-	private static String getBestMatchingFilterCheckWithRating(String range52wH_pc, String mktCap, String realTime, String dailyAvgTradeValue){
+	private static String getBestMatchingFilterCheckWithRating(String range52wH_pc, String mktCap, String sharesOutstanding, String dailyAvgTradeValue){
 		Double d52wH_pc = Math.abs(new Double( range52wH_pc.replace("%", "") ));
 		Double dMktCap = new Double( mktCap );
-		Double dRealTime = new Double( realTime.trim().replaceAll(",", "") );
 		Double dDailyAvgTradeValue = new Double( dailyAvgTradeValue.trim().replaceAll(",", "").replaceAll("\\$", "").replaceAll("\"", "") );
-		Double dMinSharesOutstanding = dMktCap / dRealTime;
+		Long lMinSharesOutstanding = new Long( sharesOutstanding );
 		
 		int iBestMatch = 0;
 		FilterCheck bestFilterCheck = null;
@@ -523,7 +522,7 @@ public class CurrentSnapshot {
 			}
 			
 			// Check 3
-			if( dMinSharesOutstanding >= filterCheck.getMinSharesOutstanding() ){
+			if( lMinSharesOutstanding >= filterCheck.getMinSharesOutstanding() ){
 				totalMatches++;
 			}
 			

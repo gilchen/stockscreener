@@ -7,6 +7,12 @@ import java.util.List;
 
 import com.stocks.util.Utility;
 
+/*
+ * This Utility is created to fetch Shares Outstanding for various symbols and dump them into a file 
+ * in order to import into symbol_metadata table.
+ *
+ * java -classpath .;SUtil-SO.jar; com.stocks.standalone.SharesOutstanding symbols.txt >> output.txt
+ */
 public class SharesOutstanding {
 	final static String CNBC_URL_EXTN = "http://apps.cnbc.com/company/quote/index.asp?symbol=";
 
