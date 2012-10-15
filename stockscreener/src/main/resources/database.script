@@ -323,3 +323,7 @@ where
 
 */
 
+/*
+// Stocks traded with high volume % of "Outstanding Shares". e.g. Single Day Volume is 70% of "Total Outstanding Shares".
+select a.symbol, a.volume, b.SHARES_OUTSTANDING from nyse a, symbol_metadata b where a.trade_date='2012-09-10' and a.symbol=b.symbol and abs((a.volume-b.EXPANDED_SHARES_OUTSTANDING)/b.EXPANDED_SHARES_OUTSTANDING)*100.0 <= 70;
+*/
