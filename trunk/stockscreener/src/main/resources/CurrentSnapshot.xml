@@ -207,21 +207,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>ERX</symbol>
-			<entries>
-				<entry>
-					<buy-date>01/01/2000</buy-date>
-					<qty>4</qty>
-					<price>48.97</price>
-				</entry>
-				<entry>
-					<buy-date>01/01/2000</buy-date>
-					<qty>4</qty>
-					<price>35.82</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>ANR</symbol>
 			<entries>
 				<entry>
@@ -271,9 +256,14 @@
 			<entries>
 				<entry>
 					<buy-date>01/01/2000</buy-date>
+					<qty>28</qty>
+					<price>3.64</price>
+				</entry>
+				<!-- entry>
+					<buy-date>01/01/2000</buy-date>
 					<qty>1950</qty>
 					<price>0.052</price>
-				</entry>
+				</entry -->
 			</entries>
 		</position>
 		<position>
@@ -284,29 +274,13 @@
 					<qty>17</qty>
 					<price>5.86</price>
 				</entry>
-			</entries>
-		</position>
-		<position>
-			<symbol>AA</symbol>
-			<entries>
 				<entry>
-					<buy-date>07/05/2012</buy-date>
-					<qty>55</qty>
-					<price>9.04</price>
+					<buy-date>09/25/2012</buy-date>
+					<qty>63</qty>
+					<price>1.43</price>
 				</entry>
 			</entries>
 		</position>
-		<position>
-			<symbol>GMCR</symbol>
-			<entries>
-				<entry>
-					<buy-date>08/02/2012</buy-date>
-					<qty>9</qty>
-					<price>23.11</price>
-				</entry>
-			</entries>
-		</position>
-
 		<position>
 			<symbol>ATPG</symbol>
 			<entries>
@@ -328,12 +302,16 @@
 			<entries>
 				<entry>
 					<buy-date>08/13/2012</buy-date>
+					<qty>5</qty>
+					<price>51.9</price>
+				</entry>
+				<!-- entry>
+					<buy-date>08/13/2012</buy-date>
 					<qty>50</qty>
 					<price>5.19</price>
-				</entry>
+				</entry-->
 			</entries>
 		</position>
-
 	</positions>
 	
 </current_snapshot>
