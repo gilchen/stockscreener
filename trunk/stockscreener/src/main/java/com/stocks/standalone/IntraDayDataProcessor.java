@@ -1,18 +1,22 @@
 package com.stocks.standalone;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.josql.Query;
+import org.josql.QueryResults;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -24,7 +28,7 @@ import com.stocks.util.Utility;
 
 public class IntraDayDataProcessor {
 	//http://1.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:5.2,5.5,5.53,5.6,5.77,5.8,5.99,5.95,6.0,5.88,5.96,5.82,5.71,5.8,5.81|6.27,6.7,6.74,6.73,6.66,6.61,6.56,6.62,6.63,6.52,6.24,6.2,6.23,6.7,7.12&chg=0,2,1,1&chds=4.18,7.12&chco=FF0000,00FF00
-	private static final String GOOGLE_CHART_URL = "http://1.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:~CLOSE_DATA|~VOL_DATA&chg=0,2,1,1&chds=~MIN,~MAX&chco=FF0000,00FF00";
+	private static final String GOOGLE_CHART_URL = "http://1.chart.apis.google.com/chart?cht=lc&chs=700x200&chco=0000FF,000000&chg=1,-1,1,1&chm=o,0000FF,0,-1,5|o,000000,1,-1,5|H,FF0000,0,0,1&chd=t:~CLOSE_DATA|~VOL_DATA&chds=~MIN,~MAX";
 	
 	private StockService stockService;
 	
@@ -49,28 +53,72 @@ public class IntraDayDataProcessor {
 	// http://www.quantshare.com/sa-426-6-ways-to-download-free-intraday-and-tick-data-for-the-us-stock-market
 
 	public static void main(String... args) throws Exception{
-//		System.out.println( new Date(1344259860L * 1000) );
-//		Calendar calendar = Calendar.getInstance();
-//		calendar.add(Calendar.DATE, -2);
-//		System.out.println( calendar.getTimeInMillis()+"->"+calendar.getTime() );
-//		if(true) return;
-		
 		ApplicationContext context = new FileSystemXmlApplicationContext("src/main/resources/applicationContext.xml");
 		IntraDayDataProcessor iddp = (IntraDayDataProcessor) context.getBean("intraDayDataProcessor");
 		
-		String symbols[] = new String[]{"GNOM"} ;//, "JRCC", "HDY", "NBS", "DVR", "CVO", "DCTH", "KITD", "GNK", "SVNT", "AMRS", "AUMN", "RSH", "OSG", "COCO", "YGE", "CECO", "CISG", "FRO", "ANW", "MTG", "DANG", "TSL", "DMND", "TC", "GDOT", "KCG", "SVU", "CETV", "AKS", "WFR", "ITMN", "DNDN", "GFA"};
+		//String symbols[] = new String[]{"GNOM", "HDY", "DCTH", "LDK", "ERY", "EDZ", "DVR", "ACW", "STP", "VXZ", "SVNT", "OSG", "VIXY", "GNK", "SCMR", "TVIX", "JRCC", "AUMN", "COCO", "PVA", "RSH", "FOE", "CECO", "FRO", "XIV", "TZOO", "TSL", "MTG", "DANG", "SVU", "DMND", "GDOT", "TC", "KCG", "ITMN", "WFR", "RMBS", "AKS", "DNDN", "AGQ", "GFA", "QSII", "APKT", "PNG", "MCP", "NIHD", "RENN", "SFUN", "HK", "ZNGA", "PLCM", "ANR", "FSLR", "BID", "ALU", "MTL", "EDU", "TROX", "GRPN", "GMCR", "RIMM"};
+		String symbols[] = new String[]{"ALU", "ZNGA"};
 		
-		for( String symbol : symbols ){
-			PrintWriter writer = new PrintWriter( "C:/Temp/ForSrid/intra/rpts/" +symbol+".csv" );
+		final Set<String> set = new HashSet<String>();
+		set.addAll( Arrays.asList(symbols) );
+		
+		StringBuilder sb = new StringBuilder();
+		for( String symbol : set ){
+			System.out.println( "Processing " +symbol );
 			final SymbolMetadata symbolMetadata = iddp.getStockService().getSymbolMetadata(symbol);
-			iddp.process(symbolMetadata, writer);
 			try{
-				writer.close();
+				iddp.process(symbolMetadata, sb);
 			}
 			catch(Exception e){
 				e.printStackTrace();
+				System.out.println( sb.toString() );
 			}
 		}
+		
+		PrintWriter writer = new PrintWriter( "C:/Temp/ForSrid/intra/rpts/report.html" );
+		try{
+			writer.println( "<HTML>" );
+			writer.println( "<head>");
+			writer.println( "<script>");
+			writer.println( "function summarize(){");
+			writer.println( "	totalPos = 0;");
+			writer.println( "	totalNeg = 0;");
+			writer.println( "	frm = document.forms[0];");
+			writer.println( "   positiveStocks = \"\";");
+			writer.println( "	for(i=0; i<frm.elements.length; i++ ){");
+			writer.println( "		elem = frm.elements[i];");
+			writer.println( "		if( elem.name == \"positive\" && elem.checked ){");
+			writer.println( "			totalPos++;");
+			writer.println( "           positiveStocks += elem.value +\", \";");
+			writer.println( "		}else if( elem.name == \"negative\" && elem.checked ){");
+			writer.println( "			totalNeg++;");
+			writer.println( "		}");
+			writer.println( "	}");
+			writer.println( "	frm.totalPos.value = totalPos;");
+			writer.println( "	frm.totalNeg.value = totalNeg;");
+			writer.println( "   frm.positiveStocks.value = positiveStocks;");
+			writer.println( "");
+			writer.println( "}");
+			writer.println( "</script>");
+			writer.println( "</head>");
+			
+			writer.println("<BODY><PRE><form>");
+			writer.println("TotalPos: <input type=text name=\"totalPos\"> <input type=text name=\"positiveStocks\">");
+			writer.println("TotalNeg: <input type=text name=\"totalNeg\">");
+			
+			writer.println( sb.toString() );
+			writer.println( "</form></PRE></BODY></HTML>" );
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			System.out.println( sb.toString() );
+		}
+		finally{
+			if(writer != null){
+				writer.close();
+			}
+		}
+		
 
 //		final SymbolMetadata symbolMetadata = iddp.getStockService().getSymbolMetadata("SYNC");
 //		iddp.process(symbolMetadata, null);
@@ -78,76 +126,13 @@ public class IntraDayDataProcessor {
 		System.out.println( "Done" );
 		System.exit(0);
 	}
-/*	
-	private void processIntraDay() throws Exception{
-		final Map<Date, List<IntraDayStructure>> mapG = fetchG( Utility.getContent("file:/C:/Temp/data/SYNC-1M.txt") );
-		
-		// Put all IntraDay data across days into a single List
-		System.out.println( "Total Days: " +mapG.keySet().size() );
-		final List<IntraDayStructure> allIDS = new ArrayList<IntraDayStructure>();
-		for( Date d : mapG.keySet() ){
-			allIDS.addAll( mapG.get(d) );
-		}
-		
-		// Get all IntraDay Data where volume is >= average.
-		final QueryResults qr = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure where volume >= avg(:_allobjs, volume)", allIDS);
-		final List<IntraDayStructure> result = qr.getResults();
-		
-		final Map<String, Dimension> bsMap = new HashMap<String, Dimension>();
-		
-		try{
-			final List<IntraDayStructure> ups = new ArrayList<IntraDayStructure>();
-			final List<IntraDayStructure> downs = new ArrayList<IntraDayStructure>();
-			
-			for( IntraDayStructure ids : result  ){
-				//System.out.println( "ids: " +ids );
-				if( ids.getIndex()-2 >= 0 ){
-					IntraDayStructure prevIDS = allIDS.get(ids.getIndex()-2);
-					String key = Utility.getStrDate( new Date(ids.getTime()) );
-					if( ids.getClose() >= prevIDS.getClose() ){
-						ups.add( ids );
-						updateMap(bsMap, key, "B");
-					}else{
-						downs.add(ids);
-						updateMap(bsMap, key, "S");
-					}
-				}
-			}
-			
-			System.out.println( "Total Ups: " +ups.size()+ ", Total Downs: " +downs.size() );
-			System.out.println( bsMap );
-		}
-		catch(Exception e){
-			System.out.println( "Exception " +e.getMessage() );
-		}
-	}
 
-	private void updateMap(Map<String, Dimension> map, String key, String bs){
-		if( map.get(key) == null ){
-			map.put(key, new Dimension(0, 0));
-		}
-
-		int totalB = (int) map.get(key).getWidth();
-		int totalS = (int) map.get(key).getHeight();
-		if( bs.equals("B") ){
-			map.get(key).setSize(totalB+1, totalS);
-		}else{
-			map.get(key).setSize(totalB, totalS+1);
-		}
-	}
-*/	
-	
-	private void process(SymbolMetadata symbolMetadata, PrintWriter writer) throws Exception{
-		//final Map<Date, List<IntraDayStructure>> mapG = fetchG( Utility.getContent("file:/C:/Temp/data/SYNC-1M.txt") );
+	private void process(SymbolMetadata symbolMetadata, StringBuilder sb) throws Exception{
+		//final Map<Date, List<IntraDayStructure>> mapG = fetchG( Utility.getContent("file:/C:/Temp/ForSrid/intra/rpts/" +symbolMetadata.getSymbol()+ ".dat") );
 		final Map<Date, List<IntraDayStructure>> mapG = fetchG( Utility.getContent( GOOGLE_URL+symbolMetadata.getSymbol() ) );
 		
-		//System.out.println( "--> "+ mapG.keySet() );
 		final TreeSet<Date> dateSet = new TreeSet<Date>( mapG.keySet() );
 		final Date minDate = dateSet.first();
-		
-//		System.out.println( "Total " +dateSet.size()+ " elements. Min: " +dateSet.first()+ ", Max: " +dateSet.last() );
-//		if(true) return;
-		
 		
 		final Calendar cMinDateMinus7 = Calendar.getInstance();
 		cMinDateMinus7.setTime( (Date) minDate.clone() );
@@ -156,11 +141,9 @@ public class IntraDayDataProcessor {
 		final List<Nyse> nyseCloseList = getStockService().findStockBySymbolBetweenTradeDates(symbolMetadata.getSymbol(), minDate, dateSet.last());
 		
 		Double lastClose = nyseList.get(nyseList.size()-2).getClose();
-		//System.out.println( "Date\tClose\tVolume\tTotal Volume\tNew Price(Considers Total Shrs Outstg)\tAvg Price of Day\tReal Price (Diff Adj w/ Prev.Close)\tBuy Vol\tSell Vol" );
-		StringBuilder sb = new StringBuilder();
-		sb.append( "Date,TotalBuyVol,TotalSellVol,Close,Diff,VDiff\n" );
 		int index = 0;
-		Double realPrice = 0.0;
+		
+		final List<Long> volumeList = new ArrayList<Long>();
 		for(final Date tradeDate : dateSet){
 			if( index == nyseCloseList.size() ){
 				break;
@@ -179,10 +162,8 @@ public class IntraDayDataProcessor {
 			Long sVol = 0L;
 			Long totalQty = 0L;
 			Double totalValue = 0.0;
-			//for(final IntraDayStructure ids : idsList){
 			for(int i=0; i<idsList.size(); i++){
 				final IntraDayStructure ids = idsList.get(i);
-				//System.out.println( new Date(ids.getTime()) +"\t"+ ids.getClose()+"\t"+ids.getVolume()+"\t\t" );
 				totalQty += ids.getVolume();
 				totalValue += (ids.getClose() * ids.getVolume());
 				
@@ -199,68 +180,44 @@ public class IntraDayDataProcessor {
 					sVol += ids.getVolume();
 				}
 			}
-			sb.append( String.format("%s,%s,%s,%s,%s,%s%n", Utility.getStrDate(tradeDate), bVol, sVol, nyse.getClose(), (bVol-sVol), "=E" +(index+1)+"/$E$~INDX" ) );
 			
-/*
-			final Double avgTradedPrice = totalValue / totalQty.doubleValue();
-			
-			// Start: Get Real Price of Day
-			if( nyse.getPrevious() != null ){
-				realPrice = nyse.getPrevious().getClose() + (avgTradedPrice - nyse.getPrevious().getClose());
-			}
-			// End.
-			
-			// Adjustments:
-			Long diff = nyse.getVolume() - totalQty;
-			totalQty += diff;
-			totalValue += (avgTradedPrice * diff.doubleValue());
-			//
-			
-			final Long untradedQty = symbolMetadata.getExpandedSharesOutstanding() - totalQty;
-			final Double untradedValue = lastClose * untradedQty.doubleValue();
+			volumeList.add(bVol-sVol);
+		}
+		
+		String CHART_URL = GOOGLE_CHART_URL;
 
-			final Double newTotalValue = untradedValue + totalValue;
-			Double newPrice = newTotalValue / symbolMetadata.getExpandedSharesOutstanding().doubleValue();
-			lastClose = nyse.getClose();
+		QueryResults qr = Query.parseAndExec("SELECT min(close), max(close) FROM com.stocks.model.Nyse", nyseCloseList);
+		final List<List<Double>> resultsMinMax = qr.getResults();
+		final Double minClose = resultsMinMax.get(0).get(0);
+		final Double maxClose = resultsMinMax.get(0).get(1);
+		
+		// 1: Get Close Data
+		qr = Query.parseAndExec("SELECT close FROM com.stocks.model.Nyse", nyseCloseList);
+		final List<Double> results = qr.getResults();
+		String sCloseData = results.toString();
+		sCloseData = sCloseData.replaceAll("\\[|\\]", "").replaceAll(" ", "");
+		CHART_URL = CHART_URL.replace("~CLOSE_DATA", "0,"+sCloseData);
 
-			System.out.println( new Date(nyse.getNysePK().getTradeDate().getTime())+"\t"+ nyse.getClose()+"\t" +"\t"+nyse.getVolume()+"\t"+newPrice+"\t"+avgTradedPrice+"\t"+realPrice+"\t"+bVol+"\t"+sVol );
-*/
-		}
+		// 2: Get Volume Data
+		qr = Query.parseAndExec("SELECT longValue/" +(Collections.max(volumeList)/(maxClose/3.0))+ " FROM java.lang.Long", volumeList);
+		final List<Double> volumeResults = qr.getResults();
+		String sVolData = volumeResults.toString();
+		sVolData = sVolData.replaceAll("\\[|\\]", "").replaceAll(" ", "");
+		CHART_URL = CHART_URL.replace("~VOL_DATA", "0,"+sVolData);
 		
-		sb.append(",,,,=MAX(E2:E" +dateSet.size()+ ")");
-		String updatedString = sb.toString().replaceAll("~INDX", (dateSet.size()+1)+"" );
-		
-		writer.println( updatedString );
-		
-		
-		
-/*		
-		Long bVol = 0L;
-		Long sVol = 0L;
-		
-		final List<IntraDayStructure> allIDS = new LinkedList<IntraDayStructure>();
-		
-		for(final List<IntraDayStructure> list : mapG.values()){
-			allIDS.addAll(list);
-		}
-		
-		Collections.sort(allIDS, new Comparator<IntraDayStructure>() {
-			public int compare(IntraDayStructure o1, IntraDayStructure o2) {
-				return o1.getTime().compareTo(o2.getTime());
-			}
-		});
-		
-		for(int i=0; i<allIDS.size()-1; i++){
-			if( allIDS.get(i).getClose() < allIDS.get(i+1).getClose() ){
-				bVol += allIDS.get(i+1).getVolume();
-			}else if( allIDS.get(i).getClose() > allIDS.get(i+1).getClose() ){
-				sVol += allIDS.get(i+1).getVolume();
+		Double min = 0.0;
+		for( String s : Arrays.asList( sVolData.split(",", -1) ) ){
+			Double d = Double.parseDouble(s);
+			if( d < min ){
+				min = d;
 			}
 		}
-		System.out.println( "bVol: " +Utility.getFormattedInteger(bVol)+ ", sVol: "+ Utility.getFormattedInteger(sVol) );
-		System.out.println( "Diff: " +Utility.getFormattedInteger(bVol-sVol)+ " (Negative value means short position)" );
-*/
 		
+		CHART_URL = CHART_URL.replace("~MIN", min+"");
+		CHART_URL = CHART_URL.replace("~MAX", maxClose.toString());
+		
+		sb.append( "<input type=checkbox onclick=\"summarize()\" name=positive value=\"" +symbolMetadata.getSymbol()+ "\"> <input type=checkbox onclick=\"summarize()\" name=negative value=\"" +symbolMetadata.getSymbol()+ "\"> " );
+		sb.append( "<a href='http://www.google.com/finance?q=" +symbolMetadata.getSymbol()+ "' target='_new'><img border=\"0\" title=\"" +symbolMetadata.getSymbol()+ ": Range (" +minClose+" - "+maxClose+ ")\" src=\"" +CHART_URL+"\"></a>\n\n" );
 	}
 
 /*	

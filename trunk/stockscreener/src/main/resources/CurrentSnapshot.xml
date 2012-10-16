@@ -312,6 +312,18 @@
 				</entry-->
 			</entries>
 		</position>
+
+		<position>
+			<symbol>AONE</symbol>
+			<entries>
+				<entry>
+					<buy-date>10/16/2012</buy-date>
+					<qty>1100</qty>
+					<price>0.0974</price>
+				</entry>
+			</entries>
+		</position>
+
 	</positions>
 	
 </current_snapshot>
