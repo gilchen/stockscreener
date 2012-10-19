@@ -28,8 +28,8 @@ import com.stocks.util.Utility;
 
 public class IntraDayDataProcessor {
 	//http://1.chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:5.2,5.5,5.53,5.6,5.77,5.8,5.99,5.95,6.0,5.88,5.96,5.82,5.71,5.8,5.81|6.27,6.7,6.74,6.73,6.66,6.61,6.56,6.62,6.63,6.52,6.24,6.2,6.23,6.7,7.12&chg=0,2,1,1&chds=4.18,7.12&chco=FF0000,00FF00
-	private static final String GOOGLE_CHART_URL = "http://1.chart.apis.google.com/chart?cht=lc&chs=700x200&chco=0000FF,000000&chg=1,-1,1,1&chm=o,0000FF,0,-1,5|o,000000,1,-1,5|H,FF0000,0,0,1&chd=t:~CLOSE_DATA|~VOL_DATA&chds=~MIN,~MAX";
-	
+	//private static final String GOOGLE_CHART_URL = "http://1.chart.apis.google.com/chart?cht=lc&chs=700x200&chco=0000FF,000000&chg=1,-1,1,1&chm=o,0000FF,0,-1,5|o,000000,1,-1,5|H,FF0000,0,0,1&chd=t:~CLOSE_DATA|~VOL_DATA&chds=~MIN,~MAX";
+	private static final String CHART_HTML = "<applet code='com.objectplanet.chart.ChartApplet' archive='chart.jar' width='700' height='350'>\n<param name='chart' value='line'>\n<param name='chartTitle' value='~SYMBOL'>\n<param name='sampleValues_0' value='~CLOSE_DATA'>\n<param name='sampleValues_1' value='~VOLUME_DATA'>\n<param name='sampleLabels' value='~DATES_DATA'>\n<param name='seriesRange_0' value='2'>\n<param name='sampleLabelsOn' value='true'>\n<param name='sampleLabelStyle' value='floating'>\n<param name='floatingLabelFont' value='Verdana, plain, 10'>\n<param name='sampleColors' value='blue, red'>\n<param name='sampleHighlightOn' value='true'>\n<param name='sampleHighlightStyle' value='circle_opaque'>\n<param name='sampleHighlightSize' value='6'>\n<param name='rangeColor' value='red'>\n<param name='rangeColor_2' value='blue'>\n<param name='seriesCount' value='2'>\n<param name='valueLabelsOn' value='true'>\n<param name='valueLabelStyle' value='floating'>\n<param name='valueLinesOn' value='true'>\n<param name='legendOn' value='true'>\n<param name='legendPosition' value='top'>\n<param name='legendLabels' value='Close,Volume'>\n<param name='rangeOn_2' value='true'>\n<param name='rangePosition' value='right'>\n<param name='rangePosition_2' value='left'>\n<param name='rangeAxisLabel' value='Volume'>\n<param name='rangeAxisLabelFont' value='Verdana, bold, 16'>\n<param name='rangeAxisLabelAngle' value='90'>\n<param name='rangeAxisLabel_2' value='Close'>\n<param name='rangeAxisLabelAngle_2' value='270'>\n<param name='rangeLabelPrefix_2' value='$'>\n<param name='multiSeriesOn' value='true'>\n<param name='rangeDecimalCount' value='0'>\n<param name='rangeDecimalCount_2' value='2'>\n<param name='sampleDecimalCount' value='2'>\n<param name='sampleDecimalCount_2' value='0'>\n<param name='chartBackground' value='#DADAFF'>\n</applet>";
 	private StockService stockService;
 	
 	public StockService getStockService() {
@@ -57,17 +57,23 @@ public class IntraDayDataProcessor {
 		IntraDayDataProcessor iddp = (IntraDayDataProcessor) context.getBean("intraDayDataProcessor");
 		
 		//String symbols[] = new String[]{"GNOM", "HDY", "DCTH", "LDK", "ERY", "EDZ", "DVR", "ACW", "STP", "VXZ", "SVNT", "OSG", "VIXY", "GNK", "SCMR", "TVIX", "JRCC", "AUMN", "COCO", "PVA", "RSH", "FOE", "CECO", "FRO", "XIV", "TZOO", "TSL", "MTG", "DANG", "SVU", "DMND", "GDOT", "TC", "KCG", "ITMN", "WFR", "RMBS", "AKS", "DNDN", "AGQ", "GFA", "QSII", "APKT", "PNG", "MCP", "NIHD", "RENN", "SFUN", "HK", "ZNGA", "PLCM", "ANR", "FSLR", "BID", "ALU", "MTL", "EDU", "TROX", "GRPN", "GMCR", "RIMM"};
-		String symbols[] = new String[]{"ALU", "ZNGA"};
+		String symbols[] = new String[]{"ALU", "SYNC"};
 		
 		final Set<String> set = new HashSet<String>();
 		set.addAll( Arrays.asList(symbols) );
+		iddp.generateReport(set);
 		
+		System.out.println( "Done" );
+		System.exit(0);
+	}
+	
+	private void generateReport(final Set<String> symbols) throws Exception{
 		StringBuilder sb = new StringBuilder();
-		for( String symbol : set ){
+		for( String symbol : symbols ){
 			System.out.println( "Processing " +symbol );
-			final SymbolMetadata symbolMetadata = iddp.getStockService().getSymbolMetadata(symbol);
+			final SymbolMetadata symbolMetadata = getStockService().getSymbolMetadata(symbol);
 			try{
-				iddp.process(symbolMetadata, sb);
+				process(symbolMetadata, sb);
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -102,7 +108,7 @@ public class IntraDayDataProcessor {
 			writer.println( "</script>");
 			writer.println( "</head>");
 			
-			writer.println("<BODY><PRE><form>");
+			writer.println("<BODY><PRE><B>Description</B>: This report displays two series of data for each symbol viz. Close and Volume.\nWhen you hover over the round marks on each series it will display the data they represent.\nVolume is actually Buy/Sell Volume in the sense that every rise in intraday data is considered to be buy and every fall is considered sell.\nLook for spikes in Buy volume. This should be at least 4 times average buy volume.\nIf there are small or no sell volumes recently and a sudden buy volume comes, then this is a very bullish sign.\nDo not consider symbols where you see many sell instances recently.\nAlso, there are 2 checkboxes provided by each chart. \nThey are for marking Positive/Negative outcome of the strategy as exceptions are always there.\nThe textboxes on the top will summarize this information for you with Positive Symbols displayed as comma-separated string.\nIf you do not see charts, then copy the <U>chart.jar</U> to current folder where this html file resides.<form>");
 			writer.println("TotalPos: <input type=text name=\"totalPos\"> <input type=text name=\"positiveStocks\">");
 			writer.println("TotalNeg: <input type=text name=\"totalNeg\">");
 			
@@ -119,12 +125,6 @@ public class IntraDayDataProcessor {
 			}
 		}
 		
-
-//		final SymbolMetadata symbolMetadata = iddp.getStockService().getSymbolMetadata("SYNC");
-//		iddp.process(symbolMetadata, null);
-
-		System.out.println( "Done" );
-		System.exit(0);
 	}
 
 	private void process(SymbolMetadata symbolMetadata, StringBuilder sb) throws Exception{
@@ -144,6 +144,7 @@ public class IntraDayDataProcessor {
 		int index = 0;
 		
 		final List<Long> volumeList = new ArrayList<Long>();
+		StringBuilder sbDates = new StringBuilder();
 		for(final Date tradeDate : dateSet){
 			if( index == nyseCloseList.size() ){
 				break;
@@ -182,8 +183,23 @@ public class IntraDayDataProcessor {
 			}
 			
 			volumeList.add(bVol-sVol);
+			sbDates.append(",").append(Utility.getStrDate(tradeDate));
 		}
+	
+		String CHART_HTML_DATA = CHART_HTML;
+
+		// 1: Get Close Data
+		QueryResults qr = Query.parseAndExec("SELECT close FROM com.stocks.model.Nyse", nyseCloseList);
+		final List<Double> results = qr.getResults();
+		String sCloseData = results.toString();
+		sCloseData = sCloseData.replaceAll("\\[|\\]", "").replaceAll(" ", "");
 		
+		CHART_HTML_DATA = CHART_HTML_DATA.replace("~SYMBOL", symbolMetadata.getSymbol());
+		CHART_HTML_DATA = CHART_HTML_DATA.replace("~CLOSE_DATA", sCloseData);
+		CHART_HTML_DATA = CHART_HTML_DATA.replace("~VOLUME_DATA", volumeList.toString().replaceAll("\\[|\\]", "").replaceAll(" ", ""));
+		CHART_HTML_DATA = CHART_HTML_DATA.replace("~DATES_DATA", sbDates.substring(1));
+		
+/*
 		String CHART_URL = GOOGLE_CHART_URL;
 
 		QueryResults qr = Query.parseAndExec("SELECT min(close), max(close) FROM com.stocks.model.Nyse", nyseCloseList);
@@ -218,6 +234,13 @@ public class IntraDayDataProcessor {
 		
 		sb.append( "<input type=checkbox onclick=\"summarize()\" name=positive value=\"" +symbolMetadata.getSymbol()+ "\"> <input type=checkbox onclick=\"summarize()\" name=negative value=\"" +symbolMetadata.getSymbol()+ "\"> " );
 		sb.append( "<a href='http://www.google.com/finance?q=" +symbolMetadata.getSymbol()+ "' target='_new'><img border=\"0\" title=\"" +symbolMetadata.getSymbol()+ ": Range (" +minClose+" - "+maxClose+ ")\" src=\"" +CHART_URL+"\"></a>\n\n" );
+		System.out.println( "sbDates: " +sbDates );
+		System.out.println( "ChartURL: " +CHART_URL );
+*/
+
+		sb.append( "P<input type=checkbox onclick=\"summarize()\" name=positive value=\"" +symbolMetadata.getSymbol()+ "\"> N<input type=checkbox onclick=\"summarize()\" name=negative value=\"" +symbolMetadata.getSymbol()+ "\"> " );
+		sb.append( "<a href='http://www.google.com/finance?q=" +symbolMetadata.getSymbol()+ "' target='_new'>" +symbolMetadata.getSymbol()+ "</a> " );
+		sb.append( CHART_HTML_DATA +"\n\n" );
 	}
 
 /*	
