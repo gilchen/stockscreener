@@ -241,9 +241,4 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		parent="dao" />
 		
     <!-- End: DAO -->
-    
-    <bean id="intraDayDataProcessor" class="com.stocks.standalone.IntraDayDataProcessor">
-    	<property name="stockService" ref="stockService" />
-    </bean>
-
 </beans>
