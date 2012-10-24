@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -23,35 +24,32 @@ public class IntraDayDataProcessor {
 	// This URL fetches 1 min data for a period of 1 Month:  "http://www.google.com/finance/getprices?i=90&p=1M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
 	// This URL fetches 2 min data for a period of 2 Months: "http://www.google.com/finance/getprices?i=150&p=2M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
 	// This URL fetches 3 min data for a period of 3 Months: "http://www.google.com/finance/getprices?i=210&p=3M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
-	//private static final String GOOGLE_URL = "http://www.google.com/finance/getprices?i=90&p=1M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
-	//private static final String GOOGLE_URL = "http://www.google.com/finance/getprices?i=150&p=2M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
-	private static final String GOOGLE_URL_INTRA_DAY = "http://www.google.com/finance/getprices?i=210&p=3M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
-	private static final String GOOGLE_URL_DAY_CLOSE = "http://www.google.com/finance/getprices?p=3M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
+	//private static final String GOOGLE_URL_INTRA_DAY = "http://www.google.com/finance/getprices?i=90&p=1M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
+	//private static final String GOOGLE_URL_INTRA_DAY = "http://www.google.com/finance/getprices?i=150&p=2M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
+	//private static final String GOOGLE_URL_INTRA_DAY = "http://www.google.com/finance/getprices?i=210&p=3M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
+	//private static final String GOOGLE_URL_INTRA_DAY = "http://www.google.com/finance/getprices?i=270&p=4M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
+	//private static final String GOOGLE_URL_INTRA_DAY = "http://www.google.com/finance/getprices?i=210&p=3M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
+	//private static final String GOOGLE_URL_DAY_CLOSE = "http://www.google.com/finance/getprices?p=3M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
 	
 	public static void main(String... args) throws Exception{
-		String symbols[] = null;
-		if( args.length == 0 ){
-			System.out.println( "Usage: java IntraDayDataProcessor \"AA,MMM\"" );
-			return;
-		}else{
-			symbols = args[0].split(",");
-		}
-		IntraDayDataProcessor iddp = new IntraDayDataProcessor();
-		//String symbols[] = new String[]{"AA"};
-		
-		final Set<String> set = new HashSet<String>();
-		set.addAll( Arrays.asList(symbols) );
-		iddp.generateReport(set);
-		
+		final IntraDayDataProcessor iddp = new IntraDayDataProcessor();
+		iddp.generateReport();
 		System.out.println( "Done" );
 	}
 	
-	private void generateReport(final Set<String> symbols) throws Exception{
+	private void generateReport() throws Exception{
+		Properties properties = new Properties();
+		properties.load( IntraDayDataProcessor.class.getResourceAsStream("/IntraDayDataProcessor.properties") );
+		
+		String[] symbols = properties.getProperty("symbols").split(",");
+		final Set<String> set = new HashSet<String>();
+		set.addAll( Arrays.asList(symbols) );
+
 		StringBuilder sb = new StringBuilder();
 		for( String symbol : symbols ){
 			System.out.println( "Processing " +symbol );
 			try{
-				process(symbol.trim(), sb);
+				process(symbol.trim(), sb, properties.getProperty("google.url.intra.day"), properties.getProperty("google.url.day.close"));
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -59,7 +57,7 @@ public class IntraDayDataProcessor {
 			}
 		}
 		
-		PrintWriter writer = new PrintWriter( "C:/Temp/ForSrid/intra/rpts/report.html" );
+		PrintWriter writer = new PrintWriter( properties.getProperty("rpt.path") );
 		try{
 			writer.println( "<HTML>" );
 			writer.println( "<head>");
@@ -105,7 +103,7 @@ public class IntraDayDataProcessor {
 		
 	}
 
-	private void process(String symbol, StringBuilder sb) throws Exception{
+	private void process(String symbol, StringBuilder sb, final String GOOGLE_URL_INTRA_DAY, String GOOGLE_URL_DAY_CLOSE) throws Exception{
 //		final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchG( Utility.getContent( "file:/C:/Temp/ForSrid/intra/rpts/Intra"+symbol ), true );
 //		final Map<Date, List<IntraDayStructure>> mapGDayClose = fetchG( Utility.getContent( "file:/C:/Temp/ForSrid/intra/rpts/"+symbol ), false );
 		
