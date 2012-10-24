@@ -210,14 +210,19 @@
 			<symbol>ANR</symbol>
 			<entries>
 				<entry>
-					<buy-date>01/01/2000</buy-date>
+					<buy-date>03/16/2012</buy-date>
 					<qty>15</qty>
 					<price>17.34</price>
 				</entry>
 				<entry>
-					<buy-date>01/01/2000</buy-date>
+					<buy-date>06/04/2012</buy-date>
 					<qty>66</qty>
 					<price>10.07</price>
+				</entry>
+				<entry>
+					<buy-date>07/10/2012</buy-date>
+					<qty>55</qty>
+					<price>7.4899</price>
 				</entry>
 			</entries>
 		</position>
@@ -310,17 +315,6 @@
 					<qty>50</qty>
 					<price>5.19</price>
 				</entry-->
-			</entries>
-		</position>
-
-		<position>
-			<symbol>AONE</symbol>
-			<entries>
-				<entry>
-					<buy-date>10/16/2012</buy-date>
-					<qty>1100</qty>
-					<price>0.0974</price>
-				</entry>
 			</entries>
 		</position>
 
