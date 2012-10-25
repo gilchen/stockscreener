@@ -386,57 +386,6 @@ public class CurrentSnapshot {
 					}
 				}
 
-/*
-				final List<FilterCheck> filterChecks = getFilterChecksByCorrection(Math.abs(correction52wk));
-				FilterCheck matchingFilterCheck = null;
-				if (mktCap != null) {
-
-					if (!filterChecks.isEmpty()) {
-						boolean otherCondition = false;
-						for (final FilterCheck filterCheck : filterChecks) {
-							// One of the following conditions must be met.
-							// Condition 1
-							try {
-								Long lMktCap = new Long(Utility.convertFinancials(mktCap));
-								if (lMktCap > filterCheck.getMinMarketCapRange().getMin()
-										&& lMktCap <= filterCheck.getMinMarketCapRange().getMax()) {
-									otherCondition = true;
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-
-							if (!otherCondition) {
-								// Condition 2
-								try {
-									Long lMktCap = new Long(Utility.convertFinancials(mktCap));
-									Double currentPrice = new Double(realTime.trim().replaceAll(",", ""));
-
-									if ((lMktCap / currentPrice) > filterCheck.getMinSharesOutstanding()) {
-										otherCondition = true;
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-
-							if (otherCondition) {
-								matchingFilterCheck = filterCheck;
-								break;
-							}
-						}
-
-						if (!otherCondition) {
-							rejectReason = RejectReason.NEITHER_CONDITION_MATCHED;
-						}
-					} else {
-						rejectReason = RejectReason.NO_FILTER_CHECK_FOUND;
-					}
-				} else {
-					rejectReason = RejectReason.MARKET_CAP_UNAVAILABLE;
-				}
-*/
-				
 				final String bestMatchingFilterCheckWithRating = getBestMatchingFilterCheckWithRating(range52wH_pc, Utility.convertFinancials(mktCap), Utility.convertFinancials(sharesOutstanding), dailyAvgTradeValue);
 				
 				if (bestMatchingFilterCheckWithRating != null) {
@@ -490,7 +439,7 @@ public class CurrentSnapshot {
 							""));
 				}
 			} catch (Exception e) {
-				//e.printStackTrace();
+				e.printStackTrace();
 
 				sbuf.append("Exception in getting data for " + symbol).append(
 						"\n");
@@ -501,40 +450,45 @@ public class CurrentSnapshot {
 	}
 	
 	private static String getBestMatchingFilterCheckWithRating(String range52wH_pc, String mktCap, String sharesOutstanding, String dailyAvgTradeValue){
-		Double d52wH_pc = Math.abs(new Double( range52wH_pc.replace("%", "") ));
-		Double dMktCap = new Double( mktCap );
-		Double dDailyAvgTradeValue = new Double( dailyAvgTradeValue.trim().replaceAll(",", "").replaceAll("\\$", "").replaceAll("\"", "") );
-		Long lMinSharesOutstanding = new Long( sharesOutstanding );
-		
-		int iBestMatch = 0;
 		FilterCheck bestFilterCheck = null;
+		int iBestMatch = 0;
 		
-		for (final FilterCheck filterCheck : listFilterCheck) {
-			int totalMatches = 0;
-			// Check 1
-			if( d52wH_pc > filterCheck.getCorrectionRange52Wk().getMin() && d52wH_pc <= filterCheck.getCorrectionRange52Wk().getMax() ){
-				totalMatches++;
+		try{
+			Double d52wH_pc = Math.abs(new Double( range52wH_pc.replace("%", "") ));
+			Double dMktCap = new Double( mktCap );
+			Double dDailyAvgTradeValue = new Double( dailyAvgTradeValue.trim().replaceAll(",", "").replaceAll("\\$", "").replaceAll("\"", "") );
+			Long lMinSharesOutstanding = new Long( sharesOutstanding );
+
+			for (final FilterCheck filterCheck : listFilterCheck) {
+				int totalMatches = 0;
+				// Check 1
+				if( d52wH_pc > filterCheck.getCorrectionRange52Wk().getMin() && d52wH_pc <= filterCheck.getCorrectionRange52Wk().getMax() ){
+					totalMatches++;
+				}
+				
+				// Check 2
+				if( dMktCap >= filterCheck.getMinMarketCapRange().getMin() && dMktCap <= filterCheck.getMinMarketCapRange().getMax() ){
+					totalMatches++;
+				}
+				
+				// Check 3
+				if( lMinSharesOutstanding >= filterCheck.getMinSharesOutstanding() ){
+					totalMatches++;
+				}
+				
+				// Check 4
+				if( dDailyAvgTradeValue >= filterCheck.getDailyAvgTradeValue() ){
+					totalMatches++;
+				}
+				
+				if( totalMatches > iBestMatch ){
+					iBestMatch = totalMatches;
+					bestFilterCheck = filterCheck;
+				}
 			}
-			
-			// Check 2
-			if( dMktCap >= filterCheck.getMinMarketCapRange().getMin() && dMktCap <= filterCheck.getMinMarketCapRange().getMax() ){
-				totalMatches++;
-			}
-			
-			// Check 3
-			if( lMinSharesOutstanding >= filterCheck.getMinSharesOutstanding() ){
-				totalMatches++;
-			}
-			
-			// Check 4
-			if( dDailyAvgTradeValue >= filterCheck.getDailyAvgTradeValue() ){
-				totalMatches++;
-			}
-			
-			if( totalMatches > iBestMatch ){
-				iBestMatch = totalMatches;
-				bestFilterCheck = filterCheck;
-			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
 		}
 		
 		if( bestFilterCheck == null ){
@@ -543,19 +497,6 @@ public class CurrentSnapshot {
 			return iBestMatch +" --> " +bestFilterCheck;
 		}
 	}
-
-//	private static List<FilterCheck> getFilterChecksByCorrection(
-//			Double correction52Wk) {
-//		final List<FilterCheck> filterChecks = new ArrayList<FilterCheck>();
-//		for (FilterCheck filterCheck : listFilterCheck) {
-//			if (correction52Wk > filterCheck.getCorrectionRange52Wk().getMin()
-//					&& correction52Wk <= filterCheck.getCorrectionRange52Wk()
-//							.getMax()) {
-//				filterChecks.add(filterCheck);
-//			}
-//		}
-//		return filterChecks;
-//	}
 
 	class Entry{
 		private String symbol;
