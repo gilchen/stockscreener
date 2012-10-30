@@ -1,7 +1,7 @@
 package com.stocks.standalone;
 
 import java.io.PrintWriter;
-
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +20,18 @@ import com.stocks.util.Utility;
 
 public class IntraDayDataProcessor {
 	private static final String CHART_HTML = "<applet code='com.objectplanet.chart.ChartApplet' archive='chart.jar' width='700' height='350'>\n<param name='chart' value='line'>\n<param name='chartTitle' value='~SYMBOL'>\n<param name='sampleValues_0' value='~CLOSE_DATA'>\n<param name='sampleValues_1' value='~VOLUME_DATA'>\n<param name='sampleLabels' value='~DATES_DATA'>\n<param name='seriesRange_0' value='2'>\n<param name='sampleLabelsOn' value='true'>\n<param name='sampleLabelStyle' value='floating'>\n<param name='floatingLabelFont' value='Verdana, plain, 10'>\n<param name='sampleColors' value='blue, red'>\n<param name='sampleHighlightOn' value='true'>\n<param name='sampleHighlightStyle' value='circle_opaque'>\n<param name='sampleHighlightSize' value='6'>\n<param name='rangeColor' value='red'>\n<param name='rangeColor_2' value='blue'>\n<param name='seriesCount' value='2'>\n<param name='valueLabelsOn' value='true'>\n<param name='valueLabelStyle' value='floating'>\n<param name='valueLinesOn' value='true'>\n<param name='defaultGridLinesOn' value='true'>\n<param name='legendOn' value='true'>\n<param name='legendPosition' value='top'>\n<param name='legendLabels' value='Close,Volume'>\n<param name='rangeOn_2' value='true'>\n<param name='rangePosition' value='right'>\n<param name='rangePosition_2' value='left'>\n<param name='rangeAxisLabel' value='Volume'>\n<param name='rangeAxisLabelFont' value='Verdana, bold, 16'>\n<param name='rangeAxisLabelAngle' value='90'>\n<param name='rangeAxisLabel_2' value='Close'>\n<param name='rangeAxisLabelAngle_2' value='270'>\n<param name='rangeLabelPrefix_2' value='$'>\n<param name='multiSeriesOn' value='true'>\n<param name='rangeDecimalCount' value='0'>\n<param name='rangeDecimalCount_2' value='2'>\n<param name='sampleDecimalCount' value='2'>\n<param name='sampleDecimalCount_2' value='0'>\n<param name='chartBackground' value='#DADAFF'>\n</applet>";
+
+	static Properties properties = new Properties();
+	static{
+		try{
+			properties.load( IntraDayDataProcessor.class.getResourceAsStream("/IntraDayDataProcessor.properties") );
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			throw new RuntimeException("Exception in loading properties: " +e);
+		}
+	}
+
 	
 	// This URL fetches 1 min data for a period of 1 Month:  "http://www.google.com/finance/getprices?i=90&p=1M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
 	// This URL fetches 2 min data for a period of 2 Months: "http://www.google.com/finance/getprices?i=150&p=2M&f=d,c,v,o,h,l&df=cpct&auto=1&q=";
@@ -33,18 +45,25 @@ public class IntraDayDataProcessor {
 	
 	public static void main(String... args) throws Exception{
 		final IntraDayDataProcessor iddp = new IntraDayDataProcessor();
-		iddp.generateReport();
-		System.out.println( "Done" );
-	}
-	
-	private void generateReport() throws Exception{
-		Properties properties = new Properties();
-		properties.load( IntraDayDataProcessor.class.getResourceAsStream("/IntraDayDataProcessor.properties") );
 		
 		String[] symbols = properties.getProperty("symbols").split(",");
 		final Set<String> set = new HashSet<String>();
 		set.addAll( Arrays.asList(symbols) );
+		PrintWriter writer = null;
+		try{
+			writer = new PrintWriter( properties.getProperty("rpt.path") );
+			iddp.generateReport(set, writer);
+		}
+		finally{
+			if(writer != null){
+				writer.close();
+			}
+		}
 
+		System.out.println( "Done" );
+	}
+	
+	public void generateReport(final Set<String> symbols, Writer writer) throws Exception{
 		StringBuilder sb = new StringBuilder();
 		for( String symbol : symbols ){
 			System.out.println( "Processing " +symbol );
@@ -57,48 +76,50 @@ public class IntraDayDataProcessor {
 			}
 		}
 		
-		PrintWriter writer = new PrintWriter( properties.getProperty("rpt.path") );
+		
 		try{
-			writer.println( "<HTML>" );
-			writer.println( "<head>");
-			writer.println( "<script>");
-			writer.println( "function summarize(){");
-			writer.println( "	totalPos = 0;");
-			writer.println( "	totalNeg = 0;");
-			writer.println( "	frm = document.forms[0];");
-			writer.println( "   positiveStocks = \"\";");
-			writer.println( "	for(i=0; i<frm.elements.length; i++ ){");
-			writer.println( "		elem = frm.elements[i];");
-			writer.println( "		if( elem.name == \"positive\" && elem.checked ){");
-			writer.println( "			totalPos++;");
-			writer.println( "           positiveStocks += elem.value +\", \";");
-			writer.println( "		}else if( elem.name == \"negative\" && elem.checked ){");
-			writer.println( "			totalNeg++;");
-			writer.println( "		}");
-			writer.println( "	}");
-			writer.println( "	frm.totalPos.value = totalPos;");
-			writer.println( "	frm.totalNeg.value = totalNeg;");
-			writer.println( "   frm.positiveStocks.value = positiveStocks;");
-			writer.println( "");
-			writer.println( "}");
-			writer.println( "</script>");
-			writer.println( "</head>");
+			//writer.append( "<HTML>" ).append("\n");
+			//writer.append( "<head>").append("\n");
+			writer.append( "<script>").append("\n");
+			writer.append( "function summarize(){").append("\n");
+			writer.append( "	vTotalPos = 0;").append("\n");
+			writer.append( "	vTotalNeg = 0;").append("\n");
+			writer.append( "	arrPositive = document.getElementsByName('positive');").append("\n");
+			writer.append( "	arrNegative = document.getElementsByName('negative');").append("\n");
+			writer.append( "    vPositiveStocks = \"\";").append("\n");
+			writer.append( "	for(i=0; i<arrPositive.length; i++ ){").append("\n");
+			writer.append( "		elem = document.getElementsByName('positive').item(i);").append("\n");
+			writer.append( "		if( elem.checked ){").append("\n");
+			writer.append( "			vTotalPos++;").append("\n");
+			writer.append( "            vPositiveStocks += elem.value +\", \";").append("\n");
+			writer.append( "		}").append("\n");
+			writer.append( "	}").append("\n");
+
+			writer.append( "	for(i=0; i<arrNegative.length; i++ ){").append("\n");
+			writer.append( "		elem = document.getElementsByName('negative').item(i);").append("\n");
+			writer.append( "		if( elem.checked ){").append("\n");
+			writer.append( "			vTotalNeg++;").append("\n");
+			writer.append( "		}").append("\n");
+			writer.append( "	}").append("\n");
 			
-			writer.println("<BODY><PRE><B>Description</B>: This report displays two series of data for each symbol viz. Close and Volume.\nWhen you hover over the round marks on each series it will display the data they represent.\nVolume is actually Buy/Sell Volume in the sense that every rise in intraday data is considered to be buy and every fall is considered sell.\nLook for spikes in Buy volume. This should be at least 4 times average buy volume.\nIf there are small or no sell volumes recently and a sudden buy volume comes, then this is a very bullish sign.\nDo not consider symbols where you see many sell instances recently.\nAlso, there are 2 checkboxes provided by each chart. \nThey are for marking Positive/Negative outcome of the strategy as exceptions are always there.\nThe textboxes on the top will summarize this information for you with Positive Symbols displayed as comma-separated string.\nIf you do not see charts, then copy the <U>chart.jar</U> to current folder where this html file resides.<form>");
-			writer.println("TotalPos: <input type=text name=\"totalPos\"> <input type=text name=\"positiveStocks\">");
-			writer.println("TotalNeg: <input type=text name=\"totalNeg\">");
+			writer.append( "	document.getElementById('totalPos').value = vTotalPos;").append("\n");
+			writer.append( "	document.getElementById('totalNeg').value = vTotalNeg;").append("\n");
+			writer.append( "    document.getElementById('positiveStocks').value = vPositiveStocks;").append("\n");
+			writer.append( "").append("\n");
+			writer.append( "}").append("\n");
+			writer.append( "</script>").append("\n");
+			//writer.append( "</head>").append("\n");
 			
-			writer.println( sb.toString() );
-			writer.println( "</form></PRE></BODY></HTML>" );
+			writer.append("<PRE><B>Description</B>: This report displays two series of data for each symbol viz. Close and Volume.\nWhen you hover over the round marks on each series it will display the data they represent.\nVolume is actually Buy/Sell Volume in the sense that every rise in intraday data is considered to be buy and every fall is considered sell.\nLook for spikes in Buy volume. This should be at least 4 times average buy volume.\nIf there are small or no sell volumes recently and a sudden buy volume comes, then this is a very bullish sign.\nDo not consider symbols where you see many sell instances recently.\nAlso, there are 2 checkboxes provided by each chart. \nThey are for marking Positive/Negative outcome of the strategy as exceptions are always there.\nThe textboxes on the top will summarize this information for you with Positive Symbols displayed as comma-separated string.\nIf you do not see charts, then copy the <U>chart.jar</U> to current folder where this html file resides.").append("\n");
+			writer.append("TotalPos: <input type=text name=\"totalPos\" id=\"totalPos\"> <input type=text name=\"positiveStocks\" id=\"positiveStocks\">").append("\n");
+			writer.append("TotalNeg: <input type=text name=\"totalNeg\" id=\"totalNeg\">").append("\n");
+			
+			writer.append( sb.toString() ).append("\n");
+			writer.append( "</PRE>" ).append("\n");
 		}
 		catch(Exception e){
 			e.printStackTrace();
 			System.out.println( sb.toString() );
-		}
-		finally{
-			if(writer != null){
-				writer.close();
-			}
 		}
 		
 	}

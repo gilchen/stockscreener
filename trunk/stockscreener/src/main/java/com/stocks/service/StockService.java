@@ -59,4 +59,6 @@ public interface StockService {
 	void syncUpSummary52WkBse();
 	
 	SymbolMetadata getSymbolMetadata(String symbol);
+	
+	void generateEntryTimingReport(String sql, String overrideSymbols, String reportName);
 }

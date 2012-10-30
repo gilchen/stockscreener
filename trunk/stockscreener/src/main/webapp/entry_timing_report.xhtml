@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
+<head>
+<title>Entry Timing Report</title>
+</head>
+<body>
+<ui:composition template="/template.xhtml">
+	<ui:define name="navigation">
+		<ui:include src="navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="heading">
+		<h:outputText value="Entry Timing Report" />
+	</ui:define>
+
+	
+	<ui:define name="body">
+		<h:form>
+			<h:panelGrid columns="2">
+				<h:outputText value="SQL Query:" />
+				<h:inputTextarea value="#{entryTimingReportBean.sql}" cols="100" rows="10"  />
+
+				<h:outputText value="Override Symbols" />
+				<h:inputText value="#{entryTimingReportBean.overrideSymbols}" />
+
+				<h:outputText value="" />
+				<h:commandButton value="Submit" actionListener="#{entryTimingReportBean.process}" />
+			</h:panelGrid>
+		</h:form>
+
+		<h:outputText value="#{entryTimingReportBean.reportHTML}" escape="false" />
+	</ui:define>
+</ui:composition>
+</body>
+</html>
