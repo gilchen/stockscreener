@@ -31,22 +31,43 @@ public class CurrentSnapshot {
 	final static String CNBC_URL_EXTN = "http://apps.cnbc.com/company/quote/index.asp?symbol=";
 	final static String CNBC_URL_EXTN_COMPANY_PROFILE = "http://apps.cnbc.com/view.asp?country=US&uid=stocks/summary&symbol=";
 
-	final static String ROW_FORMAT = "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n";
-	final static String ROW_FORMAT_POSITIONS = "%s,%s,%s,%s,%s,%s%n";
+	public final static String ROW_FORMAT = "%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s%n";
+	public final static String ROW_FORMAT_POSITIONS = "%s~%s~%s~%s~%s~%s%n";
+
+	public final static String OUTPUT_FORMAT_CSV  = "CSV";
+	public final static String OUTPUT_FORMAT_HTML = "HTML";
+
+	public final static String HEADER = String.format(ROW_FORMAT, 
+			"Symbol",
+			"realTime",
+			"range",
+			"% Change",
+			"Industry",
+			"range52wL_pc",
+			"range52wH_pc",
+			"Mkt Cap",
+			"Mkt Cap (Expanded)",
+			"10-Day Avg Vol",
+			"10-Day Avg Vol (Expanded)",
+			"Daily Avg Trade Value",
+			"P/E",
+			"Beta",
+			"Div/Yield",
+			"Analyst Consensus",
+			"time",
+			"range52wL",
+			"range52wH",
+			"Best Match"
+		);
+	public final static String HEADER_POSITIONS = String.format(ROW_FORMAT_POSITIONS, "Symbol", "Buy Date", "Price", "Qty", "Real-Time", "Profit/Loss %");
 
 	final static Double RECOMMENDATION_52W_CORRECTION_PC = -40.00;
 	final static Double RECOMMENDATION_52W_APPRECIATION_PC = 9.00;
 
 	final static NumberFormat NF = NumberFormat.getInstance();
-
-	private List<String> symbols;
-
-	public List<String> getSymbols() {
-		return symbols;
-	}
-
-	public void setSymbols(List<String> symbols) {
-		this.symbols = symbols;
+	
+	static{
+		loadConfigurationFromXml();
 	}
 
 	private static void loadConfigurationFromXml() {
@@ -59,11 +80,9 @@ public class CurrentSnapshot {
 			Document doc = dBuilder.parse( CurrentSnapshot.class.getResourceAsStream("/CurrentSnapshot.xml") );
 			doc.getDocumentElement().normalize();
 
-			//System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 			CNBC_ETF_LIST = getTagValue("symbols", doc.getDocumentElement()).replaceAll(" ", "").split(",");
 
 			NodeList nList = doc.getElementsByTagName("filter_check");
-			//System.out.println("-----------------------");
 
 			for (int temp = 0; temp < nList.getLength(); temp++) {
 
@@ -75,7 +94,6 @@ public class CurrentSnapshot {
 					String name = getTagValue("name", eElement);
 					String sRange = getTagValue("range_correction_52_wk", eElement);
 					String sMinMarketCap = getTagValue("range_market_cap", eElement);
-					String sMinSharesOutstanding = getTagValue("min_shares_outstanding", eElement);
 					String sDailyAvgTradeValue = getTagValue("daily_avg_trade_value", eElement);
 
 					int indexOfDash = sRange.indexOf("-");
@@ -88,10 +106,9 @@ public class CurrentSnapshot {
 							new Long(Utility.convertFinancials(sMinMarketCap.substring(0, indexOfDash))), 
 							new Long(Utility.convertFinancials(sMinMarketCap.substring(indexOfDash + 1))));
 					
-					Long minSharesOutstanding = new Long(Utility.convertFinancials(sMinSharesOutstanding));
 					Long dailyAvgTradeValue   = new Long(Utility.convertFinancials(sDailyAvgTradeValue));
 
-					FilterCheck filterCheck = new CurrentSnapshot().new FilterCheck(name, correctionRange52wk, minMarketCapRange, minSharesOutstanding, dailyAvgTradeValue);
+					FilterCheck filterCheck = new CurrentSnapshot().new FilterCheck(name, correctionRange52wk, minMarketCapRange, dailyAvgTradeValue);
 					listFilterCheck.add(filterCheck);
 				}
 			}
@@ -136,8 +153,6 @@ public class CurrentSnapshot {
 	 * @throws Exception
 	 */
 	public static void main(String args[]) throws Exception {
-		loadConfigurationFromXml();
-		
 		System.out.println("Configuration (CORRECTION_52_WK must match, then either of (MIN_MARKET_CAP or MIN_OUTSTANDING_SHARES) )");
 		System.out.println("=======================================================================================================");
 		for (FilterCheck filterCheck : listFilterCheck) {
@@ -145,62 +160,59 @@ public class CurrentSnapshot {
 		}
 		System.out.println();
 
-		final StringBuilder sbuf = new StringBuilder();
-		final StringBuilder sbufRejects = new StringBuilder();
-		final StringBuilder sbufCombined = new StringBuilder();
-		final StringBuilder sbufPositions = new StringBuilder();
-
-		final String header = String.format(ROW_FORMAT, 
-				"Symbol",
-				"realTime",
-				"range",
-				"% Change",
-				"Industry",
-				"range52wL_pc",
-				"range52wH_pc",
-				"Mkt Cap (Expanded)",
-				"Mkt Cap",
-				"10-Day Avg Vol (Expanded)",
-				"10-Day Avg Vol",
-				"Daily Avg Trade Value",
-				"P/E",
-				"Beta",
-				"Div/Yield",
-				"Analyst Consensus",
-				"Shares Outstanding",
-				"time",
-				"range52wL",
-				"range52wH",
-				"Best Match"
-			);
-		final String headerPositions = String.format(ROW_FORMAT_POSITIONS, "Symbol", "Buy Date", "Price", "Qty", "Real-Time", "Profit/Loss %");
+		final Set<String> symbols = new HashSet(Arrays.asList(CNBC_ETF_LIST));
+		final List<CurrentSnapshotBean> csbList = new ArrayList<CurrentSnapshotBean>();
+		final List<CurrentSnapshotBean> csbRejectList = new ArrayList<CurrentSnapshotBean>();
+		final List<CurrentSnapshotPositionBean> csbPositionList = new ArrayList<CurrentSnapshotPositionBean>();
 		
-		sbuf.append(header);
-		sbufRejects.append(header);
-		sbufPositions.append( headerPositions );
-
-		processCnbc(sbuf, sbufRejects, sbufPositions);
-		sbufCombined.append(sbuf).append(sbufRejects.substring( sbufRejects.indexOf("\n")+1 ));
+		processCnbc(symbols, csbList, csbRejectList, csbPositionList);
 		
-		Utility.saveContent("rpt.csv", sbuf.toString());
-		Utility.saveContent("rptRejects.csv", sbufRejects.toString());
-		Utility.saveContent("rptCombined.csv", sbufCombined.toString());
-		Utility.saveContent("rptPositions.csv", sbufPositions.toString());
+		String rpt = listToString( csbList, HEADER, OUTPUT_FORMAT_CSV );
+		String rptRejects = listToString( csbRejectList, HEADER, OUTPUT_FORMAT_CSV );
+		Utility.saveContent("rpt.csv", rpt);
+		Utility.saveContent("rptRejects.csv", rptRejects);
+		Utility.saveContent("rptCombined.csv", rpt + rptRejects.substring(rptRejects.indexOf("\n")+1));
+		Utility.saveContent("rptPositions.csv", listToString( csbPositionList, HEADER_POSITIONS, OUTPUT_FORMAT_CSV ));
 
 		System.out.println( "Tips: Pick Stock of lower P/E (Price / EPS) if Market Cap is of both stocks is pretty close. e.g. if P/E of A ($20 / $2 = 10) and P/E of B ($30 / $2 = 15) then A is better than B." );
 		System.out.println("Done.");
+	}
+	
+	public static String listToString(List<? extends Object> list, String header, String outputFormat){
+		final StringBuilder sb = new StringBuilder();
+		
+		if( outputFormat.equals(OUTPUT_FORMAT_HTML) ){
+			sb.append( "<tr><th>" );
+			sb.append( header.replaceAll("~", "</th><th>") );
+			sb.append( "</th></tr>" );
+		}else{
+			sb.append( header.replaceAll("~", ",") );
+		}
+		
+		for(Object object : list){
+			String toString = object.toString();
+			if( outputFormat.equals(OUTPUT_FORMAT_HTML) ){
+				sb.append( "<tr><td>" );
+				sb.append( toString.replaceAll("~", "</td><td>").replaceAll("\"", "") );
+				sb.append( "</td></tr>" );
+			}else{
+				sb.append( toString.replaceAll("~", ",") );
+			}
+		}
+		return sb.toString();
 	}
 
 	/**
 	 * For processing quote feed.
 	 * 
 	 */
-	private static void processCnbc(final StringBuilder sbuf, final StringBuilder sbufRejects, final StringBuilder sbufPositions) throws Exception {
-		Set<String> set = new HashSet(Arrays.asList(CNBC_ETF_LIST));
-		set.addAll( mPositions.keySet() );
+	public static void processCnbc(final Set<String> symbols, final List<CurrentSnapshotBean> csbList, final List<CurrentSnapshotBean> csbRejectList, final List<CurrentSnapshotPositionBean> csbPositionList) throws Exception {
+		if( csbPositionList != null ){ // Do not pull positions data if csbPositionList is null.
+			symbols.addAll( mPositions.keySet() );
+		}
 		
 		// Set contains all symbols in <symbols> and <positions>
-		for (String symbol : set) {
+		for (String symbol : symbols) {
 			symbol = symbol.trim();
 			System.out.println("Pulling [" + symbol + "]");
 
@@ -319,14 +331,6 @@ public class CurrentSnapshot {
 					mktCap = mktCap.trim().replaceAll(",", "");
 				}
 				
-				String sharesOutstanding = "";
-				index5 = sbExtn.indexOf("Shares Outstanding");
-				if (index5 != -1) {
-					sharesOutstanding = sbExtn.substring(index5 + 38,
-							sbExtn.indexOf("<", index5 + 38));
-					sharesOutstanding = sharesOutstanding.trim().replaceAll(",", "");
-				}
-
 				int index6 = sbExtn.indexOf("Price/Earnings");
 				if (index6 != -1) {
 					pe = sbExtn.substring(index6 + 34,
@@ -377,79 +381,36 @@ public class CurrentSnapshot {
 					
 					final List<Entry> entries = mPositions.get(symbol);
 					for(final Entry entry : entries){
-						Double profitPc = ((realTimePrice - entry.getPrice())/entry.getPrice())*100.0;
-						sbufPositions.append(String.format(ROW_FORMAT_POSITIONS, symbol, Utility.getStrDate(entry.getBuyDate()), entry.getPrice().toString(), entry.getQty().toString(), realTimePrice.toString(), Utility.round(profitPc)));
+						//Double profitPc = ((realTimePrice - entry.getPrice())/entry.getPrice())*100.0;
+						if( csbPositionList != null ){
+							final CurrentSnapshotPositionBean csbPosition = new CurrentSnapshotPositionBean(symbol, entry.getBuyDate(), entry.getPrice(), entry.getQty().toString(), realTimePrice);
+							csbPositionList.add(csbPosition);
+						}
+						//sbufPositions.append(String.format(ROW_FORMAT_POSITIONS, symbol, Utility.getStrDate(entry.getBuyDate()), entry.getPrice().toString(), entry.getQty().toString(), realTimePrice.toString(), Utility.round(profitPc)));
 					}
 					
-					if( !Arrays.asList(CNBC_ETF_LIST).contains(symbol) ){
-						continue;
-					}
+//					if( !Arrays.asList(CNBC_ETF_LIST).contains(symbol) ){
+//						continue;
+//					}
 				}
 
-				final String bestMatchingFilterCheckWithRating = getBestMatchingFilterCheckWithRating(range52wH_pc, Utility.convertFinancials(mktCap), Utility.convertFinancials(sharesOutstanding), dailyAvgTradeValue);
+				final String bestMatchingFilterCheckWithRating = getBestMatchingFilterCheckWithRating(range52wH_pc, Utility.convertFinancials(mktCap), dailyAvgTradeValue);
 				
-				if (bestMatchingFilterCheckWithRating != null) {
-					sbuf.append(String.format(
-							ROW_FORMAT,
-							symbol,
-							realTime,
-							range,
-							pcChange,
-							industry,
-							range52wL_pc,
-							range52wH_pc,
-							Utility.convertFinancials(mktCap),
-							mktCap,
-							Utility.convertFinancials(avgVol_10Days),
-							avgVol_10Days,
-							dailyAvgTradeValue,
-							pe,
-							beta,
-							divYield,
-							analystConsensus,
-							sharesOutstanding,
-							time,
-							low52w.toString(),
-							high52w.toString(),
-							"\""+bestMatchingFilterCheckWithRating+"\""
-						));
+				if (bestMatchingFilterCheckWithRating != null && bestMatchingFilterCheckWithRating.startsWith("3")) {
+					final CurrentSnapshotBean csb = new CurrentSnapshotBean(symbol, realTime, range, pcChange, industry, range52wL_pc, range52wH_pc, mktCap, avgVol_10Days, dailyAvgTradeValue, pe, beta, divYield, analystConsensus, time, low52w.toString(), high52w.toString(), bestMatchingFilterCheckWithRating);
+					csbList.add(csb);
 				} else {
-					sbufRejects.append(String.format(
-							ROW_FORMAT,
-							symbol,
-							realTime,
-							range,
-							pcChange,
-							industry,
-							range52wL_pc,
-							range52wH_pc,
-							Utility.convertFinancials(mktCap),
-							mktCap,
-							Utility.convertFinancials(avgVol_10Days),
-							avgVol_10Days,
-							dailyAvgTradeValue,
-							pe,
-							beta,
-							divYield,
-							analystConsensus,
-							sharesOutstanding,
-							time,
-							low52w.toString(),
-							high52w.toString(),
-							""));
+					final CurrentSnapshotBean csbReject = new CurrentSnapshotBean(symbol, realTime, range, pcChange, industry, range52wL_pc, range52wH_pc, mktCap, avgVol_10Days, dailyAvgTradeValue, pe, beta, divYield, analystConsensus, time, low52w.toString(), high52w.toString(), "");
+					csbRejectList.add(csbReject);
 				}
 			} catch (Exception e) {
+				System.out.println( "Exception in getting data for " + symbol );
 				e.printStackTrace();
-
-				sbuf.append("Exception in getting data for " + symbol).append(
-						"\n");
-				sbufRejects.append("Exception in getting data for " + symbol)
-						.append("\n");
 			}
 		}
 	}
 	
-	private static String getBestMatchingFilterCheckWithRating(String range52wH_pc, String mktCap, String sharesOutstanding, String dailyAvgTradeValue){
+	private static String getBestMatchingFilterCheckWithRating(String range52wH_pc, String mktCap, String dailyAvgTradeValue){
 		FilterCheck bestFilterCheck = null;
 		int iBestMatch = 0;
 		
@@ -457,7 +418,6 @@ public class CurrentSnapshot {
 			Double d52wH_pc = Math.abs(new Double( range52wH_pc.replace("%", "") ));
 			Double dMktCap = new Double( mktCap );
 			Double dDailyAvgTradeValue = new Double( dailyAvgTradeValue.trim().replaceAll(",", "").replaceAll("\\$", "").replaceAll("\"", "") );
-			Long lMinSharesOutstanding = new Long( sharesOutstanding );
 
 			for (final FilterCheck filterCheck : listFilterCheck) {
 				int totalMatches = 0;
@@ -472,11 +432,6 @@ public class CurrentSnapshot {
 				}
 				
 				// Check 3
-				if( lMinSharesOutstanding >= filterCheck.getMinSharesOutstanding() ){
-					totalMatches++;
-				}
-				
-				// Check 4
 				if( dDailyAvgTradeValue >= filterCheck.getDailyAvgTradeValue() ){
 					totalMatches++;
 				}
@@ -494,7 +449,7 @@ public class CurrentSnapshot {
 		if( bestFilterCheck == null ){
 			return null;
 		}else{
-			return iBestMatch +" --> " +bestFilterCheck;
+			return iBestMatch +": " +bestFilterCheck;
 		}
 	}
 
@@ -540,15 +495,13 @@ public class CurrentSnapshot {
 		private String filterName;
 		private Range correctionRange52Wk;
 		private Range minMarketCapRange;
-		private Long minSharesOutstanding;
 		private Long dailyAvgTradeValue;
 
 		public FilterCheck(String filterName, Range correctionRange52Wk,
-				Range minMarketCapRange, Long minSharesOutstanding, Long dailyAvgTradeValue) {
+				Range minMarketCapRange, Long dailyAvgTradeValue) {
 			this.filterName = filterName;
 			this.correctionRange52Wk = correctionRange52Wk;
 			this.minMarketCapRange = minMarketCapRange;
-			this.minSharesOutstanding = minSharesOutstanding;
 			this.dailyAvgTradeValue = dailyAvgTradeValue;
 		}
 
@@ -564,10 +517,6 @@ public class CurrentSnapshot {
 			return minMarketCapRange;
 		}
 
-		public Long getMinSharesOutstanding() {
-			return minSharesOutstanding;
-		}
-
 		public Long getDailyAvgTradeValue() {
 			return dailyAvgTradeValue;
 		}
@@ -577,7 +526,6 @@ public class CurrentSnapshot {
 			return "FilterCheck [name=" + filterName
 					+ ", correctionRange52Wk=" + correctionRange52Wk
 					+ ", marketCapRange=" + minMarketCapRange
-					+ ", minSharesOutstanding=" + Utility.getFormattedNumber(minSharesOutstanding)
 					+ ", dailyAvgTradeValue=" +Utility.getFormattedInteger(dailyAvgTradeValue)+ "]";
 		}
 	}

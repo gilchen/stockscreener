@@ -15,4 +15,5 @@ public interface NyseDao extends Dao<Nyse, NysePK> {
 	public List<Object[]> findUpwardMovingStocks(final Integer interval, final Double averagePercentage);
 	
 	public void attachPrevious(List<Nyse> nyseList);
+	public List<Object[]> getQueryResults(String nativeSql);
 }

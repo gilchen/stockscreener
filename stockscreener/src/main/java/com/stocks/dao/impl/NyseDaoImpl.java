@@ -93,6 +93,14 @@ public class NyseDaoImpl extends AbstractDao implements NyseDao {
 		return result;
 	}
 	
+	public List<Object[]> getQueryResults(String nativeSql) {
+		Query query = entityManager.createNativeQuery(nativeSql);
+		query.setHint("org.hibernate.fetchSize", "500");
+		List<Object[]> result = query.getResultList();
+		return result;
+	}
+	
+
 	public Nyse read(NysePK nysePK) {
 		return get(Nyse.class, nysePK);
 	}

@@ -1,7 +1,12 @@
 package com.stocks.service.impl;
 
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -35,6 +40,10 @@ import com.stocks.model.SymbolMetadata;
 import com.stocks.search.AlertResult;
 import com.stocks.search.NyseAlertResult;
 import com.stocks.service.StockService;
+import com.stocks.standalone.CurrentSnapshot;
+import com.stocks.standalone.CurrentSnapshotBean;
+import com.stocks.standalone.CurrentSnapshotPositionBean;
+import com.stocks.standalone.IntraDayDataProcessor;
 import com.stocks.util.Utility;
 
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -335,5 +344,79 @@ public class StockServiceImpl implements StockService {
     
     public SymbolMetadata getSymbolMetadata(String symbol) {
     	return getSymbolMetadataDao().read(symbol);
+    }
+    
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void generateEntryTimingReport(String sql, String overrideSymbols, String reportName) {
+    	final StringBuilder sb = new StringBuilder();
+    	sb.append( "<pre>Report generated on <B>" ).append( new Date() ).append("</B>").append("\n");
+    	sb.append( "Override Symbols: " ).append( overrideSymbols ).append("\n");
+    	
+    	final List<String> overrideSymbolsList = Arrays.asList(overrideSymbols.split("[,]"));
+    	
+    	// Step 1: Execute Query and pull symbols to consider
+    	sb.append( "Executing Query: " +sql ).append("\n");
+    	final List<Object[]> results = this.getNyseDao().getQueryResults(sql);
+    	final Set<String> qualifyingSymbols = new HashSet<String>();
+    	for(final Object[] result : results){
+    		qualifyingSymbols.add( result[0].toString() );
+    	}
+    	sb.append( "Qualifying symbols: " +qualifyingSymbols ).append("\n\n");
+
+    	// Step 2: Pull live data for the given symbols
+		final List<CurrentSnapshotBean> csbList = new ArrayList<CurrentSnapshotBean>();
+		final List<CurrentSnapshotBean> csbRejectList = new ArrayList<CurrentSnapshotBean>();
+		try{
+			sb.append( "Fetching Live Data" ).append("\n");
+			qualifyingSymbols.addAll( overrideSymbolsList );
+			
+			CurrentSnapshot.processCnbc(qualifyingSymbols, csbList, csbRejectList, null);
+			String rpt = CurrentSnapshot.listToString( csbList, CurrentSnapshot.HEADER, CurrentSnapshot.OUTPUT_FORMAT_HTML );
+			String rptRejects = CurrentSnapshot.listToString( csbRejectList, CurrentSnapshot.HEADER, CurrentSnapshot.OUTPUT_FORMAT_HTML );
+
+			sb.append( "<font color=green>Qualified (May contain override symbols)</font>" ).append("\n");
+			sb.append( "<table cellpadding=0 cellspacing=0 border=1 class='sortable' id='qualifiedSymbols'>" ).append("\n");
+			sb.append( rpt ).append("\n");
+			sb.append( "</table>" ).append("\n");
+			sb.append( "<hr><font color=red>Disqualified (May contain override symbols)</font>" ).append("\n");
+			sb.append( "<table cellpadding=0 cellspacing=0 border=1 class='sortable' id='disqualifiedSymbols'>" ).append("\n");
+			sb.append( rptRejects ).append("\n");
+			sb.append( "</table>" ).append("\n");
+		}
+		catch(Exception e){
+			sb.append( "<font color=red>Exception in Fetching Live Data: " +e.getMessage()+ "</font>" ).append("\n");
+			e.printStackTrace();
+		}
+    	
+		// Step 3: Generate IntraDay Chart
+		final Set<String> symbols = new HashSet<String>();
+		for(final CurrentSnapshotBean csb : csbList){
+			symbols.add( csb.getSymbol() );
+		}
+		
+		symbols.addAll( overrideSymbolsList );
+		
+		final StringWriter writer = new StringWriter();
+		final IntraDayDataProcessor iddp = new IntraDayDataProcessor();
+		try{
+			sb.append( "Generating Chart for " ).append( symbols ).append("\n");
+			iddp.generateReport(symbols, writer);
+			sb.append( writer.toString() );
+		}
+		catch(Exception e){
+			sb.append( "<font color=red>Exception in generating chart: " +e.getMessage()+ "</font>" ).append("\n");
+			e.printStackTrace();
+		}
+    	
+    	sb.append( "</pre>" ).append("\n");
+    	
+    	try{
+			final Report report = new Report( reportName, sb.toString());
+			saveReport(report);
+    	}
+    	catch(Exception e){
+    		System.out.println( "Exception in saving report." );
+    		e.printStackTrace();
+    	}
     }
 }
