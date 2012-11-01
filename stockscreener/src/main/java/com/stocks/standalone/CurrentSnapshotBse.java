@@ -2,7 +2,6 @@ package com.stocks.standalone;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +17,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.stocks.standalone.CurrentSnapshot.Entry;
 import com.stocks.util.Utility;
 
 public class CurrentSnapshotBse {

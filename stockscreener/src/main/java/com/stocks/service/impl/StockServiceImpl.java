@@ -348,6 +348,7 @@ public class StockServiceImpl implements StockService {
     
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void generateEntryTimingReport(String sql, String overrideSymbols, String reportName) {
+    	overrideSymbols = overrideSymbols.trim().replaceAll(" ", "");
     	final StringBuilder sb = new StringBuilder();
     	sb.append( "<pre>Report generated on <B>" ).append( new Date() ).append("</B>").append("\n");
     	sb.append( "Override Symbols: " ).append( overrideSymbols ).append("\n");
