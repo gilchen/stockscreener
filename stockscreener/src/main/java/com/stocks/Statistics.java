@@ -40,7 +40,7 @@ import com.stocks.util.Utility;
 
 public class Statistics {
 	static final String RPT_FILE = "C:/Classroom/JSF/int_ref/workspace/trunk/jasper_reports/D_Analysis_Percent_Move_GroupOnly_Main.jrxml";
-	static final String EXPORT_FOLDER = "C:/Temp/stk/Analysis/reports/tmp/";
+	static final String EXPORT_FOLDER = "C:/Shailesh/Classroom/JSF/int_ref/workspace/trunk/stk/Analysis/reports/tmp/";
 	static final int MAX_WEEKS_IN_GROUP = 20;
 	static Double EXPECTED_GAIN_PERCENT = 0.60;
 	static final Integer[] iSuccessPercent = new Integer[]{20, 30, 40, 50, 60, 70, 80, 90, 100};

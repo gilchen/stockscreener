@@ -69,6 +69,7 @@ public class EntryTimingReportBean implements Serializable {
 	}
 
 	public void process(ActionEvent ae){
+		System.out.println( "Start Entry Timing Report..." );
 		this.getStockService().generateEntryTimingReport(this.getSql(), this.getOverrideSymbols(), REPORT_NAME);
 		try{
 			final ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("EntryTimingReportBean.ser"));
@@ -79,6 +80,6 @@ public class EntryTimingReportBean implements Serializable {
 			System.out.println( "Unable to write serialized object: " +e.getMessage() );
 			e.printStackTrace();
 		}
-		
+		System.out.println( "Done. Entry Timing Report Generated." );
 	}
 }

@@ -29,7 +29,7 @@ public class TrailingBased {
 
 	private void process(){
 		try{
-			File[] fileList = new File("C:/Temp/stk/Analysis/Fiddler2/").listFiles( new FileFilter(){
+			File[] fileList = new File("C:/Shailesh/Classroom/JSF/int_ref/workspace/trunk/stk/Analysis/Fiddler2/").listFiles( new FileFilter(){
 				public boolean accept(File pathname) {
 					return pathname.getName().endsWith("txt");
 				}

@@ -156,7 +156,7 @@ public class TaxPreparer {
 		if( OUTPUT.equals("HTML") ){
 			sb.append("</TABLE>" );
 		}
-		Utility.saveContent("C:/Temp/Stk/tax." +OUTPUT, sb.toString());
+		Utility.saveContent("C:/Shailesh/Classroom/JSF/int_ref/workspace/trunk/stk/tax." +OUTPUT, sb.toString());
 	}
 	
 	private Map<String, List<NyseTx>> getNyseTxMap(final String trxType, final List<NyseTx> allNyseTxList, final int taxReportingYear){
