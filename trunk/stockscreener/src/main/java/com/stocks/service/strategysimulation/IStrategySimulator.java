@@ -10,6 +10,6 @@ public interface IStrategySimulator {
 	final String FAILURE_COLOR = "RED";
 	final String HOLIDAY_COLOR = "magenta";
 	
-	final String RPT_FOLDER = "C:/Temp/stk/Analysis/reports/";
+	final String RPT_FOLDER = "C:/Shailesh/Classroom/JSF/int_ref/workspace/trunk/stk/Analysis/reports/";
 	File runStrategy(List<Strategy> strategyList, Double expectedGainPercent) throws Exception;
 }

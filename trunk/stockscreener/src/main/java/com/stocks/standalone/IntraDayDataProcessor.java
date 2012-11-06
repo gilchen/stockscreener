@@ -252,6 +252,12 @@ public class IntraDayDataProcessor {
 				bDataStarted = true;
 			}else if( bDataStarted ){
 				String[] cols = row.split(",");
+				
+				if( cols.length != 6 ){
+					System.out.println( "Error parsing current row. Data -> " +row );
+					continue;
+				}
+				
 				Date adjustedDate = null;
 				if( isIntraDay ){
 					adjustedDate = new Date( date.getTime() +Long.parseLong(cols[INDX_D]) );
