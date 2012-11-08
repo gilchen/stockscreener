@@ -45,7 +45,7 @@ public class IntraDayDataProcessor {
 	
 	public static void main(String... args) throws Exception{
 		final IntraDayDataProcessor iddp = new IntraDayDataProcessor();
-		
+
 		String[] symbols = properties.getProperty("symbols").split(",");
 		final Set<String> set = new HashSet<String>();
 		set.addAll( Arrays.asList(symbols) );
@@ -75,8 +75,7 @@ public class IntraDayDataProcessor {
 				System.out.println( sb.toString() );
 			}
 		}
-		
-		
+
 		try{
 			//writer.append( "<HTML>" ).append("\n");
 			//writer.append( "<head>").append("\n");
@@ -128,8 +127,8 @@ public class IntraDayDataProcessor {
 //		final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchG( Utility.getContent( "file:/C:/Temp/ForSrid/intra/rpts/Intra"+symbol ), true );
 //		final Map<Date, List<IntraDayStructure>> mapGDayClose = fetchG( Utility.getContent( "file:/C:/Temp/ForSrid/intra/rpts/"+symbol ), false );
 		
-		final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchG( Utility.getContent( GOOGLE_URL_INTRA_DAY+symbol ), true );
-		final Map<Date, List<IntraDayStructure>> mapGDayClose = fetchG( Utility.getContent( GOOGLE_URL_DAY_CLOSE+symbol ), false );
+		final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchG( Utility.getContent( GOOGLE_URL_INTRA_DAY.replaceAll("~SYMBOL", symbol) ), true );
+		final Map<Date, List<IntraDayStructure>> mapGDayClose = fetchG( Utility.getContent( GOOGLE_URL_DAY_CLOSE.replaceAll("~SYMBOL", symbol) ), false );
 		
 		final TreeSet<Date> dateSet = new TreeSet<Date>( mapGIntraDay.keySet() );
 		
@@ -210,6 +209,52 @@ public class IntraDayDataProcessor {
 		sb.append( CHART_HTML_DATA +"\n\n" );
 	}
 
+	private Map<Date, List<IntraDayStructure>> fetchY(String data) throws Exception{
+		System.out.println( "Y" );
+		int index = 0;
+		final int INDX_D = 0;
+		final int INDX_C = 1;
+		final int INDX_H = 2;
+		final int INDX_L = 3;
+		final int INDX_O = 4;
+		final int INDX_V = 5;
+		
+		final Long DATE_OFFSET = 1000L;
+		final String[] rows = data.split("\n");
+		final Map<Date, List<IntraDayStructure>> map = new TreeMap<Date, List<IntraDayStructure>>(new Comparator<Date>() {
+			public int compare(Date o1, Date o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		List<IntraDayStructure> list = null;
+		boolean bDataStarted = false;
+		Date previousDate = null;
+		
+		for( String row : rows ){
+			if( row.startsWith("volume") ){
+				bDataStarted = true;
+			}else if( bDataStarted ){
+				String[] cols = row.split(",");
+				Date date = new Date( Long.parseLong(cols[INDX_D]) * DATE_OFFSET );
+				Double close = Double.parseDouble(cols[INDX_C]);
+				Double high  = Double.parseDouble(cols[INDX_H]);
+				Double low   = Double.parseDouble(cols[INDX_L]);
+				Double open  = Double.parseDouble(cols[INDX_O]);
+				Long volume = Long.parseLong(cols[INDX_V]);
+				if( previousDate == null || !Utility.areDatesEqual(previousDate, date) ){
+					list = new LinkedList<IntraDayStructure>();
+					map.put(date, list);
+					previousDate = date;
+				}
+				
+				list.add(new IntraDayStructure(++index, date.getTime(), close, high, low, open, volume));
+			}
+		}
+		
+		return map;
+	}
+
+	
 	private Map<Date, List<IntraDayStructure>> fetchG(String data, boolean isIntraDay) throws Exception{
 		//System.out.println( "G" );
 		int index = 0;
