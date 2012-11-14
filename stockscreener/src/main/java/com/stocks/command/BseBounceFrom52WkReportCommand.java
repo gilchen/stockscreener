@@ -1,5 +1,6 @@
 package com.stocks.command;
 
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,7 +21,6 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import com.stocks.model.Bse;
 import com.stocks.model.Report;
 import com.stocks.util.Utility;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 
 public class BseBounceFrom52WkReportCommand extends AbstractCommand {
 	private static final double RANGE_LOWER_PERCENT  = (9.0/100.0);
