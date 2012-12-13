@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <current_snapshot>
 	<symbols>
-		.DJIA,.VIX, .SPX, .FTSE, .FCHI, .GDAXI, AA, AGQ <!-- UGL, INDL, INFY, S, NOK, NFLX, BAC, C, NBG, LNC, FSLR, HPQ, ANR, ACI, BTU, ERX, UCO, CLWR, DYN, USU, GBG,TIV
+		DMND <!-- UGL, INDL, INFY, S, NOK, NFLX, BAC, C, NBG, LNC, FSLR, HPQ, ANR, ACI, BTU, ERX, UCO, CLWR, DYN, USU, GBG,TIV
 		 -->,   
 		<!--	ABIO, AEZS, AFFM, ALXA, AMPL, ANCI, ANX, AONE, APPY, ATC, AXN, BIOD, BIOF, BPAX, BWEN, BWOW, BWOWU, BWOWW, CALI, CBRX, CCCLW, CERP, CGR, CHGS, CMFO, CNAM, CNET, CNYD, CPHI, CPSL, CRMBW, CRMD, CRME, CWTR, CYCC, DARA, DEXO, DHT, DLGC, DMED, DRRX, DYN, ECTY, ENA, FFI, FREE, GBG, HDY, HOKU, IGOI, INUV, JSDA, KONE, LZEN, MCZ, MGH, MOTR, MSHL, NBS, NEWN, NEXS, NGSX, NTWK, OPHC, OPXAW, OPXT, ORCT, OSN, OXGN, PEDH, PNSN, PPHM, PRGN, PURE, PWAV, QKLS, QMM, QTWW, ROSG, SAPX, SATC, SCON, SHZ, SOMX, SPEX, SPIR, SR, STEM, STXS, THQI, TIV, TNGN, TPI, TRMD, USATZ, USU, VISN, WEST, WHRT, WUHN, ZLCS, ZNWAL -->
 		<!--.DJIA,.VIX, .SPX, .FTSE, .FCHI, .GDAXI, AA, AGQ, UGL, INDL, INFY, S, NOK, NFLX, BAC, C, NBG, LNC, FSLR, HPQ, ANR, ACI, BTU, ERX, UCO, CLWR, DYN, USU, GBG,TIV -->
@@ -141,10 +141,20 @@
 		<position>
 			<symbol>SDOW</symbol>
 			<entries>
+				<!-- entry>
+					<buy-date>04/10/2011</buy-date>
+					<qty>13</qty>
+					<price>44.33</price>
+				</entry>
 				<entry>
-					<buy-date>01/01/2000</buy-date>
-					<qty>28</qty>
-					<price>38.88</price>
+					<buy-date>17/10/2011</buy-date>
+					<qty>15</qty>
+					<price>34.15</price>
+				</entry -->
+				<entry>
+					<buy-date>04/10/2011</buy-date>
+					<qty>7</qty>
+					<price>155.52</price>
 				</entry>
 			</entries>
 		</position>
@@ -235,7 +245,7 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>TIV</symbol>
+			<symbol>TVLYQ</symbol>
 			<entries>
 				<entry>
 					<buy-date>01/01/2000</buy-date>
@@ -275,7 +285,7 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>ATPG</symbol>
+			<symbol>ATPAQ</symbol>
 			<entries>
 				<entry>
 					<buy-date>08/02/2012</buy-date>
@@ -305,6 +315,38 @@
 				</entry-->
 			</entries>
 		</position>
+		
+		<position>
+			<symbol>RENN</symbol>
+			<entries>
+				<entry>
+					<buy-date>11/09/2012</buy-date>
+					<qty>75</qty>
+					<price>3.4</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>TROX</symbol>
+			<entries>
+				<entry>
+					<buy-date>12/11/2012</buy-date>
+					<qty>20</qty>
+					<price>15.25</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>EBR</symbol>
+			<entries>
+				<entry>
+					<buy-date>12/11/2012</buy-date>
+					<qty>95</qty>
+					<price>3.24</price>
+				</entry>
+			</entries>
+		</position>
+
 	</positions>
-	
+
 </current_snapshot>
