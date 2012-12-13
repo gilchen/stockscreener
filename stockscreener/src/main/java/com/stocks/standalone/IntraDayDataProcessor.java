@@ -124,6 +124,7 @@ public class IntraDayDataProcessor {
 	}
 
 	private void process(String symbol, StringBuilder sb, final String GOOGLE_URL_INTRA_DAY, String GOOGLE_URL_DAY_CLOSE) throws Exception{
+		//final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchY( Utility.getContent( properties.getProperty("yahoo.url.intra.day").replaceAll("~SYMBOL", symbol) ) );
 //		final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchG( Utility.getContent( "file:/C:/Temp/ForSrid/intra/rpts/Intra"+symbol ), true );
 //		final Map<Date, List<IntraDayStructure>> mapGDayClose = fetchG( Utility.getContent( "file:/C:/Temp/ForSrid/intra/rpts/"+symbol ), false );
 		
@@ -155,6 +156,9 @@ public class IntraDayDataProcessor {
 		final List<Long> volumeList = new ArrayList<Long>();
 		final StringBuilder sbDates = new StringBuilder();
 		final StringBuilder sbCloseData = new StringBuilder();
+		Long maxVolume = 0L;
+		String noteMaxVolxClose = "";
+		
 		for(final Date tradeDate : dateSet){
 			final IntraDayStructure idsClose = mDayClose.get(Utility.getStrDate(tradeDate));
 			
@@ -190,9 +194,17 @@ public class IntraDayDataProcessor {
 				}
 			}
 			
-			volumeList.add(bVol-sVol);
+			final Double close = idsClose != null ? idsClose.getClose() : idsList.get(idsList.size()-1).getClose();
+			
+			final Long vol = bVol-sVol;
+			volumeList.add(vol);
+			if( vol > maxVolume ){
+				maxVolume = vol;
+				noteMaxVolxClose = "Note: V x C on " +Utility.getStrDate(tradeDate)+ " was $" +Utility.getFormattedInteger(maxVolume * close);
+			}
+
 			sbDates.append(",").append(Utility.getStrDate(tradeDate));
-			sbCloseData.append(",").append( idsClose != null ? idsClose.getClose() : idsList.get(idsList.size()-1).getClose() );
+			sbCloseData.append(",").append( close );
 		}
 	
 		String CHART_HTML_DATA = CHART_HTML;
@@ -202,10 +214,9 @@ public class IntraDayDataProcessor {
 		CHART_HTML_DATA = CHART_HTML_DATA.replace("~VOLUME_DATA", volumeList.toString().replaceAll("\\[|\\]", "").replaceAll(" ", ""));
 		CHART_HTML_DATA = CHART_HTML_DATA.replace("~DATES_DATA", sbDates.substring(1));
 		
-
-
 		sb.append( "P<input type=checkbox onclick=\"summarize()\" name=positive value=\"" +symbol+ "\"> N<input type=checkbox onclick=\"summarize()\" name=negative value=\"" +symbol+ "\"> " );
 		sb.append( "<a href='http://www.google.com/finance?q=" +symbol+ "' target='_new'>" +symbol+ "</a> " );
+		sb.append( noteMaxVolxClose +"\n" );
 		sb.append( CHART_HTML_DATA +"\n\n" );
 	}
 

@@ -8,10 +8,10 @@ import com.stocks.util.Utility;
 public class CallerQuote {
 	final static String[] BSE_LIST = {"500010", "500087", "500103", "500112", "500180", "500182", "500209", "500312", "500325", "500400", "500440", "500470", "500510", "500520", "500570", "500696", "500875", "500900", "507685", "524715", "532174", "532286", "532454", "532500", "532532", "532540", "532541", "532868", "532977", "533278"};
 	//final static String[] GOOGLE_ETF_LIST = {"DRV", "TZA", "SRTY", "TMV", "FAZ", "YINN", "SQQQ", "SMDD", "ERY", "SOXS", "SPXU", "EDZ", "EDC", "SDOW", "LBJ", "LHB", "DZK", "DPK", "ERX", "YANG", "SOXL", "MWN", "TYO", "TNA", "URTY", "FAS", "UMDD", "TQQQ", "UPRO", "BGZ", "UDOW", "DRN", "TMF", "MWJ", "TYH", "BGU", "TYD"};
-	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "BVSN", "TVLYQ", "SAPX", "TVIX", "ATPG", "UVXY", "RENN", "NBG", "SYNC", "-", "ERX", "UCO", "-", "UGL", "INDL", "STP" };
+	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "BVSN", "TVLYQ", "SAPX", "TVIX", "ATPG", "UVXY", "RENN", "TROX", "EBR", "-", "ERX", "UCO", "-", "UGL", "INDL" };
 	//final static String[] CNBC_ETF_LIST = {"UDOW", "UPRO", "TQQQ", "UMDD", "URTY", "FAS", "TNA", "BGU", "TYD", "TWOL", "TMF", "CZM", "DZK", "EDC", "ERX", "LBJ", "MWJ", "DRN", "SOXL", "TYH", "SDOW", "SPXU", "SQQQ", "SMDD", "SRTY", "FAZ", "TZA", "BGZ", "TYO", "TWOZ", "TMV", "CZI", "DPK", "EDZ", "ERY", "LHB", "MWN", "DRV", "SOXS", "TYP"};
-	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "BVSN", "TVLYQ", "SAPX", "TVIX", "ATPAQ", "UVXY", "RENN", "NBG", "SYNC", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL", "STP" };
-	//final static String[] CNBC_ETF_LIST = {"SYNC", "BVSN"};
+	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AGQ", "BAL", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "BVSN", "TVLYQ", "SAPX", "TVIX", "ATPAQ", "UVXY", "RENN", "TROX", "EBR", "-", "ERX", "UCO", "CLCV1", "-", "UGL", "INDL" };
+	//final static String[] CNBC_ETF_LIST = {"INFA", "TROX", "EBR", "APOL", "SNE"};
 	//final static String[] CNBC_ETF_LIST = {"UYM", "SMN",  "UGE", "SZK",  "UCC", "SCC",  "UYG", "SKF",  "RXL", "RXD",  "UXI", "SIJ",  "DIG", "DUG",  "URE", "SRS",  "LTL", "TLL",  "USD", "SSG",  "ROM", "REW",  "UPW", "SDP",  "UCO", "SCO",  "UGL", "GLL",  "UST", "PST",  "UBT", "TBT"};
 	
 	final static String BSE_URL    = "http://www.bseindia.com/bseplus/StockReach/AdvStockReach.aspx?scripcode=~SCRIPCODE&section=tab1&IsPF=undefined&random=0.22032093349844217";
@@ -90,7 +90,7 @@ public class CallerQuote {
 			double high52w = NF.parse( high.trim() ).doubleValue();
 			
 			//System.out.println( lastClose +", "+ low +" - "+ high );
-			
+
 			Double low52w_pc = 0.0;
 			Double high52w_pc = 0.0;
 			Double realTimePrice = NF.parse(lastClose.trim()).doubleValue();
