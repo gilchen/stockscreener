@@ -49,6 +49,10 @@ public class Utility {
 		return s1.equals(s2);
 	}
 
+	public static Date getDateFor(String str, String format) throws Exception {
+		return new SimpleDateFormat(format).parse( str );
+	}
+	
 	public static Date getDate(String str) throws Exception {
 		return new SimpleDateFormat("MM/dd/yyyy").parse( str );
 	}
