@@ -1,6 +1,7 @@
 package com.stocks.standalone;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -14,6 +15,8 @@ import org.josql.QueryResults;
 import com.stocks.util.Utility;
 
 public class TopVolumeHighlighter {
+	final static String GOOGLE_URL_INTRA_DAY = "http://www.google.com/finance/getprices?i=90&p=1M&f=d,c,v,o,h,l&df=cpct&auto=1&q=~SYMBOL";
+	final static double LEAST_CONSIDERABLE_CHANGE = 0.5;
 	final static int INDX_D = 0;
 	final static int INDX_C = 1;
 	final static int INDX_H = 2;
@@ -23,6 +26,8 @@ public class TopVolumeHighlighter {
 	final static Long DATE_OFFSET = 1000L;
 	final static String CHART_HTML = "\n<DIV id='~DATE' style='visibility:hidden;position:absolute;top:10;left:10'>" +
 			"\n<applet code='com.objectplanet.chart.ChartApplet' archive='chart.jar' width='1000' height='350'>" +
+			"\n<param name='zoomon' value='true'>" +
+			//"\n<param name='doubleBufferingOff' value='true'>" +
 			"\n<param name='chart' value='line'>" +
 			"\n<param name='chartTitle' value='~SYMBOL'>" +
 			"\n<param name='sampleValues_0' value='~CLOSELIST'>" +
@@ -43,6 +48,8 @@ public class TopVolumeHighlighter {
 			"\n<param name='valueLabelStyle' value='floating'>" +
 			"\n<param name='valueLinesOn' value='true'>" +
 			"\n<param name='defaultGridLinesOn' value='true'>" +
+			
+			"<!-- LABELS -->" +
 
 			"\n<param name='legendOn' value='true'>" +
 			"\n<param name='legendPosition' value='top'>" +
@@ -78,6 +85,9 @@ public class TopVolumeHighlighter {
 	public static void main(String... args) throws Exception{
 		final String symbol = "GTI";
 		final String content = Utility.getContent( "file:///C:/Temp/ForSrid/tmp/" +symbol+ "-1M.txt" );
+		//final String content = Utility.getContent( GOOGLE_URL_INTRA_DAY.replaceAll("~SYMBOL", symbol) );
+		
+		
 		final List<IntraDayStructure> idsList = getIntraDayStructureList(content);
 
 		// Start
@@ -113,6 +123,10 @@ public class TopVolumeHighlighter {
 		sb.append( "</script>" ).append("\n");
 		sb.append( "</head>" ).append("\n");
 		sb.append( "<body>" ).append("\n");
+		sb.append( "<P>This report reads IntraDay data from Google Finance. It generates Intra Day Charts for each day in the Past Month." ).append("\n");
+		sb.append( "It lays out 1 min close and volume for each day. Clicking the date link will display 1 min IntraDay Chart for that day." ).append("\n");
+		sb.append( "<B>Note</B>: There is a consolidated chart displayed in the end of this report. This chart displays close and volume for the entire month." ).append("\n");
+		sb.append( "This chart is the combined version of all individual date charts together. It highlights top volumes only that are dumps or pumps." ).append("\n");
 
 		final StringBuilder sbTabPanel = new StringBuilder();
 		
@@ -127,7 +141,13 @@ public class TopVolumeHighlighter {
 			// Process SubLists
 			int fromIndex = minMax.get(0).get(0)-1;
 			int toIndex   = minMax.get(0).get(1);
-			final String chartHTML = processSubList(idsList.subList(fromIndex, toIndex), symbol, sDate);
+			
+			final List<IntraDayStructure> idsSubList = idsList.subList(fromIndex, toIndex);
+			final QueryResults qrMinMax = Query.parseAndExec("SELECT min(volume), max(volume) FROM com.stocks.standalone.IntraDayStructure LIMIT 1,1", new ArrayList<IntraDayStructure>(idsSubList) );
+			final List<ArrayList<Long>> resultsMinMax = qrMinMax.getResults();
+			final Long minVolume = resultsMinMax.get(0).get(0);
+			final Long maxVolume = resultsMinMax.get(0).get(1);
+			final String chartHTML = processSubList(idsSubList, symbol, sDate, minVolume, maxVolume);
 			
 			sb.append( chartHTML ).append( "<BR>" );;
 			
@@ -156,42 +176,85 @@ public class TopVolumeHighlighter {
 		final StringBuilder sbDumps   = new StringBuilder("<table border=1>");
 		final StringBuilder sbPumps   = new StringBuilder("<table border=1>");
 
+		final ArrayList<String> labels = new ArrayList<String>();
+		List<Double> yLabelPos = Arrays.asList(new Double[]{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9});
+		int yIndex = 0;
 		for( final IntraDayStructure ids : idsList ){
+			if( yIndex == yLabelPos.size() ){
+				yIndex = 0;
+			}
+			
 			if( indices.contains( ids.getIndex() ) ){
 				// highlight
 				final IntraDayStructure idsPrev = idsList.get(ids.getIndex() >= 2 ? ids.getIndex()-2 : ids.getIndex());
+				final double change = Utility.round( ((ids.getClose() - idsPrev.getClose()) / idsPrev.getClose()) * 100.00 );
+				String label = null;
 				sbToppers.append("\n\n").append( idsPrev.toStringFor() );
 				sbToppers.append("\n").append( ids.toStringFor() );
 				
 				if( ids.getClose() < idsPrev.getClose() ){
-					sbDumps.append("<tr><td valign=middle align=center><input type=checkbox onclick='if(this.checked){this.parentNode.parentNode.style.backgroundColor=\"#FFDDFF\";}else{this.parentNode.parentNode.style.backgroundColor=\"#FFFFFF\";}'> <BR>" +Utility.round( ((ids.getClose() - idsPrev.getClose()) / idsPrev.getClose()) * 100.00 )+ "%</td>");
+					sbDumps.append("<tr><td valign=middle align=center><input type=checkbox onclick='if(this.checked){this.parentNode.parentNode.style.backgroundColor=\"#FFDDFF\";}else{this.parentNode.parentNode.style.backgroundColor=\"#FFFFFF\";}'> <BR>" +change+ "%</td>");
 					sbDumps.append("<td>").append( idsPrev.toStringFor() );
 					sbDumps.append("<BR>").append( ids.toStringFor() );
 					sbDumps.append("</td></tr>");
+					
+					if( Math.abs(change) > LEAST_CONSIDERABLE_CHANGE ){
+						// Text,X,Y,index,series
+						double x = 100.00 + ((((double)ids.getIndex() - (double)idsList.size()) / (double)idsList.size()) * 100.00);
+						String strX = "0." +(x+"").replace(".", "");
+						label = "D Price: " +ids.getClose()+ " Index: " +ids.getIndex()+ " Val $" +Utility.getFormattedInteger(ids.getClose()*ids.getVolume()).replaceAll(",", " ")+ "," +strX+ "," +yLabelPos.get(yIndex++)+ "," +(ids.getIndex()-1)+",0";
+					}
 				}else{
-					sbPumps.append("<tr><td valign=middle align=center><input type=checkbox onclick='if(this.checked){this.parentNode.parentNode.style.backgroundColor=\"#99EEDD\";}else{this.parentNode.parentNode.style.backgroundColor=\"#FFFFFF\";}'> <BR>" +Utility.round( ((ids.getClose() - idsPrev.getClose()) / idsPrev.getClose()) * 100.00 )+ "%</td>");
+					sbPumps.append("<tr><td valign=middle align=center><input type=checkbox onclick='if(this.checked){this.parentNode.parentNode.style.backgroundColor=\"#99EEDD\";}else{this.parentNode.parentNode.style.backgroundColor=\"#FFFFFF\";}'> <BR>" +change+ "%</td>");
 					sbPumps.append("<td>").append( idsPrev.toStringFor() );
 					sbPumps.append("<BR>").append( ids.toStringFor() );
 					sbPumps.append("</td></tr>");
+
+					if( Math.abs(change) > LEAST_CONSIDERABLE_CHANGE ){
+						// Text,X,Y,index,series
+						double x = 100.00 + ((((double)ids.getIndex() - (double)idsList.size()) / (double)idsList.size()) * 100.00);
+						String strX = "0." +(x+"").replace(".", "");
+						label = "P Price: " +ids.getClose()+ " Index: " +ids.getIndex()+ " Val $" +Utility.getFormattedInteger(ids.getClose()*ids.getVolume()).replaceAll(",", " ")+ "," +strX+ "," +yLabelPos.get(yIndex++)+ "," +(ids.getIndex()-1)+",0";
+					}
+				}
+				
+				if( label != null ){
+					labels.add(label);
 				}
 			}
 		}
+		
+		final StringBuilder sbLabels = new StringBuilder();
+		for(int i=0; i<labels.size(); i++){
+			sbLabels.append("\n<param name='label_" +i+ "' value='" +labels.get(i)+ "'>");
+			System.out.println( "Label: " +labels.get(i) );
+		}
+		
 		sbDumps.append("</table>");
 		sbPumps.append("</table>");
 		
 		sb.append("\n<pre>Dumps: \n").append( sbDumps ).append("</pre>");
 		sb.append("\n<pre>Pumps: \n").append( sbPumps ).append("</pre>");
 		sb.append("\n<pre>All: \n").append( sbToppers ).append("</pre>");
+		
+		String chartHTMLAll = processSubList(idsList, symbol, "All", lowestVol, highestVol);
+		chartHTMLAll = chartHTMLAll.replace("hidden", "visible");
+		chartHTMLAll = chartHTMLAll.replace("absolute", "relative");
+		chartHTMLAll = chartHTMLAll.replace("<!-- LABELS -->", sbLabels.toString() );
+		chartHTMLAll = chartHTMLAll.replace("visibleSamples", "visibleSamplesNOTUSED");
+		
+		sb.append( chartHTMLAll );
+		
 		sb.append("</body></html>");
 		
-		final String s = sb.toString().replaceAll("~HIGHEST_VOL", highestVol.toString()).replaceAll("~LOWEST_VOL", lowestVol.toString());
+		//final String s = sb.toString().replaceAll("~HIGHEST_VOL", highestVol.toString()).replaceAll("~LOWEST_VOL", lowestVol.toString());
 		
-		Utility.saveContent("C:/Temp/ForSrid/tmp/rpt.html", s);
+		Utility.saveContent("C:/Temp/ForSrid/tmp/rpt.html", sb.toString());
 		System.out.println( "Done" );
 		
 	}
 	
-	private static String processSubList(final List<IntraDayStructure> idsSubList, String symbol, String sDate) throws Exception{
+	private static String processSubList(final List<IntraDayStructure> idsSubList, String symbol, String sDate, Long lowestVolume, Long highestVolume) throws Exception{
 		final StringBuilder sbCloseList = new StringBuilder();
 		final StringBuilder sbVolumeList = new StringBuilder();
 		final StringBuilder sbIndexList = new StringBuilder();
@@ -215,7 +278,8 @@ public class TopVolumeHighlighter {
 		chartHTML = chartHTML.replace("~HIGHEST_CLOSE", maxClose.toString() );
 		chartHTML = chartHTML.replace("~LOWEST_CLOSE", minClose.toString() );
 		chartHTML = chartHTML.replace("~DATE", sDate );
-		
+		chartHTML = chartHTML.replaceAll("~HIGHEST_VOL", highestVolume.toString());
+		chartHTML = chartHTML.replaceAll("~LOWEST_VOL", lowestVolume.toString());
 		return chartHTML;
 	}
 	
