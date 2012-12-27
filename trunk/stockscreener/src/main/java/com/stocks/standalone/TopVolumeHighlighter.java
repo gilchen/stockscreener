@@ -16,7 +16,6 @@ import com.stocks.util.Utility;
 
 public class TopVolumeHighlighter {
 	final static String GOOGLE_URL_INTRA_DAY = "http://www.google.com/finance/getprices?i=90&p=1M&f=d,c,v,o,h,l&df=cpct&auto=1&q=~SYMBOL";
-	final static double LEAST_CONSIDERABLE_CHANGE = 0.5;
 	final static int INDX_D = 0;
 	final static int INDX_C = 1;
 	final static int INDX_H = 2;
@@ -83,7 +82,11 @@ public class TopVolumeHighlighter {
 			"\n</DIV>";
 
 	public static void main(String... args) throws Exception{
-		final String symbol = "GTI";
+		final String symbol = "EBR";
+		final String ignoreBeforeDate = "30_NOV_2012";
+		
+		int ignoreBeforeIndex = 0;
+		
 		final String content = Utility.getContent( "file:///C:/Temp/ForSrid/tmp/" +symbol+ "-1M.txt" );
 		//final String content = Utility.getContent( GOOGLE_URL_INTRA_DAY.replaceAll("~SYMBOL", symbol) );
 		
@@ -141,6 +144,10 @@ public class TopVolumeHighlighter {
 			// Process SubLists
 			int fromIndex = minMax.get(0).get(0)-1;
 			int toIndex   = minMax.get(0).get(1);
+
+			if( sDate.equalsIgnoreCase( ignoreBeforeDate ) ){
+				ignoreBeforeIndex = fromIndex;
+			}
 			
 			final List<IntraDayStructure> idsSubList = idsList.subList(fromIndex, toIndex);
 			final QueryResults qrMinMax = Query.parseAndExec("SELECT min(volume), max(volume) FROM com.stocks.standalone.IntraDayStructure LIMIT 1,1", new ArrayList<IntraDayStructure>(idsSubList) );
@@ -161,7 +168,7 @@ public class TopVolumeHighlighter {
 		// End
 		
 		// http://josql.sourceforge.net/manual/limit-clause.html
-		final QueryResults qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure order by volume desc LIMIT 1, 40", new ArrayList<IntraDayStructure>(idsList) );
+		final QueryResults qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure order by volume*close desc LIMIT 1, 20", new ArrayList<IntraDayStructure>(idsList) );
 		final List<IntraDayStructure> results = qrTopN.getResults();
 		
 		final List<Integer> indices = new ArrayList<Integer>(); 
@@ -177,7 +184,9 @@ public class TopVolumeHighlighter {
 		final StringBuilder sbPumps   = new StringBuilder("<table border=1>");
 
 		final ArrayList<String> labels = new ArrayList<String>();
-		List<Double> yLabelPos = Arrays.asList(new Double[]{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9});
+		labels.add("Ignore Before: " +ignoreBeforeIndex+ ",0.01,0.01," +(ignoreBeforeIndex-1)+ ",0");
+		
+		List<Double> yLabelPos = Arrays.asList(new Double[]{0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95});
 		int yIndex = 0;
 		for( final IntraDayStructure ids : idsList ){
 			if( yIndex == yLabelPos.size() ){
@@ -197,49 +206,39 @@ public class TopVolumeHighlighter {
 					sbDumps.append("<td>").append( idsPrev.toStringFor() );
 					sbDumps.append("<BR>").append( ids.toStringFor() );
 					sbDumps.append("</td></tr>");
-					
-					if( Math.abs(change) > LEAST_CONSIDERABLE_CHANGE ){
-						// Text,X,Y,index,series
-						double x = 100.00 + ((((double)ids.getIndex() - (double)idsList.size()) / (double)idsList.size()) * 100.00);
-						String strX = "0." +(x+"").replace(".", "");
-						label = "D Price: " +ids.getClose()+ " Index: " +ids.getIndex()+ " Val $" +Utility.getFormattedInteger(ids.getClose()*ids.getVolume()).replaceAll(",", " ")+ "," +strX+ "," +yLabelPos.get(yIndex++)+ "," +(ids.getIndex()-1)+",0";
-					}
 				}else{
 					sbPumps.append("<tr><td valign=middle align=center><input type=checkbox onclick='if(this.checked){this.parentNode.parentNode.style.backgroundColor=\"#99EEDD\";}else{this.parentNode.parentNode.style.backgroundColor=\"#FFFFFF\";}'> <BR>" +change+ "%</td>");
 					sbPumps.append("<td>").append( idsPrev.toStringFor() );
 					sbPumps.append("<BR>").append( ids.toStringFor() );
 					sbPumps.append("</td></tr>");
+				}
 
-					if( Math.abs(change) > LEAST_CONSIDERABLE_CHANGE ){
-						// Text,X,Y,index,series
-						double x = 100.00 + ((((double)ids.getIndex() - (double)idsList.size()) / (double)idsList.size()) * 100.00);
-						String strX = "0." +(x+"").replace(".", "");
-						label = "P Price: " +ids.getClose()+ " Index: " +ids.getIndex()+ " Val $" +Utility.getFormattedInteger(ids.getClose()*ids.getVolume()).replaceAll(",", " ")+ "," +strX+ "," +yLabelPos.get(yIndex++)+ "," +(ids.getIndex()-1)+",0";
-					}
-				}
+				double x = 100.00 + ((((double)ids.getIndex() - (double)idsList.size()) / (double)idsList.size()) * 100.00);
+				x = (x > 20.0 ? x-20.0 : x);
+				String strX = "0." +(x+"").replace(".", "");
+				label = (change < 0.0 ? "D" : "P")+ " Price: " +ids.getClose()+ " (" +idsPrev.getClose()+ " " +change+"%) Index: " +ids.getIndex()+ " Val $" +Utility.getFormattedInteger(ids.getClose()*ids.getVolume()).replaceAll(",", " ")+ "," +strX+ "," +yLabelPos.get(yIndex++)+ "," +(ids.getIndex()-1)+",0";
 				
-				if( label != null ){
-					labels.add(label);
-				}
+				labels.add(label);
 			}
 		}
 		
 		final StringBuilder sbLabels = new StringBuilder();
 		for(int i=0; i<labels.size(); i++){
 			sbLabels.append("\n<param name='label_" +i+ "' value='" +labels.get(i)+ "'>");
-			System.out.println( "Label: " +labels.get(i) );
+			//System.out.println( "Label: " +labels.get(i) );
 		}
 		
 		sbDumps.append("</table>");
 		sbPumps.append("</table>");
 		
-		sb.append("\n<pre>Dumps: \n").append( sbDumps ).append("</pre>");
-		sb.append("\n<pre>Pumps: \n").append( sbPumps ).append("</pre>");
-		sb.append("\n<pre>All: \n").append( sbToppers ).append("</pre>");
+		sb.append("\n<pre>Dumps (Volume Toppers): <B>Note</B>: Consider them Pumps if %change is very low. \n").append( sbDumps ).append("</pre>");
+		sb.append("\n<pre>Pumps (Volume Toppers): \n").append( sbPumps ).append("</pre>");
+		sb.append("\n<pre>All (Volume Toppers): \n").append( sbToppers ).append("</pre>");
 		
 		String chartHTMLAll = processSubList(idsList, symbol, "All", lowestVol, highestVol);
 		chartHTMLAll = chartHTMLAll.replace("hidden", "visible");
 		chartHTMLAll = chartHTMLAll.replace("absolute", "relative");
+		chartHTMLAll = chartHTMLAll.replace("width='1000' height='350'", "width='1300' height='550'");
 		chartHTMLAll = chartHTMLAll.replace("<!-- LABELS -->", sbLabels.toString() );
 		chartHTMLAll = chartHTMLAll.replace("visibleSamples", "visibleSamplesNOTUSED");
 		
@@ -250,6 +249,15 @@ public class TopVolumeHighlighter {
 		//final String s = sb.toString().replaceAll("~HIGHEST_VOL", highestVol.toString()).replaceAll("~LOWEST_VOL", lowestVol.toString());
 		
 		Utility.saveContent("C:/Temp/ForSrid/tmp/rpt.html", sb.toString());
+		
+//		for(final IntraDayStructure ids : idsList){
+//			Double tradeValue = (ids.getClose() * ids.getVolume());
+//			if( tradeValue >= 100000 ){
+//				System.out.println( ids.getIndex() +" value: " +Utility.getFormattedInteger(tradeValue) );
+//			}
+//		}
+		
+		
 		System.out.println( "Done" );
 		
 	}
