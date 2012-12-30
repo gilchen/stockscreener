@@ -82,7 +82,7 @@
 	</filter_checks>
 	
 	<positions>
-		<position>
+		<!-- position>
 			<symbol>AGQ</symbol>
 			<entries>
 				<entry>
@@ -91,17 +91,30 @@
 					<price>226.1</price>
 				</entry>
 			</entries>
-		</position>
-		<position>
-			<symbol>BAL</symbol>
+		</position -->
+		
+		<position description="AGQ's 1 share was split into 2. The above average rate of 226.1 is provided by Sogotrade. The below rate is calculated by me for any pending unsold quantities.">
+			<symbol>AGQ</symbol>
 			<entries>
 				<entry>
-					<buy-date>06/07/2011</buy-date>
-					<qty>13</qty>
-					<price>81.82</price>
+					<buy-date>04/29/2011</buy-date>
+					<qty>10</qty>
+					<price>179.715</price>
+				</entry>
+				<entry>
+					<buy-date>05/02/2011</buy-date>
+					<qty>10</qty>
+					<price>159.4</price>
+				</entry>
+				<entry>
+					<buy-date>09/15/2011</buy-date>
+					<qty>6</qty>
+					<price>102.93</price>
 				</entry>
 			</entries>
 		</position>
+		
+		
 		<position>
 			<symbol>FTR</symbol>
 			<entries>
@@ -235,41 +248,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>BVSN</symbol>
-			<entries>
-				<entry>
-					<buy-date>04/17/2012</buy-date>
-					<qty>9</qty>
-					<price>28.7</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
-			<symbol>TVLYQ</symbol>
-			<entries>
-				<entry>
-					<buy-date>05/04/2012</buy-date>
-					<qty>1250</qty>
-					<price>0.0809</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
-			<symbol>SAPX</symbol>
-			<entries>
-				<entry>
-					<buy-date>05/30/2012</buy-date>
-					<qty>28</qty>
-					<price>3.64</price>
-				</entry>
-				<!-- entry>
-					<buy-date>01/01/2000</buy-date>
-					<qty>1950</qty>
-					<price>0.052</price>
-				</entry -->
-			</entries>
-		</position>
-		<position>
 			<symbol>TVIX</symbol>
 			<entries>
 				<!-- entry>
@@ -290,22 +268,6 @@
 				</entry>
 			</entries>
 		</position>
-		<position>
-			<symbol>ATPAQ</symbol>
-			<entries>
-				<entry>
-					<buy-date>08/02/2012</buy-date>
-					<qty>150</qty>
-					<price>1.31</price>
-				</entry>
-				<entry>
-					<buy-date>08/10/2012</buy-date>
-					<qty>111</qty>
-					<price>0.4674</price>
-				</entry>
-			</entries>
-		</position>
-
 		<position>
 			<symbol>UVXY</symbol>
 			<entries>
@@ -362,7 +324,6 @@
 				</entry>
 			</entries>
 		</position>
-
 	</positions>
 
 </current_snapshot>

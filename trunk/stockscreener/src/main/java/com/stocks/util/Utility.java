@@ -56,6 +56,10 @@ public class Utility {
 	public static Date getDate(String str) throws Exception {
 		return new SimpleDateFormat("MM/dd/yyyy").parse( str );
 	}
+
+	public static String getStrDate(Date dt, String format){
+		return new SimpleDateFormat(format).format( dt );
+	}
 	
 	public static String getStrDate(Date dt){
 		return new SimpleDateFormat("MM/dd/yyyy").format( dt );
