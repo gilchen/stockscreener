@@ -86,7 +86,10 @@ public class IntraDayDataProcessor {
 			writer.append( "	vTotalNeg = 0;").append("\n");
 			writer.append( "	arrPositive = document.getElementsByName('positive');").append("\n");
 			writer.append( "	arrNegative = document.getElementsByName('negative');").append("\n");
-			writer.append( "    vPositiveStocks = \"\";").append("\n");
+			writer.append( "	arrConsiderForTopVolumeHighlighter = document.getElementsByName('considerForTopVolumeHighlighter');").append("\n");
+			writer.append( "	vPositiveStocks = \"\";").append("\n");
+			writer.append( "	vConsiderableForTopVolumeHighlighter = \"\";").append("\n");
+			
 			writer.append( "	for(i=0; i<arrPositive.length; i++ ){").append("\n");
 			writer.append( "		elem = document.getElementsByName('positive').item(i);").append("\n");
 			writer.append( "		if( elem.checked ){").append("\n");
@@ -101,18 +104,28 @@ public class IntraDayDataProcessor {
 			writer.append( "			vTotalNeg++;").append("\n");
 			writer.append( "		}").append("\n");
 			writer.append( "	}").append("\n");
-			
+
+			writer.append( "	for(i=0; i<arrConsiderForTopVolumeHighlighter.length; i++ ){").append("\n");
+			writer.append( "		elem = document.getElementsByName('considerForTopVolumeHighlighter').item(i);").append("\n");
+			writer.append( "		if( elem.checked ){").append("\n");
+			writer.append( "            vConsiderableForTopVolumeHighlighter += elem.value +\",\";").append("\n");
+			writer.append( "		}").append("\n");
+			writer.append( "	}").append("\n");
+
 			writer.append( "	document.getElementById('totalPos').value = vTotalPos;").append("\n");
 			writer.append( "	document.getElementById('totalNeg').value = vTotalNeg;").append("\n");
-			writer.append( "    document.getElementById('positiveStocks').value = vPositiveStocks;").append("\n");
+			writer.append( "	document.getElementById('positiveStocks').value = vPositiveStocks;").append("\n");
+			writer.append( "	document.getElementById('tConsiderableForTopVolumeHighlighter').value = vConsiderableForTopVolumeHighlighter != '' ? vConsiderableForTopVolumeHighlighter.substring(0, vConsiderableForTopVolumeHighlighter.length-1) : vConsiderableForTopVolumeHighlighter;").append("\n");
 			writer.append( "").append("\n");
 			writer.append( "}").append("\n");
 			writer.append( "</script>").append("\n");
 			//writer.append( "</head>").append("\n");
 			
+			writer.append( "Report generated on <B>" + new Date() + "</B>\n" );
 			writer.append("<PRE><B>Description</B>: This report displays two series of data for each symbol viz. Close and Volume.\nWhen you hover over the round marks on each series it will display the data they represent.\nVolume is actually Buy/Sell Volume in the sense that every rise in intraday data is considered to be buy and every fall is considered sell.\nLook for spikes in Buy volume. This should be at least 4 times average buy volume.\nIf there are small or no sell volumes recently and a sudden buy volume comes, then this is a very bullish sign.\nDo not consider symbols where you see many sell instances recently.\nAlso, there are 2 checkboxes provided by each chart. \nThey are for marking Positive/Negative outcome of the strategy as exceptions are always there.\nThe textboxes on the top will summarize this information for you with Positive Symbols displayed as comma-separated string.\nIf you do not see charts, then copy the <U>chart.jar</U> to current folder where this html file resides.").append("\n");
 			writer.append("TotalPos: <input type=text name=\"totalPos\" id=\"totalPos\"> <input type=text name=\"positiveStocks\" id=\"positiveStocks\">").append("\n");
 			writer.append("TotalNeg: <input type=text name=\"totalNeg\" id=\"totalNeg\">").append("\n");
+			writer.append("To be considered for Top Volume Highlighter: <input type=text name=\"tConsiderableForTopVolumeHighlighter\" id=\"tConsiderableForTopVolumeHighlighter\" size='40' onclick='this.select();'>").append("\n\n");
 			
 			writer.append( sb.toString() ).append("\n");
 			writer.append( "</PRE>" ).append("\n");
@@ -159,7 +172,7 @@ public class IntraDayDataProcessor {
 		final StringBuilder sbCloseData = new StringBuilder();
 		Long maxVolume = 0L;
 		String noteMaxVolxClose = "";
-		
+		Date dateWithMaxVolume = null;
 		for(final Date tradeDate : dateSet){
 			final IntraDayStructure idsClose = mDayClose.get(Utility.getStrDate(tradeDate));
 			
@@ -202,6 +215,7 @@ public class IntraDayDataProcessor {
 			if( vol > maxVolume ){
 				maxVolume = vol;
 				noteMaxVolxClose = "Note: V x C on " +Utility.getStrDate(tradeDate)+ " was $" +Utility.getFormattedInteger(maxVolume * close);
+				dateWithMaxVolume = tradeDate;
 			}
 
 			sbDates.append(",").append(Utility.getStrDate(tradeDate));
@@ -217,7 +231,8 @@ public class IntraDayDataProcessor {
 		
 		sb.append( "P<input type=checkbox onclick=\"summarize()\" name=positive value=\"" +symbol+ "\"> N<input type=checkbox onclick=\"summarize()\" name=negative value=\"" +symbol+ "\"> " );
 		sb.append( "<a href='http://www.google.com/finance?q=" +symbol+ "' target='_new'>" +symbol+ "</a> " );
-		sb.append( noteMaxVolxClose +"\n" );
+		sb.append( noteMaxVolxClose +" " );
+		sb.append( "<input type='checkbox' name='considerForTopVolumeHighlighter' value='" +symbol+ "|" +Utility.getStrDate(dateWithMaxVolume)+ "' onclick='summarize()'> Consider it for Top Volume Highlighter\n" );
 		sb.append( CHART_HTML_DATA +"\n\n" );
 	}
 
