@@ -238,16 +238,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>CTRP</symbol>
-			<entries>
-				<entry>
-					<buy-date>03/27/2012</buy-date>
-					<qty>11</qty>
-					<price>23.04</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>TVIX</symbol>
 			<entries>
 				<!-- entry>
@@ -285,42 +275,32 @@
 		</position>
 		
 		<position>
-			<symbol>RENN</symbol>
+			<symbol>ESI</symbol>
 			<entries>
 				<entry>
-					<buy-date>11/09/2012</buy-date>
-					<qty>75</qty>
-					<price>3.4</price>
+					<buy-date>01/02/2013</buy-date>
+					<qty>18</qty>
+					<price>17.90</price>
 				</entry>
 			</entries>
 		</position>
 		<position>
-			<symbol>EBR</symbol>
+			<symbol>CIG</symbol>
 			<entries>
 				<entry>
-					<buy-date>12/11/2012</buy-date>
-					<qty>95</qty>
-					<price>3.24</price>
+					<buy-date>01/10/2013</buy-date>
+					<qty>33</qty>
+					<price>10.89</price>
 				</entry>
 			</entries>
 		</position>
 		<position>
-			<symbol>GTI</symbol>
+			<symbol>QSII</symbol>
 			<entries>
 				<entry>
-					<buy-date>12/18/2012</buy-date>
-					<qty>35</qty>
-					<price>8.65</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
-			<symbol>PLXT</symbol>
-			<entries>
-				<entry>
-					<buy-date>12/19/2012</buy-date>
-					<qty>80</qty>
-					<price>3.72</price>
+					<buy-date>01/15/2013</buy-date>
+					<qty>20</qty>
+					<price>18.20</price>
 				</entry>
 			</entries>
 		</position>

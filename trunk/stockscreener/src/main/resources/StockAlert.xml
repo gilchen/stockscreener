@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stock_alerts>
+
+<short_position>
+	<symbol>ONTY</symbol>
+	<date>12/19/2012</date>
+	<price>1.73</price>
+	<volume>470334</volume>
+	<description>Uncovered Short Position in ONTY @1.73 on 12/19/2012 Vol 470334 Val $813677.82</description>
+</short_position>
+
+<short_position>
+	<symbol>ROVI</symbol>
+	<date>12/21/2012</date>
+	<price>15.5</price>
+	<volume>224333</volume>
+	<description>ROVI - Uncovered Short Position @15.5 on 12/21/2012 Vol 224,333</description>
+</short_position>
+
+<short_position>
+	<symbol>AH</symbol>
+	<date>12/28/2012</date>
+	<price>11</price>
+	<volume>75799</volume>
+	<description>Uncovered Short Position in AH @11 on 12/28/2012 Vol 75799 Val $833789</description>
+</short_position>
+
+<short_position>
+	<symbol>MLNX</symbol>
+	<date>01/03/2013</date>
+	<price>50</price>
+	<volume>238334</volume>
+	<description>Uncovered Short Position in MLNX @50 on 01/03/2013 Vol 238334 Val $11916700</description>
+</short_position>
+
+<short_position>
+	<symbol>MNST</symbol>
+	<date>12/21/2012</date>
+	<price>50.9</price>
+	<volume>29827</volume>
+	<description>Uncovered Short Position in MNST @50.9 on 12/21/2012 Vol 29827 Val $1518194.3</description>
+</short_position>
+
+<short_position>
+	<symbol>MAKO</symbol>
+	<date>01/07/2013</date>
+	<price>10.355</price>
+	<volume>126781</volume>
+	<description>Uncovered Short Position in MAKO @10.355 on 01/07/2013 Vol 126781 Val $1312817.2550000001</description>
+</short_position>
+<short_position>
+	<symbol>CIG</symbol>
+	<date>01/04/2013</date>
+	<price>10.7814</price>
+	<volume>50041</volume>
+	<description>Uncovered Short Position in CIG @10.7814 on 01/04/2013 Vol 50041 Val $539512.0374</description>
+</short_position>
+
+</stock_alerts>
