@@ -15,6 +15,12 @@ public class Utility {
 	final static DecimalFormat df = new DecimalFormat("###,###.##");
 	final static DecimalFormat dfInteger = new DecimalFormat("###,###");
 	
+	public static final Long getDaysDifference(Date d1, Date d2){
+		Long diff = d2.getTime() - d1.getTime();
+		Long diffDays = diff / (24 * 60 * 60 * 1000);
+		return diffDays;
+	}
+	
 	public static String getContent(String sUrl) throws Exception {
 		StringBuffer content = new StringBuffer();
 
@@ -69,8 +75,8 @@ public class Utility {
 		return new SimpleDateFormat("HH:mm:ss").format( dt );
 	}
 	
-	public static long getDaysDiffBetween(Date date1, Date date2){
-		long diff = date1.getTime() - date2.getTime();
+	public static long getDaysDiffBetween(Date olderDate, Date newerDate){
+		long diff = newerDate.getTime() - olderDate.getTime();
 		return Math.abs(diff / (1000 * 60 * 60 * 24));
 	}
 	

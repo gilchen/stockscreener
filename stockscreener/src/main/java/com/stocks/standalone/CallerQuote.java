@@ -8,10 +8,10 @@ import com.stocks.util.Utility;
 public class CallerQuote {
 	final static String[] BSE_LIST = {"500010", "500087", "500103", "500112", "500180", "500182", "500209", "500312", "500325", "500400", "500440", "500470", "500510", "500520", "500570", "500696", "500875", "500900", "507685", "524715", "532174", "532286", "532454", "532500", "532532", "532540", "532541", "532868", "532977", "533278"};
 	//final static String[] GOOGLE_ETF_LIST = {"DRV", "TZA", "SRTY", "TMV", "FAZ", "YINN", "SQQQ", "SMDD", "ERY", "SOXS", "SPXU", "EDZ", "EDC", "SDOW", "LBJ", "LHB", "DZK", "DPK", "ERX", "YANG", "SOXL", "MWN", "TYO", "TNA", "URTY", "FAS", "UMDD", "TQQQ", "UPRO", "BGZ", "UDOW", "DRN", "TMF", "MWJ", "TYH", "BGU", "TYD"};
-	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "TVIX", "UVXY", "RENN", "EBR", "GTI", "PLXT", "-", "ERX", "UCO", "-", "OIBR", "HRG" };
+	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "TVIX", "UVXY", "EBR", "ESI", "-", "ERX", "UCO", "-", "HRG" };
 	//final static String[] CNBC_ETF_LIST = {"UDOW", "UPRO", "TQQQ", "UMDD", "URTY", "FAS", "TNA", "BGU", "TYD", "TWOL", "TMF", "CZM", "DZK", "EDC", "ERX", "LBJ", "MWJ", "DRN", "SOXL", "TYH", "SDOW", "SPXU", "SQQQ", "SMDD", "SRTY", "FAZ", "TZA", "BGZ", "TYO", "TWOZ", "TMV", "CZI", "DPK", "EDZ", "ERY", "LHB", "MWN", "DRV", "SOXS", "TYP"};
-	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AGQ", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "CTRP", "TVIX", "UVXY", "RENN", "EBR", "GTI", "PLXT", "-", "ERX", "UCO", "CLCV1", "-", "OIBR", "HRG" };
-	//final static String[] CNBC_ETF_LIST = {"INFA", "TROX", "EBR", "APOL", "SNE"};
+	final static String[] CNBC_ETF_LIST = {".DJIA", ".SPX", "COMP", ".FTSE", ".FCHI", ".GDAXI", "-", "AGQ", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "TVIX", "UVXY", "EBR", "ESI", "-", "ERX", "UCO", "CLCV1", "-", "HRG" };
+	//final static String[] CNBC_ETF_LIST = {"SNE"};
 	//final static String[] CNBC_ETF_LIST = {"UYM", "SMN",  "UGE", "SZK",  "UCC", "SCC",  "UYG", "SKF",  "RXL", "RXD",  "UXI", "SIJ",  "DIG", "DUG",  "URE", "SRS",  "LTL", "TLL",  "USD", "SSG",  "ROM", "REW",  "UPW", "SDP",  "UCO", "SCO",  "UGL", "GLL",  "UST", "PST",  "UBT", "TBT"};
 	
 	final static String BSE_URL    = "http://www.bseindia.com/bseplus/StockReach/AdvStockReach.aspx?scripcode=~SCRIPCODE&section=tab1&IsPF=undefined&random=0.22032093349844217";
@@ -198,106 +198,119 @@ public class CallerQuote {
 	}
 	
 
+	private static void processCnbc() throws Exception{
+		for( String symbol : CNBC_ETF_LIST ){
+			if( symbol.equals("-") ){
+				System.out.println( "------------------------------------------------------------------------------------------------------------------------------" );
+				continue;
+			}
+			final Quote quote = processCnbc(symbol);
+			System.out.println( String.format(ROW_FORMAT, quote.getSymbol(), quote.getRealTime(), quote.getRangeToday(), quote.getPcChange(), quote.getTime(), quote.getRange52wk(), quote.getRange52wkPc()) );
+		}
+	}
+	
 	/**
 	 * For processing quote feed.
 	 * 
 	 */
-	private static void processCnbc() throws Exception{
-		for( String symbol : CNBC_ETF_LIST ){
-			try{
-				if( symbol.equals("-") ){
-					System.out.println( "------------------------------------------------------------------------------------------------------------------------------" );
-					continue;
-				}
-				
-				final StringBuffer sb = new StringBuffer( Utility.getContent( CNBC_URL +symbol ) );
-				final StringBuffer sbExtn = new StringBuffer( Utility.getContent(CNBC_URL_EXTN +symbol) );
-				//final StringBuffer sbExtnCompPro = new StringBuffer( Utility.getContent( CNBC_URL_EXTN_COMPANY_PROFILE +symbol ) );
-				
-				String realTime = "";
-				String pcChange = "";
-				int index1 = sb.indexOf( "cnbc_mrq_pushSymbol(" );
-				if( index1 != -1 ){
-					String str = sb.substring( index1+20, sb.indexOf(");", index1) );
-					str = str.replace("'", "");
-					final String[] arr = str.split(",");
-					realTime = arr[1];
-					pcChange = arr[3];
-				}
-	
-				String high = "";
-				int index2 = sbExtn.indexOf("High Today");
-				if( index2 != -1 ){
-					int index3 = sbExtn.indexOf("<p class=\"data\">", index2);
-					high = sbExtn.substring( index3+16, sbExtn.indexOf("<", index3+1) );
-				}
-				
-				String low = "";
-				index2 = sbExtn.indexOf("Low Today", index2);
-				if( index2 != -1 ){
-					int index3 = sbExtn.indexOf("<p class=\"data\">", index2);
-					low = sbExtn.substring( index3+16, sbExtn.indexOf("<", index3+1) );
-				}
-				String range = low +" - "+high;
-				
-				String range52w = "", range52w_pc = "";
-				Double low52w = null, high52w = null;
-				index2 = sbExtn.indexOf("52-Week High", index2);
-				if( index2 != -1 ){
-					int index3 = sbExtn.indexOf("<p class=\"data\">", index2);
-					try{
-						high52w = NF.parse( sbExtn.substring( index3+16, sbExtn.indexOf("<", index3+1) ) ).doubleValue();
-					}
-					catch(Exception e){
-					}
-				}
-	
-				index2 = sbExtn.indexOf("52-Week Low", index2);
-				if( index2 != -1 ){
-					int index3 = sbExtn.indexOf("<p class=\"data\">", index2);
-					try{
-						low52w = NF.parse( sbExtn.substring( index3+16, sbExtn.indexOf("<", index3+1) ) ).doubleValue();
-					}
-					catch(Exception e){
-					}
-				}
-				range52w = low52w +" - "+ high52w;
+	public static Quote processCnbc(String symbol) throws Exception{
+		final Quote quote = new Quote();
+		quote.setSymbol( symbol );
+		
+		try{
+			final StringBuffer sb = new StringBuffer( Utility.getContent( CNBC_URL +symbol ) );
+			final StringBuffer sbExtn = new StringBuffer( Utility.getContent(CNBC_URL_EXTN +symbol) );
+			//final StringBuffer sbExtnCompPro = new StringBuffer( Utility.getContent( CNBC_URL_EXTN_COMPANY_PROFILE +symbol ) );
+			
+			String realTime = "";
+			String pcChange = "";
+			int index1 = sb.indexOf( "cnbc_mrq_pushSymbol(" );
+			if( index1 != -1 ){
+				String str = sb.substring( index1+20, sb.indexOf(");", index1) );
+				str = str.replace("'", "");
+				final String[] arr = str.split(",");
+				realTime = arr[1];
+				pcChange = arr[3];
+			}
+
+			String high = "";
+			int index2 = sbExtn.indexOf("High Today");
+			if( index2 != -1 ){
+				int index3 = sbExtn.indexOf("<p class=\"data\">", index2);
+				high = sbExtn.substring( index3+16, sbExtn.indexOf("<", index3+1) );
+			}
+			
+			String low = "";
+			index2 = sbExtn.indexOf("Low Today", index2);
+			if( index2 != -1 ){
+				int index3 = sbExtn.indexOf("<p class=\"data\">", index2);
+				low = sbExtn.substring( index3+16, sbExtn.indexOf("<", index3+1) );
+			}
+			String range = low +" - "+high;
+			
+			String range52w = "", range52w_pc = "";
+			Double low52w = null, high52w = null;
+			index2 = sbExtn.indexOf("52-Week High", index2);
+			if( index2 != -1 ){
+				int index3 = sbExtn.indexOf("<p class=\"data\">", index2);
 				try{
-					Double low52w_pc = 0.0;
-					Double high52w_pc = 0.0;
-					Double realTimePrice = NF.parse(realTime.trim()).doubleValue();
-					low52w_pc = ((realTimePrice - low52w)/low52w)*100.0;
-					high52w_pc = ((realTimePrice - high52w)/high52w)*100.0;
-					
-					range52w_pc = Utility.round(low52w_pc) +"% / "+ Utility.round(high52w_pc)+"%";
-					if( (low52w_pc >= RECOMMENDATION_52W_APPRECIATION_PC && low52w_pc <= RECOMMENDATION_52W_APPRECIATION_PC+5.0)
-							&& high52w_pc <= RECOMMENDATION_52W_CORRECTION_PC ){
-						range52w_pc += " (HOT STOCK. See Comments*)";
-					}
+					high52w = NF.parse( sbExtn.substring( index3+16, sbExtn.indexOf("<", index3+1) ) ).doubleValue();
 				}
 				catch(Exception e){
 				}
-	
-				String time = "";
-				int index4 = sb.indexOf( "var promoTime = " );
-				if( index4 != -1 ){
-					time = sb.substring( index4+16, sb.indexOf(";", index4));
-					time = time.replace("\"", "");
-					time = time.split(" ")[1];
+			}
+
+			index2 = sbExtn.indexOf("52-Week Low", index2);
+			if( index2 != -1 ){
+				int index3 = sbExtn.indexOf("<p class=\"data\">", index2);
+				try{
+					low52w = NF.parse( sbExtn.substring( index3+16, sbExtn.indexOf("<", index3+1) ) ).doubleValue();
 				}
+				catch(Exception e){
+				}
+			}
+			range52w = low52w +" - "+ high52w;
+			try{
+				Double low52w_pc = 0.0;
+				Double high52w_pc = 0.0;
+				Double realTimePrice = NF.parse(realTime.trim()).doubleValue();
+				low52w_pc = ((realTimePrice - low52w)/low52w)*100.0;
+				high52w_pc = ((realTimePrice - high52w)/high52w)*100.0;
 				
-	//			String industry = "";
-	//			int index5 = sbExtnCompPro.indexOf( "Industry:" );
-	//			if( index5 != -1 ){
-	//				industry = sbExtnCompPro.substring( index5+10, sbExtnCompPro.indexOf("</div>", index5+10) ).trim();
-	//			}
-				
-				System.out.println( String.format(ROW_FORMAT, symbol, realTime.trim(), range.trim(), pcChange.trim(), time.trim(), range52w.trim(), range52w_pc.trim()) );
+				range52w_pc = Utility.round(low52w_pc) +"% / "+ Utility.round(high52w_pc)+"%";
+				if( (low52w_pc >= RECOMMENDATION_52W_APPRECIATION_PC && low52w_pc <= RECOMMENDATION_52W_APPRECIATION_PC+5.0)
+						&& high52w_pc <= RECOMMENDATION_52W_CORRECTION_PC ){
+					range52w_pc += " (HOT STOCK. See Comments*)";
+				}
 			}
 			catch(Exception e){
-				e.printStackTrace();
 			}
+
+			String time = "";
+			int index4 = sb.indexOf( "var promoTime = " );
+			if( index4 != -1 ){
+				time = sb.substring( index4+16, sb.indexOf(";", index4));
+				time = time.replace("\"", "");
+				time = time.split(" ")[1];
+			}
+			
+//			String industry = "";
+//			int index5 = sbExtnCompPro.indexOf( "Industry:" );
+//			if( index5 != -1 ){
+//				industry = sbExtnCompPro.substring( index5+10, sbExtnCompPro.indexOf("</div>", index5+10) ).trim();
+//			}
+			
+			quote.setPcChange( pcChange.trim() );
+			quote.setRange52wk(range52w.trim());
+			quote.setRangeToday(range.trim());
+			quote.setRealTime(realTime.trim());
+			quote.setTime(time.trim());
+			quote.setRange52wkPc(range52w_pc.trim());
 		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		return quote;
 	}
 
 }

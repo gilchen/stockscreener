@@ -357,5 +357,15 @@
 				</entry>
 			</entries>
 		</position>
+		<position>
+			<symbol>532180</symbol>
+			<entries>
+				<entry>
+					<buy-date>01/18/2013</buy-date>
+					<qty>75</qty>
+					<price>66.00</price>
+				</entry>
+			</entries>
+		</position>
 	</positions>
 </current_snapshot>

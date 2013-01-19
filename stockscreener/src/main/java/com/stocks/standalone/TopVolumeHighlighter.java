@@ -37,7 +37,7 @@ public class TopVolumeHighlighter {
 	final static int INDX_V = 5;
 	final static Long DATE_OFFSET = 1000L;
 	final static String CHART_HTML = "\n<DIV id='~DATE' style='visibility:hidden;position:absolute;top:10;left:10'>" +
-			"\n<applet name='appletName' code='com.objectplanet.chart.ChartApplet' archive='chart.jar' width='1000' height='350'>" +
+			"\n<applet name='applet~DATE' code='com.objectplanet.chart.ChartApplet' archive='chart.jar' width='1000' height='350'>" +
 			"\n<param name='zoomon' value='true'>" +
 			//"\n<param name='doubleBufferingOff' value='true'>" +
 			"\n<param name='chart' value='line'>" +
@@ -91,7 +91,8 @@ public class TopVolumeHighlighter {
 			"\n<param name='chartBackground' value='#DADAFF'>" +
 			"\n<param name='sampleScrollerOn' value='true'>" +
 			"\n<param name='visibleSamples' value='0,100'>" +
-			"\n</applet>" +
+			"\n</applet><BR>" +
+			"\n<input type=button value='Get Value for Alert' onclick='getValueForAlert(\"applet~DATE\")'>" +
 			"\n</DIV>";
 
 	public static void main(String... args) throws Exception{
@@ -172,7 +173,36 @@ public class TopVolumeHighlighter {
 		sb.append( "		document.appletAll.setParameter('label_' +(i+1), arr[i]);" ).append("\n");
 		sb.append( "	}" ).append("\n");
 		sb.append( "}" ).append("\n");
-
+		
+		sb.append( "function getValueForAlert(appletName){" ).append("\n");
+		sb.append( "	chrt = document[appletName].chart;" ).append("\n");
+		sb.append( "	selectedIndex = chrt.getLastSelectedSample();" ).append("\n");
+		sb.append( "	if( selectedIndex != -1 ){" ).append("\n");
+		sb.append( "		symbol = chrt.getTitle();" ).append("\n");
+		sb.append( "		symbol = symbol.substring(0, symbol.indexOf(' '));" ).append("\n");
+		sb.append( "		sample0 = chrt.getChartData().getSample(0, selectedIndex);" ).append("\n");
+		sb.append( "		sample1 = chrt.getChartData().getSample(1, selectedIndex);" ).append("\n");
+		sb.append( "		template = '<short_position>\\n\\t<symbol>~SYMBOL</symbol>\\n\\t<date>~DATE</date>\\n\\t<price>~PRICE</price>\\n\\t<volume>~VOL</volume>\\n\\t<description>Uncovered Short Position in ~SYMBOL @~PRICE on ~DATE Vol ~VOL Val $~VAL</description>\\n</short_position>';" ).append("\n");
+		sb.append( "		template = template.replace( /~SYMBOL/g, symbol );" ).append("\n");
+		sb.append( "		template = template.replace( /~DATE/g, getDateForIndex(sample0.getLabel()) );" ).append("\n");
+		sb.append( "		template = template.replace( /~PRICE/g, sample0.getFloatValue() );" ).append("\n");
+		sb.append( "		template = template.replace( /~VOL/g, sample1.getValue() );" ).append("\n");
+		sb.append( "		template = template.replace( /~VAL/g, sample0.getFloatValue() * sample1.getValue() );" ).append("\n");
+		sb.append( "		prompt( '', template );" ).append("\n");
+		sb.append( "	}else{" ).append("\n");
+		sb.append( "		alert('Please make a selection in Chart.');" ).append("\n");
+		sb.append( "	}" ).append("\n");
+		sb.append( "}" ).append("\n");
+		
+		sb.append( "function getDateForIndex(x){" ).append("\n");
+		sb.append( "	for( i=0; i<arrExprDate.length; i++ ){" ).append("\n");
+		sb.append( "		if( eval(arrExprDate[i][0]) ){" ).append("\n");
+		sb.append( "			return arrExprDate[i][1];" ).append("\n");
+		sb.append( "		}" ).append("\n");
+		sb.append( "	}" ).append("\n");
+		sb.append( "	return null;" ).append("\n");
+		sb.append( "}" ).append("\n");
+		
 		sb.append( "</script>" ).append("\n");
 		sb.append( "</head>" ).append("\n");
 		sb.append( "<body>" ).append("\n");
@@ -184,8 +214,11 @@ public class TopVolumeHighlighter {
 
 		final StringBuilder sbTabPanel = new StringBuilder();
 		
+		final List<String> javascriptToDetermineDateFromIndex = new ArrayList<String>();
+		
 		final int TD_PER_TR = 5;
 		int tdCounter = 0;
+		int considerAfterIndex = 0;
 		for( final ArrayList key : treeSet ){
 			final List<List<Integer>> minMax = resultsDates.get(key);
 			final String sDate = key.get(0).toString().replaceAll("/", "_");
@@ -198,6 +231,7 @@ public class TopVolumeHighlighter {
 
 			if( sDate.equalsIgnoreCase( Utility.getStrDate(ignoreBeforeDate, "dd_MMM_yyyy") ) ){
 				ignoreBeforeIndex = fromIndex;
+				considerAfterIndex = toIndex;
 			}
 			
 			final List<IntraDayStructure> idsSubList = idsList.subList(fromIndex, toIndex);
@@ -206,7 +240,7 @@ public class TopVolumeHighlighter {
 			final Long minVolume = resultsMinMax.get(0).get(0);
 			final Long maxVolume = resultsMinMax.get(0).get(1);
 			final String sDateReFormatted = Utility.getStrDate( Utility.getDateFor(sDate, "dd_MMM_yyyy") );
-			final String chartHTML = processSubList(idsSubList, symbol, sDateReFormatted, minVolume, maxVolume, -1);
+			final String chartHTML = processSubList(idsSubList, symbol, sDateReFormatted, minVolume, maxVolume, -1, -1);
 			
 			sb.append( chartHTML ).append( "<BR>" );;
 			
@@ -215,6 +249,7 @@ public class TopVolumeHighlighter {
 				tdCounter = 1;
 			}
 			sbTabPanel.append( "<span title='" +fromIndex+ " - " +toIndex+ "'><a href='javascript:show(\"" +sDateReFormatted+ "\");'>" ).append( sDateReFormatted ).append( "</a></span> &nbsp; | &nbsp; " );
+			javascriptToDetermineDateFromIndex.add( "x > " +fromIndex+ " && x <= " +toIndex+ ";"+sDateReFormatted );
 		}
 		sb.append( sbTabPanel );
 		// End
@@ -222,8 +257,13 @@ public class TopVolumeHighlighter {
 		// ************************************ Consolidated Report *************************************** //
 		
 		// http://josql.sourceforge.net/manual/limit-clause.html
-		final QueryResults qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure order by volume*close desc LIMIT 1, " +properties.getProperty("top.n"), new ArrayList<IntraDayStructure>(idsList) );
-		final List<IntraDayStructure> results = qrTopN.getResults();
+		QueryResults qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure where index > " +considerAfterIndex+ " order by volume desc LIMIT 1, " +properties.getProperty("top.n"), new ArrayList<IntraDayStructure>(idsList) );
+		List<IntraDayStructure> results = qrTopN.getResults();
+		if( results.isEmpty() ){ // In case the provided date is today.
+			qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure where index > " +ignoreBeforeIndex+ " order by volume desc LIMIT 1, " +properties.getProperty("top.n"), new ArrayList<IntraDayStructure>(idsList) );
+			results = qrTopN.getResults();
+		}
+		
 		
 		final List<Integer> indices = new ArrayList<Integer>(); 
 		for( IntraDayStructure ids : results ){
@@ -273,7 +313,7 @@ public class TopVolumeHighlighter {
 		sb.append("\n</select>");
 		sb.append("\n<input type='button' value='Update Chart' onclick='repaint(document.getElementById(\"highlightOnly\").value)'>");
 		
-		String chartHTMLAll = processSubList(idsList, symbol, "All", lowestVol, highestVol, ignoreBeforeIndex);
+		String chartHTMLAll = processSubList(idsList, symbol, "All", lowestVol, highestVol, ignoreBeforeIndex, considerAfterIndex);
 		chartHTMLAll = chartHTMLAll.replace("hidden", "visible");
 		chartHTMLAll = chartHTMLAll.replace("absolute", "relative");
 		chartHTMLAll = chartHTMLAll.replace("appletName", "appletAll");
@@ -282,6 +322,15 @@ public class TopVolumeHighlighter {
 		
 		sb.append( chartHTMLAll );
 		
+		sb.append("<script>");
+		sb.append( "arrExprDate = new Array();" ).append("\n");
+		for( int i=0; i<javascriptToDetermineDateFromIndex.size(); i++ ){
+			String[] arrJs = javascriptToDetermineDateFromIndex.get(i).split(";");
+			sb.append( "arrExprDate[" +i+ "] = new Array();" ).append("\n");
+			sb.append( "arrExprDate[" +i+ "][0] = '" +arrJs[0]+ "';" ).append("\n");
+			sb.append( "arrExprDate[" +i+ "][1] = '" +arrJs[1]+ "';" ).append("\n");
+		}
+		sb.append("</script>");
 		sb.append("</body></html>");
 		
 		final String rptPath = properties.getProperty("rpt.folder") + "/rpt_" +symbol+ ".html";
@@ -289,7 +338,7 @@ public class TopVolumeHighlighter {
 		System.out.println( "Report generated @ " +rptPath );
 	}
 	
-	private static String processSubList(final List<IntraDayStructure> idsSubList, String symbol, String sDate, Long lowestVolume, Long highestVolume, int ignoreBeforeIndex) throws Exception{
+	private static String processSubList(final List<IntraDayStructure> idsSubList, String symbol, String sDate, Long lowestVolume, Long highestVolume, int ignoreBeforeIndex, int considerAfterIndex) throws Exception{
 		final StringBuilder sbCloseList = new StringBuilder();
 		final StringBuilder sbVolumeList = new StringBuilder();
 		final StringBuilder sbIndexList = new StringBuilder();
@@ -307,7 +356,7 @@ public class TopVolumeHighlighter {
 		
 		// Start: Top N Labels
 		// http://josql.sourceforge.net/manual/limit-clause.html
-		final QueryResults qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure order by volume desc LIMIT 1, " +properties.getProperty("top.n"), new ArrayList<IntraDayStructure>(idsSubList) );
+		final QueryResults qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure where index > " +considerAfterIndex+ " order by volume desc LIMIT 1, " +properties.getProperty("top.n"), new ArrayList<IntraDayStructure>(idsSubList) );
 		final List<IntraDayStructure> resultsTopN = qrTopN.getResults();
 		
 		final List<Integer> indices = new ArrayList<Integer>(); 
