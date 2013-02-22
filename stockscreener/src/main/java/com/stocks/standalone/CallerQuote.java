@@ -16,7 +16,8 @@ public class CallerQuote {
 	
 	final static String BSE_URL    = "http://www.bseindia.com/bseplus/StockReach/AdvStockReach.aspx?scripcode=~SCRIPCODE&section=tab1&IsPF=undefined&random=0.22032093349844217";
 	final static String GOOGLE_URL = "http://www.google.com/finance?q=";
-	final static String CNBC_URL = "http://data.cnbc.com/quotes/";
+	//final static String CNBC_URL = "http://data.cnbc.com/quotes/";
+	final static String CNBC_URL = "http://quote.cnbc.com/quote-html-webservice/quote.htm?callback=webQuoteRequest&symbols=~SYMBOL&symbolType=symbol&requestMethod=quick&exthrs=1&extMode=&fund=1&entitlement=0&skipcache=&extendedMask=1&partnerId=2&output=jsonp&noform=1";
 	final static String CNBC_URL_EXTN = "http://apps.cnbc.com/company/quote/index.asp?symbol=";
 	final static String CNBC_URL_EXTN_COMPANY_PROFILE = "http://apps.cnbc.com/view.asp?country=US&uid=stocks/summary&symbol=";
 	
@@ -218,19 +219,20 @@ public class CallerQuote {
 		quote.setSymbol( symbol );
 		
 		try{
-			final StringBuffer sb = new StringBuffer( Utility.getContent( CNBC_URL +symbol ) );
+			final StringBuffer sb = new StringBuffer( Utility.getContent( CNBC_URL.replaceAll("~SYMBOL", symbol) ) );
 			final StringBuffer sbExtn = new StringBuffer( Utility.getContent(CNBC_URL_EXTN +symbol) );
 			//final StringBuffer sbExtnCompPro = new StringBuffer( Utility.getContent( CNBC_URL_EXTN_COMPANY_PROFILE +symbol ) );
 			
 			String realTime = "";
 			String pcChange = "";
-			int index1 = sb.indexOf( "cnbc_mrq_pushSymbol(" );
-			if( index1 != -1 ){
-				String str = sb.substring( index1+20, sb.indexOf(");", index1) );
-				str = str.replace("'", "");
-				final String[] arr = str.split(",");
-				realTime = arr[1];
-				pcChange = arr[3];
+			int index1 = sb.indexOf("\"change_pct\"");
+			if (index1 != -1) {
+				String str = sb.substring(index1 + 14,
+						sb.indexOf("\",", index1));
+				pcChange = str;
+				index1 = sb.indexOf( "\"last\"", index1 );
+				str = sb.substring(index1 + 8, sb.indexOf("\",", index1));
+				realTime = str;
 			}
 
 			String high = "";
@@ -287,11 +289,10 @@ public class CallerQuote {
 			}
 
 			String time = "";
-			int index4 = sb.indexOf( "var promoTime = " );
-			if( index4 != -1 ){
-				time = sb.substring( index4+16, sb.indexOf(";", index4));
-				time = time.replace("\"", "");
-				time = time.split(" ")[1];
+			int index4 = sb.indexOf("\"reg_last_time\"");
+			if (index4 != -1) {
+				time = sb.substring(index4 + 17, sb.indexOf("\",", index4));
+				time = time.substring( time.indexOf("T")+1, time.indexOf(".") );
 			}
 			
 //			String industry = "";

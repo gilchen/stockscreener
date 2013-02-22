@@ -97,18 +97,31 @@ public class TopVolumeHighlighter {
 
 	public static void main(String... args) throws Exception{
 		String[] symbolPipeDates = properties.getProperty("symbol.pipe.date").split(",");
-
+		final StringBuilder sbSummaryOnly = new StringBuilder();
+		//sbSummaryOnly.append( "<table border=1>" ).append("\n");
+		sbSummaryOnly.append("Symbol,Total D Amount Involved (CxV),D Pressure(Min),D Pressure(Realtime),Total P Amount Involved (CxV),P Pressure(Min),P Pressure(Realtime)").append("\n");
 		for(String s : symbolPipeDates){
 			final String[] symbolPipeDate = s.split("[|]");
 			final String symbol = symbolPipeDate[0];
 			final Date ignoreBeforeDate = Utility.getDateFor(symbolPipeDate[1], "MM/dd/yyyy");
-			generateReport( symbol, ignoreBeforeDate );
+			try{
+				generateReport( symbol, ignoreBeforeDate, sbSummaryOnly );
+			}
+			catch(Exception e){
+				System.out.println( "Exception in generating report for "+ symbol );
+				e.printStackTrace();
+			}
 		}
+		//sbSummaryOnly.append("\n").append( "</table>" );
+
+		final String rptPath = properties.getProperty("rpt.folder") + "/rpt_Summary.csv";
+		Utility.saveContent( rptPath, sbSummaryOnly.toString());
+		
 		
 		System.out.println( "Done" );
 	}
 	
-	private static void generateReport(String symbol, Date ignoreBeforeDate) throws Exception{
+	private static void generateReport(String symbol, Date ignoreBeforeDate, StringBuilder sbSummaryOnly) throws Exception{
 		int ignoreBeforeIndex = 0;
 		
 		//final String content = Utility.getContent( "file:///C:/Temp/ForSrid/tmp/" +symbol+ "-1M.txt" );
@@ -158,7 +171,9 @@ public class TopVolumeHighlighter {
 		sb.append( "	for (i = 0; i < radios.length; i++) {" ).append("\n");
 		sb.append( "		if (radios[i].type == 'radio' && radios[i].checked) {" ).append("\n");
 		sb.append( "			if(highlightOnly == 'All' || radios[i].value.charAt(0) == highlightOnly){").append("\n");
-		sb.append( "				arr[index++] = radios[i].value;" ).append("\n");
+		sb.append( "				if( highlightOnly == 'All' || document.getElementById('c' +radios[i].name.substring(1)).checked ){").append("\n");
+		sb.append( "					arr[index++] = radios[i].value;" ).append("\n");
+		sb.append( "				}" ).append("\n");
 		sb.append( "			}" ).append("\n");
 		sb.append( "		}" ).append("\n");
 		sb.append( "	}" ).append("\n");
@@ -257,25 +272,66 @@ public class TopVolumeHighlighter {
 		// ************************************ Consolidated Report *************************************** //
 		
 		// http://josql.sourceforge.net/manual/limit-clause.html
-		QueryResults qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure where index > " +considerAfterIndex+ " order by volume desc LIMIT 1, " +properties.getProperty("top.n"), new ArrayList<IntraDayStructure>(idsList) );
+		QueryResults qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure where index > " +considerAfterIndex+ " order by volume desc", new ArrayList<IntraDayStructure>(idsList) );
+		final Integer iTopN = Integer.parseInt(properties.getProperty("top.n"));
 		List<IntraDayStructure> results = qrTopN.getResults();
 		if( results.isEmpty() ){ // In case the provided date is today.
-			qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure where index > " +ignoreBeforeIndex+ " order by volume desc LIMIT 1, " +properties.getProperty("top.n"), new ArrayList<IntraDayStructure>(idsList) );
+			qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure where index > " +ignoreBeforeIndex+ " order by volume desc", new ArrayList<IntraDayStructure>(idsList) );
 			results = qrTopN.getResults();
 		}
 		
 		
-		final List<Integer> indices = new ArrayList<Integer>(); 
+		final List<Integer> indices = new ArrayList<Integer>();
+		int iTopDumps = 0, iTopPumps = 0;
+
 		for( IntraDayStructure ids : results ){
-			indices.add( ids.getIndex() );
+			final IntraDayStructure idsPrev = idsList.get(ids.getIndex() >= 2 ? ids.getIndex()-2 : ids.getIndex()-1);
+			
+			if(ids.getIndex() == idsPrev.getIndex()){
+				continue; // Do not consider.
+			}
+			
+			if( iTopPumps < iTopN && ids.getClose() >= idsPrev.getClose() ){
+				iTopPumps++;
+				
+				indices.add( ids.getIndex() );
+			}else if( iTopDumps < iTopN && ids.getClose() < idsPrev.getClose() ){
+				iTopDumps++;
+				
+				indices.add( ids.getIndex() );
+			}
+			
+			if( iTopPumps == iTopN && iTopDumps == iTopN ){
+				break;
+			}
+			
+			//int relativeIndex = ids.getIndex() - idsList.get(0).getIndex(); // 1-based
+			
 		}
 		
 		final Long highestVol = results.get(0).getVolume();
-		final Long lowestVol  = results.get( results.size()-1 ).getVolume();
+		//final Long lowestVol  = results.get( results.size()-1 ).getVolume();
+		final Long lowestVol  = idsList.get( indices.get( indices.size()-1 )-1 ).getVolume();
+		//System.out.println( lowestVol +", "+ highestVol );
 
 		final StringBuilder sbAll     = new StringBuilder("<table border=1>");
-				
+		final StringBuilder sbDumpPressureMonitor = new StringBuilder("<table border=1>");
+		sbDumpPressureMonitor.append("<tr><td>Dump@</td><td>Tgt(Dump -10%)</td><td>Tgt1(0 if hits Tgt, otherwise Tgt)</td><td>D Pressure(Min)</td><td>D Pressure(Realtime)</td></tr>");
+		final StringBuilder sbPumpPressureMonitor = new StringBuilder("<table border=1>");
+		sbPumpPressureMonitor.append("<tr><td>Pump@</td><td>Tgt(Pump +10%)</td><td>Tgt1(o if hits Tgt, otherwise Tgt)</td><td>P Pressure(Max)</td><td>P Pressure(Realtime)</td></tr>");
+		
 		int yIndex = 0;
+		//final Double realTime = idsList.get(idsList.size()-1).getClose();
+		Double realTime = idsList.get(idsList.size()-1).getClose();
+		Double dSumDumpPressure = 0.0;
+		Double dSumPumpPressure = 0.0;
+
+		Double dSumDumpPressureRealtime = 0.0;
+		Double dSumPumpPressureRealtime = 0.0;
+		
+		Double dSumDumpPressureCxV = 0.0;
+		Double dSumPumpPressureCxV = 0.0;
+		
 		for( final IntraDayStructure ids : idsList ){
 			if( yIndex == Y_LABEL_POS.size() ){
 				yIndex = 0;
@@ -283,7 +339,7 @@ public class TopVolumeHighlighter {
 			
 			if( indices.contains( ids.getIndex() ) ){
 				// highlight
-				final IntraDayStructure idsPrev = idsList.get(ids.getIndex() >= 2 ? ids.getIndex()-2 : ids.getIndex());
+				final IntraDayStructure idsPrev = idsList.get(ids.getIndex() >= 2 ? ids.getIndex()-2 : ids.getIndex()-1);
 				final double change = Utility.round( ((ids.getClose() - idsPrev.getClose()) / idsPrev.getClose()) * 100.00 );
 
 				int relativeIndex = ids.getIndex() - idsList.get(0).getIndex(); // 1-based
@@ -293,7 +349,78 @@ public class TopVolumeHighlighter {
 				String strX = "0." +(x+"").replace(".", "");
 				final String label = " Price: " +ids.getClose()+ " (" +idsPrev.getClose()+ " " +change+"%) Index: " +ids.getIndex()+ " Val $" +Utility.getFormattedInteger(ids.getClose()*ids.getVolume()).replaceAll(",", " ")+ "," +strX+ "," +Y_LABEL_POS.get(yIndex++)+ "," +(relativeIndex)+",0";
 				
-				sbAll.append("<tr><td valign=middle align=center>" +
+				
+				// Start:
+				final QueryResults qrMinMax = Query.parseAndExec("SELECT min(low), max(high) FROM com.stocks.standalone.IntraDayStructure where index >= " +ids.getIndex()+ " LIMIT 1,1", new ArrayList<IntraDayStructure>(idsList) );
+				final List<ArrayList<Double>> resultsMinMax = qrMinMax.getResults();
+				final Double min = resultsMinMax.get(0).get(0);
+				final Double max = resultsMinMax.get(0).get(1);
+
+				final Double plus10pc = Utility.round( ids.getClose() + ( ids.getClose() * (10.0/100.0) ) );
+				final Double minus10pc = Utility.round( ids.getClose() - ( ids.getClose() * (10.0/100.0) ) );
+				String sCheckBoxChecked = "";
+				if( ids.getClose() < idsPrev.getClose() ){
+					// Dump
+					if( min > minus10pc ){
+						sCheckBoxChecked = "checked";
+					}else{
+						sCheckBoxChecked = "title='Min (" +min+ ") crossed below minus10pc (" +minus10pc+ ")'";
+					}
+					
+					sbDumpPressureMonitor.append("<tr>");
+					sbDumpPressureMonitor.append("<td>" +ids.getClose()+ "</td>");
+					sbDumpPressureMonitor.append("<td>" +minus10pc+ "</td>");
+					Double tgt1 = (minus10pc >= min ? 0.0 : minus10pc);
+					sbDumpPressureMonitor.append("<td>" +tgt1+ "</td>");
+					
+					Double dPressure = 0.0, dPressureRealtime = 0.0;
+					if( tgt1 != 0.0 ){
+						dPressure = Utility.round( ((tgt1 - min)/min)*100.0 );
+						dSumDumpPressureCxV += (ids.getClose() * ids.getVolume());
+						
+						dPressureRealtime = Utility.round( ((tgt1 - realTime)/realTime)*100.0 );
+					}
+					
+					sbDumpPressureMonitor.append("<td>" +dPressure+ "%</td>");
+					sbDumpPressureMonitor.append("<td>" +dPressureRealtime+ "%</td>");
+					sbDumpPressureMonitor.append("</tr>");
+					
+					dSumDumpPressure += Math.abs(dPressure);
+					dSumDumpPressureRealtime += Math.abs(dPressureRealtime);
+				}else{
+					// Pump
+					if( max < plus10pc ){
+						sCheckBoxChecked = "checked";
+					}else{
+						sCheckBoxChecked = "title='Max (" +max+ ") crossed above plus10pc (" +plus10pc+ ")'";
+					}
+
+					sbPumpPressureMonitor.append("<tr>");
+					sbPumpPressureMonitor.append("<td>" +ids.getClose()+ "</td>");
+					sbPumpPressureMonitor.append("<td>" +plus10pc+ "</td>");
+					Double tgt1 = (plus10pc <= max ? 0.0 : plus10pc);
+					sbPumpPressureMonitor.append("<td>" +tgt1+ "</td>");
+					
+					Double pPressure = 0.0, pPressureRealtime = 0.0;
+					if( tgt1 != 0.0 ){
+						pPressure = Utility.round( ((tgt1 - max)/max)*100.0 );
+						dSumPumpPressureCxV += (ids.getClose() * ids.getVolume());
+						
+						pPressureRealtime = Utility.round( ((tgt1 - realTime)/realTime)*100.0 );
+					}
+					
+					sbPumpPressureMonitor.append("<td>" +pPressure+ "%</td>");
+					sbPumpPressureMonitor.append("<td>" +pPressureRealtime+ "%</td>");
+					sbPumpPressureMonitor.append("</tr>");
+					
+					dSumPumpPressure += Math.abs(pPressure);
+					dSumPumpPressureRealtime += Math.abs(pPressureRealtime);
+				}
+				// End
+
+				sbAll.append("<tr>" +
+						"<td valign=middle align=center><input type=checkbox name='c" +ids.getIndex()+ "' " +sCheckBoxChecked+ "></td>" +
+						"<td valign=middle align=center>" +
 						"D <input type=radio name='r" +ids.getIndex()+ "' onclick='setBackground(this, \"#FFDDFF\")' value='D " +label+ "' " +(ids.getClose() < idsPrev.getClose() ? "checked" : "")+ "> " +
 						"P <input type=radio name='r" +ids.getIndex()+ "' onclick='setBackground(this, \"#99EEDD\")' value='P " +label+ "' " +(ids.getClose() >= idsPrev.getClose() ? "checked" : "")+ "> " +
 						"<BR>" +change+ "%</td>");
@@ -304,6 +431,27 @@ public class TopVolumeHighlighter {
 		}
 		
 		sbAll.append("</table>");
+		
+		final String dumpString = "<tr><td colspan='3'>" +symbol+ " (Dump) Total Amount Involved (CxV): <B>$" +Utility.getFormattedInteger(dSumDumpPressureCxV)+ "</B></td><td>" +Utility.round(dSumDumpPressure)+ "%</td><td>" +Utility.round(dSumDumpPressureRealtime)+ "%</td></tr>";
+		sbDumpPressureMonitor.append( dumpString );
+		sbDumpPressureMonitor.append("</table>");
+
+		final String pumpString = "<tr><td colspan='3'>" +symbol+ " (Pump) Total Amount Involved (CxV): <B>$" +Utility.getFormattedInteger(dSumPumpPressureCxV)+ "</B></td><td>" +Utility.round(dSumPumpPressure)+ "%</td><td>" +Utility.round(dSumPumpPressureRealtime)+ "%</td></tr>";
+		sbPumpPressureMonitor.append( pumpString );
+		sbPumpPressureMonitor.append("</table>");
+		
+		//sbSummaryOnly.append( dumpString ).append("\n").append( pumpString ).append("\n");
+		//sbSummaryOnly.append( "<tr><td colspan='5'>&nbsp;</td></tr>" ).append("\n");
+		//sbSummaryOnly.append("Symbol,Total D Amount Involved (CxV),D Pressure(Min),D Pressure(Realtime),Total P Amount Involved (CxV),P Pressure(Min),P Pressure(Realtime)").append("\n");
+		sbSummaryOnly.append("\"").append(symbol).append("\",");
+		sbSummaryOnly.append("\"$").append(Utility.getFormattedInteger(dSumDumpPressureCxV)).append("\",");;
+		sbSummaryOnly.append("\"").append(Utility.round(dSumDumpPressure)).append("%\",");;
+		sbSummaryOnly.append("\"").append(Utility.round(dSumDumpPressureRealtime)).append("%\",");;
+		sbSummaryOnly.append("\"$").append(Utility.getFormattedInteger(dSumPumpPressureCxV)).append("\",");;
+		sbSummaryOnly.append("\"").append(Utility.round(dSumPumpPressure)).append("%\",");;
+		sbSummaryOnly.append("\"").append(Utility.round(dSumPumpPressureRealtime)).append("%\",");;
+		sbSummaryOnly.append("\n");
+		
 		
 		sb.append("\n<pre>All (Volume Toppers): <B>Note</B>: Consider them Pumps if %change is very low. \n").append( sbAll ).append("</pre>");
 		sb.append("\nHighlight <select id='highlightOnly'>").append("\n");
@@ -331,6 +479,9 @@ public class TopVolumeHighlighter {
 			sb.append( "arrExprDate[" +i+ "][1] = '" +arrJs[1]+ "';" ).append("\n");
 		}
 		sb.append("</script>");
+		
+		sb.append("<table><tr><td colspan=2 align=right>Current Price: " +realTime+ "</td></tr><tr><td>" +sbDumpPressureMonitor+ "</td><td>" +sbPumpPressureMonitor+ "</td></tr></table>");
+		
 		sb.append("</body></html>");
 		
 		final String rptPath = properties.getProperty("rpt.folder") + "/rpt_" +symbol+ ".html";
