@@ -27,7 +27,9 @@ public class CurrentSnapshot {
 	final static List<FilterCheck> listFilterCheck = new ArrayList<FilterCheck>();
 	final static Map<String, List<Entry>> mPositions = new HashMap<String, List<Entry>>();
 
-	final static String CNBC_URL = "http://data.cnbc.com/quotes/";
+	// http://quote.cnbc.com/quote-html-webservice/quote.htm?callback=webQuoteRequest&symbols=RIMM&symbolType=symbol&requestMethod=quick&exthrs=1&extMode=&fund=1&entitlement=0&skipcache=&extendedMask=1&partnerId=2&output=jsonp&noform=1;
+	//final static String CNBC_URL = "http://data.cnbc.com/quotes/";
+	final static String CNBC_URL = "http://quote.cnbc.com/quote-html-webservice/quote.htm?callback=webQuoteRequest&symbols=~SYMBOL&symbolType=symbol&requestMethod=quick&exthrs=1&extMode=&fund=1&entitlement=0&skipcache=&extendedMask=1&partnerId=2&output=jsonp&noform=1";
 	final static String CNBC_URL_EXTN = "http://apps.cnbc.com/company/quote/index.asp?symbol=";
 	final static String CNBC_URL_EXTN_COMPANY_PROFILE = "http://apps.cnbc.com/view.asp?country=US&uid=stocks/summary&symbol=";
 
@@ -219,7 +221,7 @@ public class CurrentSnapshot {
 			try {
 				// Start: Pull Data
 				final StringBuffer sb = new StringBuffer(
-						Utility.getContent(CNBC_URL + symbol));
+						Utility.getContent(CNBC_URL.replaceAll("~SYMBOL", symbol)));
 				final StringBuffer sbExtn = new StringBuffer(
 						Utility.getContent(CNBC_URL_EXTN + symbol));
 				final StringBuffer sbExtnCompPro = new StringBuffer(
@@ -228,15 +230,14 @@ public class CurrentSnapshot {
 
 				String realTime = "";
 				String pcChange = "";
-				int index1 = sb.indexOf("cnbc_mrq_pushSymbol(");
+				int index1 = sb.indexOf("\"change_pct\"");
 				if (index1 != -1) {
-					String str = sb.substring(index1 + 20,
-							sb.indexOf(");", index1));
-					str = str.replace("'", "");
-					final String[] arr = str.split(",");
-					realTime = arr[1].trim().replaceAll(",", "");
-					pcChange = arr[3].trim().replaceAll(",", "");
-					pcChange += "%";
+					String str = sb.substring(index1 + 14,
+							sb.indexOf("\",", index1));
+					pcChange = str;
+					index1 = sb.indexOf( "\"last\"", index1 );
+					str = sb.substring(index1 + 8, sb.indexOf("\",", index1));
+					realTime = str;
 				}
 
 				String high = "";
@@ -315,12 +316,10 @@ public class CurrentSnapshot {
 				}
 
 				String time = "";
-				int index4 = sb.indexOf("var promoTime = ");
+				int index4 = sb.indexOf("\"reg_last_time\"");
 				if (index4 != -1) {
-					time = sb.substring(index4 + 16, sb.indexOf(";", index4));
-					time = time.replace("\"", "");
-					time = time.split(" ")[1];
-					time = time.trim().replaceAll(",", "");
+					time = sb.substring(index4 + 17, sb.indexOf("\",", index4));
+					time = time.substring( time.indexOf("T")+1, time.indexOf(".") );
 				}
 
 				String mktCap = "", pe = "", beta = "", divYield = "";

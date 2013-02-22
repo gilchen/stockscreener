@@ -206,6 +206,29 @@ public class IntraDayDataProcessor {
 				}else if( ids.getClose() < prevClose ){
 					sVol += ids.getVolume();
 				}
+/*
+				Double next3CxV = 0.0;
+				Double next3V = 0.0;
+				for( int j=i+1; j < (i+4) && j < idsList.size(); j++ ){
+					final IntraDayStructure idsForNext3Tx = idsList.get(j);
+					next3CxV += idsForNext3Tx.getClose() * idsForNext3Tx.getVolume();
+					next3V += idsForNext3Tx.getVolume();
+				}
+				
+				Double avgPriceForNext3Tx = 0.0;
+				try{
+					avgPriceForNext3Tx = (next3CxV / next3V);
+				}
+				catch(Exception e){
+					e.printStackTrace();
+				}
+				
+				if( ids.getClose() >= avgPriceForNext3Tx ){
+					bVol += ids.getVolume();
+				}else{
+					sVol += ids.getVolume();
+				}
+*/
 			}
 			
 			final Double close = idsClose != null ? idsClose.getClose() : idsList.get(idsList.size()-1).getClose();
