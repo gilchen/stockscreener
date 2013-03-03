@@ -6,7 +6,8 @@ import java.util.List;
 import com.stocks.util.Utility;
 
 public class CallerQuote {
-	final static String[] BSE_LIST = {"500010", "500087", "500103", "500112", "500180", "500182", "500209", "500312", "500325", "500400", "500440", "500470", "500510", "500520", "500570", "500696", "500875", "500900", "507685", "524715", "532174", "532286", "532454", "532500", "532532", "532540", "532541", "532868", "532977", "533278"};
+	//final static String[] BSE_LIST = {"500010", "500087", "500103", "500112", "500180", "500182", "500209", "500312", "500325", "500400", "500440", "500470", "500510", "500520", "500570", "500696", "500875", "500900", "507685", "524715", "532174", "532286", "532454", "532500", "532532", "532540", "532541", "532868", "532977", "533278"};
+	final static String[] BSE_LIST = {"513377", "500106", "500285", "532391", "500390", "500040"};
 	//final static String[] GOOGLE_ETF_LIST = {"DRV", "TZA", "SRTY", "TMV", "FAZ", "YINN", "SQQQ", "SMDD", "ERY", "SOXS", "SPXU", "EDZ", "EDC", "SDOW", "LBJ", "LHB", "DZK", "DPK", "ERX", "YANG", "SOXL", "MWN", "TYO", "TNA", "URTY", "FAS", "UMDD", "TQQQ", "UPRO", "BGZ", "UDOW", "DRN", "TMF", "MWJ", "TYH", "BGU", "TYD"};
 	final static String[] GOOGLE_ETF_LIST = {"INDEXDJX:.DJI", "INDEXSP:.INX", "INDEXNASDAQ:.IXIC", "INDEXFTSE:.FTSE", "INDEXEURO:PX1", "-", "AGQ", "FTR", "NFLX", "RIMM", "SDOW", "UNG", "UPL", "ACI", "DMND", "ANR", "TVIX", "UVXY", "EBR", "ESI", "-", "ERX", "UCO", "-", "HRG" };
 	//final static String[] CNBC_ETF_LIST = {"UDOW", "UPRO", "TQQQ", "UMDD", "URTY", "FAS", "TNA", "BGU", "TYD", "TWOL", "TMF", "CZM", "DZK", "EDC", "ERX", "LBJ", "MWJ", "DRN", "SOXL", "TYH", "SDOW", "SPXU", "SQQQ", "SMDD", "SRTY", "FAZ", "TZA", "BGZ", "TYO", "TWOZ", "TMV", "CZI", "DPK", "EDZ", "ERY", "LHB", "MWN", "DRV", "SOXS", "TYP"};

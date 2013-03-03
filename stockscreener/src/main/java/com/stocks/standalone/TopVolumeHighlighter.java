@@ -99,7 +99,7 @@ public class TopVolumeHighlighter {
 		String[] symbolPipeDates = properties.getProperty("symbol.pipe.date").split(",");
 		final StringBuilder sbSummaryOnly = new StringBuilder();
 		//sbSummaryOnly.append( "<table border=1>" ).append("\n");
-		sbSummaryOnly.append("Symbol,Total D Amount Involved (CxV),D Pressure(Min),D Pressure(Realtime),Total P Amount Involved (CxV),P Pressure(Min),P Pressure(Realtime)").append("\n");
+		sbSummaryOnly.append("Symbol,D Pressure(Min),P Pressure(Min),D Pressure(Realtime),P Pressure(Realtime),Total D Amount Involved (CxV),Total P Amount Involved (CxV),x Times (CxV)").append("\n");
 		for(String s : symbolPipeDates){
 			final String[] symbolPipeDate = s.split("[|]");
 			final String symbol = symbolPipeDate[0];
@@ -442,14 +442,22 @@ public class TopVolumeHighlighter {
 		
 		//sbSummaryOnly.append( dumpString ).append("\n").append( pumpString ).append("\n");
 		//sbSummaryOnly.append( "<tr><td colspan='5'>&nbsp;</td></tr>" ).append("\n");
-		//sbSummaryOnly.append("Symbol,Total D Amount Involved (CxV),D Pressure(Min),D Pressure(Realtime),Total P Amount Involved (CxV),P Pressure(Min),P Pressure(Realtime)").append("\n");
+		//sbSummaryOnly.append("Symbol,D Pressure(Min),P Pressure(Min),D Pressure(Realtime),P Pressure(Realtime),Total D Amount Involved (CxV),Total P Amount Involved (CxV),x Times (CxV)").append("\n");
 		sbSummaryOnly.append("\"").append(symbol).append("\",");
-		sbSummaryOnly.append("\"$").append(Utility.getFormattedInteger(dSumDumpPressureCxV)).append("\",");;
-		sbSummaryOnly.append("\"").append(Utility.round(dSumDumpPressure)).append("%\",");;
-		sbSummaryOnly.append("\"").append(Utility.round(dSumDumpPressureRealtime)).append("%\",");;
-		sbSummaryOnly.append("\"$").append(Utility.getFormattedInteger(dSumPumpPressureCxV)).append("\",");;
-		sbSummaryOnly.append("\"").append(Utility.round(dSumPumpPressure)).append("%\",");;
-		sbSummaryOnly.append("\"").append(Utility.round(dSumPumpPressureRealtime)).append("%\",");;
+		sbSummaryOnly.append("\"").append(Utility.round(dSumDumpPressure)).append("%\",");
+		sbSummaryOnly.append("\"").append(Utility.round(dSumPumpPressure)).append("%\",");
+		sbSummaryOnly.append("\"").append(Utility.round(dSumDumpPressureRealtime)).append("%\",");
+		sbSummaryOnly.append("\"").append(Utility.round(dSumPumpPressureRealtime)).append("%\",");
+		sbSummaryOnly.append("\"$").append(Utility.getFormattedInteger(dSumDumpPressureCxV)).append("\",");
+		sbSummaryOnly.append("\"$").append(Utility.getFormattedInteger(dSumPumpPressureCxV)).append("\",");
+		
+		try{
+			sbSummaryOnly.append(Utility.round(dSumPumpPressureCxV / dSumDumpPressureCxV));
+		}
+		catch(Exception e){
+			sbSummaryOnly.append("0");
+		}
+		sbSummaryOnly.append(" times");
 		sbSummaryOnly.append("\n");
 		
 		

@@ -61,19 +61,19 @@
 		<filter_check>
 			<name>Actionable_Penny_HighCorrection</name>
 			<range_correction_52_wk>90-100</range_correction_52_wk>
-			<range_market_cap>50m-500m</range_market_cap>
+			<range_market_cap>100m-500m</range_market_cap>
 			<daily_avg_trade_value>1m</daily_avg_trade_value>
 		</filter_check>
 		<filter_check>
 			<name>Considerable_Penny_MediumCorrection</name>
 			<range_correction_52_wk>80-90</range_correction_52_wk>
-			<range_market_cap>50m-500m</range_market_cap>
+			<range_market_cap>100m-500m</range_market_cap>
 			<daily_avg_trade_value>1m</daily_avg_trade_value>
 		</filter_check>	
 		<filter_check>
 			<name>Watch_Penny_SmallCorrection</name>
 			<range_correction_52_wk>70-80</range_correction_52_wk>
-			<range_market_cap>50m-500m</range_market_cap>
+			<range_market_cap>100m-500m</range_market_cap>
 			<daily_avg_trade_value>1m</daily_avg_trade_value>
 		</filter_check>
 	</filter_checks>
@@ -283,16 +283,6 @@
 		</position>
 
 		<position>
-			<symbol>CRK</symbol>
-			<entries>
-				<entry>
-					<buy-date>02/12/2013</buy-date>
-					<qty>27</qty>
-					<price>13.14</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>NBG</symbol>
 			<entries>
 				<entry>
@@ -319,6 +309,16 @@
 					<buy-date>02/22/2013</buy-date>
 					<qty>56</qty>
 					<price>6.61</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>WLT</symbol>
+			<entries>
+				<entry>
+					<buy-date>02/27/2013</buy-date>
+					<qty>12</qty>
+					<price>32.36</price>
 				</entry>
 			</entries>
 		</position>
