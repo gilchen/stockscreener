@@ -1,7 +1,7 @@
 package com.stocks.standalone;
 
+import java.io.File;
 import java.io.PrintWriter;
-
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,7 @@ import com.stocks.util.Utility;
 
 public class IntraDayDataProcessor {
 	private static final String CHART_HTML = "<applet code='com.objectplanet.chart.ChartApplet' archive='chart.jar' width='700' height='350'>\n<param name='chart' value='line'>\n<param name='chartTitle' value='~SYMBOL'>\n<param name='sampleValues_0' value='~CLOSE_DATA'>\n<param name='sampleValues_1' value='~VOLUME_DATA'>\n<param name='sampleLabels' value='~DATES_DATA'>\n<param name='seriesRange_0' value='2'>\n<param name='sampleLabelsOn' value='true'>\n<param name='sampleLabelStyle' value='floating'>\n<param name='floatingLabelFont' value='Verdana, plain, 10'>\n<param name='sampleColors' value='blue, red'>\n<param name='sampleHighlightOn' value='true'>\n<param name='sampleHighlightStyle' value='circle_opaque'>\n<param name='sampleHighlightSize' value='6'>\n<param name='rangeColor' value='red'>\n<param name='rangeColor_2' value='blue'>\n<param name='seriesCount' value='2'>\n<param name='valueLabelsOn' value='true'>\n<param name='valueLabelStyle' value='floating'>\n<param name='valueLinesOn' value='true'>\n<param name='defaultGridLinesOn' value='true'>\n<param name='legendOn' value='true'>\n<param name='legendPosition' value='top'>\n<param name='legendLabels' value='Close,Volume'>\n<param name='rangeOn_2' value='true'>\n<param name='rangePosition' value='right'>\n<param name='rangePosition_2' value='left'>\n<param name='rangeAxisLabel' value='Volume'>\n<param name='rangeAxisLabelFont' value='Verdana, bold, 16'>\n<param name='rangeAxisLabelAngle' value='90'>\n<param name='rangeAxisLabel_2' value='Close'>\n<param name='rangeAxisLabelAngle_2' value='270'>\n<param name='rangeLabelPrefix_2' value='$'>\n<param name='multiSeriesOn' value='true'>\n<param name='rangeDecimalCount' value='0'>\n<param name='rangeDecimalCount_2' value='2'>\n<param name='sampleDecimalCount' value='2'>\n<param name='sampleDecimalCount_2' value='0'>\n<param name='chartBackground' value='#DADAFF'>\n</applet>";
-
+	
 	static Properties properties = new Properties();
 	static{
 		try{
@@ -46,87 +46,112 @@ public class IntraDayDataProcessor {
 	
 	public static void main(String... args) throws Exception{
 		final IntraDayDataProcessor iddp = new IntraDayDataProcessor();
-
+		
 		String[] symbols = properties.getProperty("symbols").split(",");
 		final Set<String> set = new HashSet<String>();
 		set.addAll( Arrays.asList(symbols) );
-		PrintWriter writer = null;
+		PrintWriter writer = null, qualifiedWriter = null;
 		try{
 			writer = new PrintWriter( properties.getProperty("rpt.path") );
-			iddp.generateReport(set, writer);
+			qualifiedWriter = new PrintWriter( properties.getProperty("rpt.path.for.qualified") );
+			iddp.generateReport(set, writer, qualifiedWriter);
 		}
 		finally{
 			if(writer != null){
 				writer.close();
+			}
+			if(qualifiedWriter != null){
+				qualifiedWriter.close();
 			}
 		}
 
 		System.out.println( "Done" );
 	}
 	
-	public void generateReport(final Set<String> symbols, Writer writer) throws Exception{
-		StringBuilder sb = new StringBuilder();
+	public void generateReport(final Set<String> symbols, Writer writer, Writer qualifiedWriter) throws Exception{
+		final StringBuilder sb = new StringBuilder();
+		final StringBuilder sbQualified = new StringBuilder();
+		final List<String> exceptionSymbols = new ArrayList<String>();
+		int ctr = 0;
 		for( String symbol : symbols ){
 			System.out.println( "Processing " +symbol );
 			try{
-				process(symbol.trim(), sb, properties.getProperty("google.url.intra.day"), properties.getProperty("google.url.day.close"));
+				process(symbol.trim(), sb, sbQualified, properties.getProperty("google.url.intra.day"), properties.getProperty("google.url.day.close"));
 			}
 			catch(Exception e){
 				e.printStackTrace();
-				System.out.println( sb.toString() );
+				exceptionSymbols.add(symbol);
 			}
+			
+			try{
+				if( ++ctr % 10 == 0 ){
+					int sleepTimeMillis = Integer.parseInt(properties.getProperty("sleep.time.millis"));
+					System.out.println( "\nSleeping for " +sleepTimeMillis+ " millis .... " +Utility.round(((double)ctr/(double)symbols.size())*100.00)+ "% completed.\n" );
+					Thread.sleep(sleepTimeMillis);
+				}
+			}
+			catch(Exception e){
+			}
+			
 		}
 
 		try{
-			//writer.append( "<HTML>" ).append("\n");
-			//writer.append( "<head>").append("\n");
-			writer.append( "<script>").append("\n");
-			writer.append( "function summarize(){").append("\n");
-			writer.append( "	vTotalPos = 0;").append("\n");
-			writer.append( "	vTotalNeg = 0;").append("\n");
-			writer.append( "	arrPositive = document.getElementsByName('positive');").append("\n");
-			writer.append( "	arrNegative = document.getElementsByName('negative');").append("\n");
-			writer.append( "	arrConsiderForTopVolumeHighlighter = document.getElementsByName('considerForTopVolumeHighlighter');").append("\n");
-			writer.append( "	vPositiveStocks = \"\";").append("\n");
-			writer.append( "	vConsiderableForTopVolumeHighlighter = \"\";").append("\n");
+			final StringBuilder sbTmp = new StringBuilder();
 			
-			writer.append( "	for(i=0; i<arrPositive.length; i++ ){").append("\n");
-			writer.append( "		elem = document.getElementsByName('positive').item(i);").append("\n");
-			writer.append( "		if( elem.checked ){").append("\n");
-			writer.append( "			vTotalPos++;").append("\n");
-			writer.append( "            vPositiveStocks += elem.value +\", \";").append("\n");
-			writer.append( "		}").append("\n");
-			writer.append( "	}").append("\n");
+			sbTmp.append( "<script>").append("\n");
+			sbTmp.append( "function summarize(){").append("\n");
+			sbTmp.append( "	vTotalPos = 0;").append("\n");
+			sbTmp.append( "	vTotalNeg = 0;").append("\n");
+			sbTmp.append( "	arrPositive = document.getElementsByName('positive');").append("\n");
+			sbTmp.append( "	arrNegative = document.getElementsByName('negative');").append("\n");
+			sbTmp.append( "	arrConsiderForTopVolumeHighlighter = document.getElementsByName('considerForTopVolumeHighlighter');").append("\n");
+			sbTmp.append( "	vPositiveStocks = \"\";").append("\n");
+			sbTmp.append( "	vConsiderableForTopVolumeHighlighter = \"\";").append("\n");
+			
+			sbTmp.append( "	for(i=0; i<arrPositive.length; i++ ){").append("\n");
+			sbTmp.append( "		elem = document.getElementsByName('positive').item(i);").append("\n");
+			sbTmp.append( "		if( elem.checked ){").append("\n");
+			sbTmp.append( "			vTotalPos++;").append("\n");
+			sbTmp.append( "            vPositiveStocks += elem.value +\", \";").append("\n");
+			sbTmp.append( "		}").append("\n");
+			sbTmp.append( "	}").append("\n");
 
-			writer.append( "	for(i=0; i<arrNegative.length; i++ ){").append("\n");
-			writer.append( "		elem = document.getElementsByName('negative').item(i);").append("\n");
-			writer.append( "		if( elem.checked ){").append("\n");
-			writer.append( "			vTotalNeg++;").append("\n");
-			writer.append( "		}").append("\n");
-			writer.append( "	}").append("\n");
+			sbTmp.append( "	for(i=0; i<arrNegative.length; i++ ){").append("\n");
+			sbTmp.append( "		elem = document.getElementsByName('negative').item(i);").append("\n");
+			sbTmp.append( "		if( elem.checked ){").append("\n");
+			sbTmp.append( "			vTotalNeg++;").append("\n");
+			sbTmp.append( "		}").append("\n");
+			sbTmp.append( "	}").append("\n");
 
-			writer.append( "	for(i=0; i<arrConsiderForTopVolumeHighlighter.length; i++ ){").append("\n");
-			writer.append( "		elem = document.getElementsByName('considerForTopVolumeHighlighter').item(i);").append("\n");
-			writer.append( "		if( elem.checked ){").append("\n");
-			writer.append( "            vConsiderableForTopVolumeHighlighter += elem.value +\",\";").append("\n");
-			writer.append( "		}").append("\n");
-			writer.append( "	}").append("\n");
+			sbTmp.append( "	for(i=0; i<arrConsiderForTopVolumeHighlighter.length; i++ ){").append("\n");
+			sbTmp.append( "		elem = document.getElementsByName('considerForTopVolumeHighlighter').item(i);").append("\n");
+			sbTmp.append( "		if( elem.checked ){").append("\n");
+			sbTmp.append( "            vConsiderableForTopVolumeHighlighter += elem.value +\",\";").append("\n");
+			sbTmp.append( "		}").append("\n");
+			sbTmp.append( "	}").append("\n");
 
-			writer.append( "	document.getElementById('totalPos').value = vTotalPos;").append("\n");
-			writer.append( "	document.getElementById('totalNeg').value = vTotalNeg;").append("\n");
-			writer.append( "	document.getElementById('positiveStocks').value = vPositiveStocks;").append("\n");
-			writer.append( "	document.getElementById('tConsiderableForTopVolumeHighlighter').value = vConsiderableForTopVolumeHighlighter != '' ? vConsiderableForTopVolumeHighlighter.substring(0, vConsiderableForTopVolumeHighlighter.length-1) : vConsiderableForTopVolumeHighlighter;").append("\n");
-			writer.append( "").append("\n");
-			writer.append( "}").append("\n");
-			writer.append( "</script>").append("\n");
+			sbTmp.append( "	document.getElementById('totalPos').value = vTotalPos;").append("\n");
+			sbTmp.append( "	document.getElementById('totalNeg').value = vTotalNeg;").append("\n");
+			sbTmp.append( "	document.getElementById('positiveStocks').value = vPositiveStocks;").append("\n");
+			sbTmp.append( "	document.getElementById('tConsiderableForTopVolumeHighlighter').value = vConsiderableForTopVolumeHighlighter != '' ? vConsiderableForTopVolumeHighlighter.substring(0, vConsiderableForTopVolumeHighlighter.length-1) : vConsiderableForTopVolumeHighlighter;").append("\n");
+			sbTmp.append( "").append("\n");
+			sbTmp.append( "}").append("\n");
+			sbTmp.append( "</script>").append("\n");
 			//writer.append( "</head>").append("\n");
 			
-			writer.append( "Report generated on <B>" + new Date() + "</B>\n" );
-			writer.append("<PRE><B>Description</B>: This report displays two series of data for each symbol viz. Close and Volume.\nWhen you hover over the round marks on each series it will display the data they represent.\nVolume is actually Buy/Sell Volume in the sense that every rise in intraday data is considered to be buy and every fall is considered sell.\nLook for spikes in Buy volume. This should be at least 4 times average buy volume.\nIf there are small or no sell volumes recently and a sudden buy volume comes, then this is a very bullish sign.\nDo not consider symbols where you see many sell instances recently.\nAlso, there are 2 checkboxes provided by each chart. \nThey are for marking Positive/Negative outcome of the strategy as exceptions are always there.\nThe textboxes on the top will summarize this information for you with Positive Symbols displayed as comma-separated string.\nIf you do not see charts, then copy the <U>chart.jar</U> to current folder where this html file resides.").append("\n");
-			writer.append("TotalPos: <input type=text name=\"totalPos\" id=\"totalPos\"> <input type=text name=\"positiveStocks\" id=\"positiveStocks\">").append("\n");
-			writer.append("TotalNeg: <input type=text name=\"totalNeg\" id=\"totalNeg\">").append("\n");
-			writer.append("To be considered for Top Volume Highlighter: <input type=text name=\"tConsiderableForTopVolumeHighlighter\" id=\"tConsiderableForTopVolumeHighlighter\" size='40' onclick='this.select();'>").append("\n\n");
+			sbTmp.append( "Report generated on <B>" + new Date() + "</B>\n" );
+			sbTmp.append("<PRE><B>Description</B>: This report displays two series of data for each symbol viz. Close and Volume.\nWhen you hover over the round marks on each series it will display the data they represent.\nVolume is actually Buy/Sell Volume in the sense that every rise in intraday data is considered to be buy and every fall is considered sell.\nLook for spikes in Buy volume. This should be at least 4 times average buy volume.\nIf there are small or no sell volumes recently and a sudden buy volume comes, then this is a very bullish sign.\nDo not consider symbols where you see many sell instances recently.\nAlso, there are 2 checkboxes provided by each chart. \nThey are for marking Positive/Negative outcome of the strategy as exceptions are always there.\nThe textboxes on the top will summarize this information for you with Positive Symbols displayed as comma-separated string.\nIf you do not see charts, then copy the <U>chart.jar</U> to current folder where this html file resides.").append("\n");
+			sbTmp.append("TotalPos: <input type=text name=\"totalPos\" id=\"totalPos\"> <input type=text name=\"positiveStocks\" id=\"positiveStocks\">").append("\n");
+			sbTmp.append("TotalNeg: <input type=text name=\"totalNeg\" id=\"totalNeg\">").append("\n");
+			sbTmp.append("To be considered for Top Volume Highlighter: <input type=text name=\"tConsiderableForTopVolumeHighlighter\" id=\"tConsiderableForTopVolumeHighlighter\" size='40' onclick='this.select();'>").append("\n\n");
+
+			if( qualifiedWriter != null ){
+				qualifiedWriter.append( sbTmp.toString() );
+				qualifiedWriter.append( sbQualified.toString() ).append("\n");
+				qualifiedWriter.append( "</PRE>" ).append("\n");
+			}
 			
+			writer.append(sbTmp.toString());
 			writer.append( sb.toString() ).append("\n");
 			writer.append( "</PRE>" ).append("\n");
 		}
@@ -135,15 +160,68 @@ public class IntraDayDataProcessor {
 			System.out.println( sb.toString() );
 		}
 		
+		if( !exceptionSymbols.isEmpty() ){
+			System.out.println( "\n\nThe process faced exceptions in processing: " +exceptionSymbols+ "\n\n" );
+		}
 	}
 
-	private void process(String symbol, StringBuilder sb, final String GOOGLE_URL_INTRA_DAY, String GOOGLE_URL_DAY_CLOSE) throws Exception{
+	private void process(String symbol, final StringBuilder sb, final StringBuilder sbQualified, final String GOOGLE_URL_INTRA_DAY, String GOOGLE_URL_DAY_CLOSE) throws Exception{
 		//final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchY( Utility.getContent( properties.getProperty("yahoo.url.intra.day").replaceAll("~SYMBOL", symbol) ) );
 //		final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchG( Utility.getContent( "file:/C:/Temp/ForSrid/intra/rpts/Intra"+symbol ), true );
 //		final Map<Date, List<IntraDayStructure>> mapGDayClose = fetchG( Utility.getContent( "file:/C:/Temp/ForSrid/intra/rpts/"+symbol ), false );
+
+		// ********************************* START: CACHE IMPLEMENTATION ********************************** //
+		final String CACHE_FILE_SUFFIX_INTRA_DAY = "-INTRA-DAY";
+		final String CACHE_FILE_SUFFIX_DAY_CLOSE = "-DAY-CLOSE";
 		
-		final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchG( Utility.getContent( GOOGLE_URL_INTRA_DAY.replaceAll("~SYMBOL", symbol) ), true );
-		final Map<Date, List<IntraDayStructure>> mapGDayClose = fetchG( Utility.getContent( GOOGLE_URL_DAY_CLOSE.replaceAll("~SYMBOL", symbol) ), false );
+		String intraDayContent = null;
+		String dayCloseContent = null;
+		if( properties.getProperty("use.cache").equals("true") ){
+			try{
+				File intraDayFile = new File( properties.getProperty("cache.folder") + symbol + CACHE_FILE_SUFFIX_INTRA_DAY );
+				if( intraDayFile.exists() ){
+					intraDayContent = Utility.getContent( intraDayFile.toURL().toString() );
+				}
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+
+			try{
+				File dayCloseFile = new File( properties.getProperty("cache.folder") + symbol + CACHE_FILE_SUFFIX_DAY_CLOSE );
+				if( dayCloseFile.exists() ){
+					dayCloseContent = Utility.getContent( dayCloseFile.toURL().toString() );
+				}
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			
+		}
+
+		if( intraDayContent == null ){
+			intraDayContent = Utility.getContent( GOOGLE_URL_INTRA_DAY.replaceAll("~SYMBOL", symbol) );
+			try{
+				Utility.saveContent(properties.getProperty("cache.folder") + symbol + CACHE_FILE_SUFFIX_INTRA_DAY, intraDayContent);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		if( dayCloseContent == null ){
+			dayCloseContent = Utility.getContent( GOOGLE_URL_DAY_CLOSE.replaceAll("~SYMBOL", symbol) );
+
+			try{
+				Utility.saveContent(properties.getProperty("cache.folder") + symbol + CACHE_FILE_SUFFIX_DAY_CLOSE, dayCloseContent);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		// ********************************* END: CACHE IMPLEMENTATION ********************************** //
+		
+		final Map<Date, List<IntraDayStructure>> mapGIntraDay = fetchG( intraDayContent, true );
+		final Map<Date, List<IntraDayStructure>> mapGDayClose = fetchG( dayCloseContent, false );
 		
 		final TreeSet<Date> dateSet = new TreeSet<Date>( mapGIntraDay.keySet() );
 		
@@ -170,9 +248,10 @@ public class IntraDayDataProcessor {
 		final List<Long> volumeList = new ArrayList<Long>();
 		final StringBuilder sbDates = new StringBuilder();
 		final StringBuilder sbCloseData = new StringBuilder();
-		Long maxVolume = 0L;
+		Long maxVolume = 0L, sumOfVolume = 0L;
 		String noteMaxVolxClose = "";
 		Date dateWithMaxVolume = null;
+		Double maxVxC = 0.0;
 		for(final Date tradeDate : dateSet){
 			final IntraDayStructure idsClose = mDayClose.get(Utility.getStrDate(tradeDate));
 			
@@ -206,38 +285,18 @@ public class IntraDayDataProcessor {
 				}else if( ids.getClose() < prevClose ){
 					sVol += ids.getVolume();
 				}
-/*
-				Double next3CxV = 0.0;
-				Double next3V = 0.0;
-				for( int j=i+1; j < (i+4) && j < idsList.size(); j++ ){
-					final IntraDayStructure idsForNext3Tx = idsList.get(j);
-					next3CxV += idsForNext3Tx.getClose() * idsForNext3Tx.getVolume();
-					next3V += idsForNext3Tx.getVolume();
-				}
-				
-				Double avgPriceForNext3Tx = 0.0;
-				try{
-					avgPriceForNext3Tx = (next3CxV / next3V);
-				}
-				catch(Exception e){
-					e.printStackTrace();
-				}
-				
-				if( ids.getClose() >= avgPriceForNext3Tx ){
-					bVol += ids.getVolume();
-				}else{
-					sVol += ids.getVolume();
-				}
-*/
 			}
 			
 			final Double close = idsClose != null ? idsClose.getClose() : idsList.get(idsList.size()-1).getClose();
 			
 			final Long vol = bVol-sVol;
 			volumeList.add(vol);
+			sumOfVolume += vol;
+			
 			if( vol > maxVolume ){
 				maxVolume = vol;
-				noteMaxVolxClose = "Note: V x C on " +Utility.getStrDate(tradeDate)+ " was $" +Utility.getFormattedInteger(maxVolume * close);
+				maxVxC = (maxVolume * close);
+				noteMaxVolxClose = "Note: V x C on " +Utility.getStrDate(tradeDate)+ " was $" +Utility.getFormattedInteger(maxVxC);
 				dateWithMaxVolume = tradeDate;
 			}
 
@@ -252,11 +311,20 @@ public class IntraDayDataProcessor {
 		CHART_HTML_DATA = CHART_HTML_DATA.replace("~VOLUME_DATA", volumeList.toString().replaceAll("\\[|\\]", "").replaceAll(" ", ""));
 		CHART_HTML_DATA = CHART_HTML_DATA.replace("~DATES_DATA", sbDates.substring(1));
 		
-		sb.append( "P<input type=checkbox onclick=\"summarize()\" name=positive value=\"" +symbol+ "\"> N<input type=checkbox onclick=\"summarize()\" name=negative value=\"" +symbol+ "\"> " );
-		sb.append( "<a href='http://www.google.com/finance?q=" +symbol+ "' target='_new'>" +symbol+ "</a> " );
-		sb.append( noteMaxVolxClose +" " );
-		sb.append( "<input type='checkbox' name='considerForTopVolumeHighlighter' value='" +symbol+ "|" +Utility.getStrDate(dateWithMaxVolume)+ "' onclick='summarize()'> Consider it for Top Volume Highlighter\n" );
-		sb.append( CHART_HTML_DATA +"\n\n" );
+		final StringBuilder sbTmp = new StringBuilder();
+		sbTmp.append( "P<input type=checkbox onclick=\"summarize()\" name=positive value=\"" +symbol+ "\"> N<input type=checkbox onclick=\"summarize()\" name=negative value=\"" +symbol+ "\"> " );
+		sbTmp.append( "<a href='http://www.google.com/finance?q=" +symbol+ "' target='_new'>" +symbol+ "</a> " );
+		sbTmp.append( noteMaxVolxClose +" " );
+		sbTmp.append( "<input type='checkbox' name='considerForTopVolumeHighlighter' value='" +symbol+ "|" +Utility.getStrDate(dateWithMaxVolume)+ "' onclick='summarize()'> Consider it for Top Volume Highlighter\n" );
+		sbTmp.append( CHART_HTML_DATA +"\n\n" );
+		
+		sb.append( sbTmp.toString() );
+		
+		final Double avgVolume = new Double(sumOfVolume) / new Double(volumeList.size());
+		
+		if( maxVolume >= (avgVolume * Double.parseDouble(properties.getProperty("qualification.max.vol.times.of.average.vol")) ) &&  maxVxC >= Double.parseDouble(properties.getProperty("qualification.max.vxc.greater.than")) ){
+			sbQualified.append( sbTmp.toString() );
+		}
 	}
 
 	private Map<Date, List<IntraDayStructure>> fetchY(String data) throws Exception{

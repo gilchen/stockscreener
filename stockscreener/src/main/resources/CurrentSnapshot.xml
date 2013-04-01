@@ -290,6 +290,11 @@
 					<qty>340</qty>
 					<price>1.34</price>
 				</entry>
+				<entry>
+					<buy-date>03/08/2013</buy-date>
+					<qty>320</qty>
+					<price>1.09</price>
+				</entry>
 			</entries>
 		</position>
 		<position>
@@ -319,6 +324,36 @@
 					<buy-date>02/27/2013</buy-date>
 					<qty>12</qty>
 					<price>32.36</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>ARR</symbol>
+			<entries>
+				<entry>
+					<buy-date>03/18/2013</buy-date>
+					<qty>55</qty>
+					<price>6.40</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>VELT</symbol>
+			<entries>
+				<entry>
+					<buy-date>03/19/2013</buy-date>
+					<qty>175</qty>
+					<price>2.02</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>ETR</symbol>
+			<entries>
+				<entry>
+					<buy-date>03/27/2013</buy-date>
+					<qty>6</qty>
+					<price>62.74</price>
 				</entry>
 			</entries>
 		</position>

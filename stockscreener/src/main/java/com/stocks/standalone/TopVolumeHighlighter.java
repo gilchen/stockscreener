@@ -99,7 +99,7 @@ public class TopVolumeHighlighter {
 		String[] symbolPipeDates = properties.getProperty("symbol.pipe.date").split(",");
 		final StringBuilder sbSummaryOnly = new StringBuilder();
 		//sbSummaryOnly.append( "<table border=1>" ).append("\n");
-		sbSummaryOnly.append("Symbol,D Pressure(Min),P Pressure(Min),D Pressure(Realtime),P Pressure(Realtime),Total D Amount Involved (CxV),Total P Amount Involved (CxV),x Times (CxV)").append("\n");
+		sbSummaryOnly.append("Symbol,D Pressure(against Whole),P Pressure(against Whole),Total D Still to cover (CxV),Total P Still to realize (CxV),Pump is x Times Dump (CxV)").append("\n");
 		for(String s : symbolPipeDates){
 			final String[] symbolPipeDate = s.split("[|]");
 			final String symbol = symbolPipeDate[0];
@@ -126,7 +126,12 @@ public class TopVolumeHighlighter {
 		
 		//final String content = Utility.getContent( "file:///C:/Temp/ForSrid/tmp/" +symbol+ "-1M.txt" );
 		final String content = Utility.getContent( properties.getProperty("google.url.intra.day").replaceAll("~SYMBOL", symbol) );
-
+		try{
+			Utility.saveContent( properties.getProperty("cache.folder")+"/"+symbol+".txt", content);
+		}
+		catch(Exception e){
+			System.out.println( "Exception in saving "+symbol+ " to cache folder." );
+		}
 		final List<IntraDayStructure> idsList = getIntraDayStructureList(content);
 
 		// Start
@@ -257,7 +262,7 @@ public class TopVolumeHighlighter {
 			final String sDateReFormatted = Utility.getStrDate( Utility.getDateFor(sDate, "dd_MMM_yyyy") );
 			final String chartHTML = processSubList(idsSubList, symbol, sDateReFormatted, minVolume, maxVolume, -1, -1);
 			
-			sb.append( chartHTML ).append( "<BR>" );;
+			sb.append( chartHTML ).append( "<BR>" );
 			
 			if( ( tdCounter++ % TD_PER_TR ) == 0 ){
 				sbTabPanel.append( "<BR>" );
@@ -283,6 +288,7 @@ public class TopVolumeHighlighter {
 		
 		final List<Integer> indices = new ArrayList<Integer>();
 		int iTopDumps = 0, iTopPumps = 0;
+		Double highestPumpCxV = 0.0, highestDumpCxV = 0.0;
 
 		for( IntraDayStructure ids : results ){
 			final IntraDayStructure idsPrev = idsList.get(ids.getIndex() >= 2 ? ids.getIndex()-2 : ids.getIndex()-1);
@@ -295,10 +301,22 @@ public class TopVolumeHighlighter {
 				iTopPumps++;
 				
 				indices.add( ids.getIndex() );
+				
+				final Double CxV = ids.getClose() * ids.getVolume();
+				if( highestPumpCxV < CxV ){
+					highestPumpCxV = CxV;
+				}
+
 			}else if( iTopDumps < iTopN && ids.getClose() < idsPrev.getClose() ){
 				iTopDumps++;
 				
 				indices.add( ids.getIndex() );
+
+				final Double CxV = ids.getClose() * ids.getVolume();
+				if( highestDumpCxV < CxV ){
+					highestDumpCxV = CxV;
+				}
+
 			}
 			
 			if( iTopPumps == iTopN && iTopDumps == iTopN ){
@@ -316,9 +334,9 @@ public class TopVolumeHighlighter {
 
 		final StringBuilder sbAll     = new StringBuilder("<table border=1>");
 		final StringBuilder sbDumpPressureMonitor = new StringBuilder("<table border=1>");
-		sbDumpPressureMonitor.append("<tr><td>Dump@</td><td>Tgt(Dump -10%)</td><td>Tgt1(0 if hits Tgt, otherwise Tgt)</td><td>D Pressure(Min)</td><td>D Pressure(Realtime)</td></tr>");
+		sbDumpPressureMonitor.append("<tr><td>Dump@</td><td>Tgt D Pressure<BR>(Upto -10%)</td><td>D Pressure(Min)<BR>Remaining</td><td>D Pressure<BR>(Achieved)</td></tr>");
 		final StringBuilder sbPumpPressureMonitor = new StringBuilder("<table border=1>");
-		sbPumpPressureMonitor.append("<tr><td>Pump@</td><td>Tgt(Pump +10%)</td><td>Tgt1(o if hits Tgt, otherwise Tgt)</td><td>P Pressure(Max)</td><td>P Pressure(Realtime)</td></tr>");
+		sbPumpPressureMonitor.append("<tr><td>Pump@</td><td>Tgt P Pressure<BR>(Upto +10%)</td><td>P Pressure(Max)<BR>Remaining</td><td>P Pressure<BR>(Achieved)</td></tr>");
 		
 		int yIndex = 0;
 		//final Double realTime = idsList.get(idsList.size()-1).getClose();
@@ -326,11 +344,13 @@ public class TopVolumeHighlighter {
 		Double dSumDumpPressure = 0.0;
 		Double dSumPumpPressure = 0.0;
 
-		Double dSumDumpPressureRealtime = 0.0;
-		Double dSumPumpPressureRealtime = 0.0;
+		//Double dSumDumpPressureRealtime = 0.0;
+		//Double dSumPumpPressureRealtime = 0.0;
 		
 		Double dSumDumpPressureCxV = 0.0;
 		Double dSumPumpPressureCxV = 0.0;
+		
+		Double dTotalDumpPressureCxV = 0.0, dTotalPumpPressureCxV = 0.0; 
 		
 		for( final IntraDayStructure ids : idsList ){
 			if( yIndex == Y_LABEL_POS.size() ){
@@ -348,73 +368,92 @@ public class TopVolumeHighlighter {
 				x = (x > 20.0 ? x-20.0 : x+40.0);
 				String strX = "0." +(x+"").replace(".", "");
 				final String label = " Price: " +ids.getClose()+ " (" +idsPrev.getClose()+ " " +change+"%) Index: " +ids.getIndex()+ " Val $" +Utility.getFormattedInteger(ids.getClose()*ids.getVolume()).replaceAll(",", " ")+ "," +strX+ "," +Y_LABEL_POS.get(yIndex++)+ "," +(relativeIndex)+",0";
-				
-				
+
 				// Start:
 				final QueryResults qrMinMax = Query.parseAndExec("SELECT min(low), max(high) FROM com.stocks.standalone.IntraDayStructure where index >= " +ids.getIndex()+ " LIMIT 1,1", new ArrayList<IntraDayStructure>(idsList) );
 				final List<ArrayList<Double>> resultsMinMax = qrMinMax.getResults();
 				final Double min = resultsMinMax.get(0).get(0);
 				final Double max = resultsMinMax.get(0).get(1);
 
-				final Double plus10pc = Utility.round( ids.getClose() + ( ids.getClose() * (10.0/100.0) ) );
-				final Double minus10pc = Utility.round( ids.getClose() - ( ids.getClose() * (10.0/100.0) ) );
+				final Double CxV = ids.getClose() * ids.getVolume();
+				
 				String sCheckBoxChecked = "";
 				if( ids.getClose() < idsPrev.getClose() ){
 					// Dump
-					if( min > minus10pc ){
+					Double nPC = (((CxV-highestDumpCxV)/highestDumpCxV)*10.0)+10.0; // Assuming 10% is the maximum pressure a Transaction can have on a stock.
+
+					final Double minusNpc = Utility.round( ids.getClose() - ( ids.getClose() * (nPC/100.0) ) );
+
+					if( min > minusNpc ){
 						sCheckBoxChecked = "checked";
 					}else{
-						sCheckBoxChecked = "title='Min (" +min+ ") crossed below minus10pc (" +minus10pc+ ")'";
+						sCheckBoxChecked = "title='Min (" +min+ ") crossed below minus10pc (" +minusNpc+ ")'";
 					}
 					
 					sbDumpPressureMonitor.append("<tr>");
 					sbDumpPressureMonitor.append("<td>" +ids.getClose()+ "</td>");
-					sbDumpPressureMonitor.append("<td>" +minus10pc+ "</td>");
-					Double tgt1 = (minus10pc >= min ? 0.0 : minus10pc);
-					sbDumpPressureMonitor.append("<td>" +tgt1+ "</td>");
+					sbDumpPressureMonitor.append("<td title='$" +Utility.getFormattedInteger(CxV)+"'>" +minusNpc+ " (-" +Utility.round(nPC)+ "%)</td>");
+					Double tgt1 = (minusNpc >= min ? 0.0 : minusNpc);
+					//sbDumpPressureMonitor.append("<td>" +tgt1+ "</td>");
 					
-					Double dPressure = 0.0, dPressureRealtime = 0.0;
+					Double dPressure = 0.0; //, dPressureRealtime = 0.0;
 					if( tgt1 != 0.0 ){
 						dPressure = Utility.round( ((tgt1 - min)/min)*100.0 );
 						dSumDumpPressureCxV += (ids.getClose() * ids.getVolume());
 						
-						dPressureRealtime = Utility.round( ((tgt1 - realTime)/realTime)*100.0 );
+						//dPressureRealtime = Utility.round( ((tgt1 - realTime)/realTime)*100.0 );
 					}
 					
 					sbDumpPressureMonitor.append("<td>" +dPressure+ "%</td>");
-					sbDumpPressureMonitor.append("<td>" +dPressureRealtime+ "%</td>");
+					//sbDumpPressureMonitor.append("<td>" +dPressureRealtime+ "%</td>");
+					if( tgt1 != 0.0 ){
+						sbDumpPressureMonitor.append("<td>" +Utility.round(Math.abs(nPC) - Math.abs(dPressure))+ "%</td>");
+					}else{
+						sbDumpPressureMonitor.append("<td>&nbsp;</td>");
+					}
 					sbDumpPressureMonitor.append("</tr>");
 					
 					dSumDumpPressure += Math.abs(dPressure);
-					dSumDumpPressureRealtime += Math.abs(dPressureRealtime);
+					dTotalDumpPressureCxV += CxV;
+					//dSumDumpPressureRealtime += Math.abs(dPressureRealtime);
 				}else{
 					// Pump
-					if( max < plus10pc ){
+					Double nPC = (((CxV-highestPumpCxV)/highestPumpCxV)*10.0)+10.0; // Assuming 10% is the maximum pressure a Transaction can have on a stock.
+					
+					final Double plusNpc = Utility.round( ids.getClose() + ( ids.getClose() * (nPC/100.0) ) );
+
+					if( max < plusNpc ){
 						sCheckBoxChecked = "checked";
 					}else{
-						sCheckBoxChecked = "title='Max (" +max+ ") crossed above plus10pc (" +plus10pc+ ")'";
+						sCheckBoxChecked = "title='Max (" +max+ ") crossed above plus10pc (" +plusNpc+ ")'";
 					}
 
 					sbPumpPressureMonitor.append("<tr>");
 					sbPumpPressureMonitor.append("<td>" +ids.getClose()+ "</td>");
-					sbPumpPressureMonitor.append("<td>" +plus10pc+ "</td>");
-					Double tgt1 = (plus10pc <= max ? 0.0 : plus10pc);
-					sbPumpPressureMonitor.append("<td>" +tgt1+ "</td>");
+					sbPumpPressureMonitor.append("<td title='$" +Utility.getFormattedInteger(CxV)+ "'>" +plusNpc+ " (" +Utility.round(nPC)+ "%)</td>");
+					Double tgt1 = (plusNpc <= max ? 0.0 : plusNpc);
+					//sbPumpPressureMonitor.append("<td>" +tgt1+ "</td>");
 					
-					Double pPressure = 0.0, pPressureRealtime = 0.0;
+					Double pPressure = 0.0; //, pPressureRealtime = 0.0;
 					if( tgt1 != 0.0 ){
 						pPressure = Utility.round( ((tgt1 - max)/max)*100.0 );
 						dSumPumpPressureCxV += (ids.getClose() * ids.getVolume());
 						
-						pPressureRealtime = Utility.round( ((tgt1 - realTime)/realTime)*100.0 );
+						//pPressureRealtime = Utility.round( ((tgt1 - realTime)/realTime)*100.0 );
 					}
 					
 					sbPumpPressureMonitor.append("<td>" +pPressure+ "%</td>");
-					sbPumpPressureMonitor.append("<td>" +pPressureRealtime+ "%</td>");
+					//sbPumpPressureMonitor.append("<td>" +pPressureRealtime+ "%</td>");
+					if( tgt1 != 0.0 ){
+						sbPumpPressureMonitor.append("<td>" +Utility.round(Math.abs(nPC) - Math.abs(pPressure))+ "%</td>");
+					}else{
+						sbPumpPressureMonitor.append("<td>&nbsp;</td>");
+					}
 					sbPumpPressureMonitor.append("</tr>");
 					
 					dSumPumpPressure += Math.abs(pPressure);
-					dSumPumpPressureRealtime += Math.abs(pPressureRealtime);
+					dTotalPumpPressureCxV += CxV;
+					//dSumPumpPressureRealtime += Math.abs(pPressureRealtime);
 				}
 				// End
 
@@ -432,11 +471,17 @@ public class TopVolumeHighlighter {
 		
 		sbAll.append("</table>");
 		
-		final String dumpString = "<tr><td colspan='3'>" +symbol+ " (Dump) Total Amount Involved (CxV): <B>$" +Utility.getFormattedInteger(dSumDumpPressureCxV)+ "</B></td><td>" +Utility.round(dSumDumpPressure)+ "%</td><td>" +Utility.round(dSumDumpPressureRealtime)+ "%</td></tr>";
+		final Double dumpPcAgainstWhole = Utility.round((((dSumDumpPressureCxV-dTotalDumpPressureCxV)/dTotalDumpPressureCxV)*100.0)+100.0);
+		final Double pumpPcAgainstWhole = Utility.round((((dSumPumpPressureCxV-dTotalPumpPressureCxV)/dTotalPumpPressureCxV)*100.0)+100.0);
+		
+		// dTotalDumpPressureCxV
+		//final String dumpString = "<tr><td colspan='2'>" +symbol+ " (Dump) Total Amount Involved (CxV): <B>$" +Utility.getFormattedInteger(dSumDumpPressureCxV)+ "</B></td><td>" +Utility.round(dSumDumpPressure)+ "%</td><td>&nbsp;</td></tr>";
+		final String dumpString = "<tr><td colspan='2'>" +symbol+ " Total Dump Still to cover (CxV): <B>$" +Utility.getFormattedInteger(dSumDumpPressureCxV)+ "</B></td><td colspan='2' align='center'>(" +dumpPcAgainstWhole+ "% of Total)</td></tr>";
 		sbDumpPressureMonitor.append( dumpString );
 		sbDumpPressureMonitor.append("</table>");
 
-		final String pumpString = "<tr><td colspan='3'>" +symbol+ " (Pump) Total Amount Involved (CxV): <B>$" +Utility.getFormattedInteger(dSumPumpPressureCxV)+ "</B></td><td>" +Utility.round(dSumPumpPressure)+ "%</td><td>" +Utility.round(dSumPumpPressureRealtime)+ "%</td></tr>";
+		//final String pumpString = "<tr><td colspan='2'>" +symbol+ " (Pump) Total Amount Involved (CxV): <B>$" +Utility.getFormattedInteger(dSumPumpPressureCxV)+ "</B></td><td>" +Utility.round(dSumPumpPressure)+ "%</td><td>&nbsp;</td></tr>";
+		final String pumpString = "<tr><td colspan='2'>" +symbol+ " Total Pump Still to realize (CxV): <B>$" +Utility.getFormattedInteger(dSumPumpPressureCxV)+ "</B></td><td colspan='2' align='center'>(" +pumpPcAgainstWhole+ "% of Total)</td></tr>";
 		sbPumpPressureMonitor.append( pumpString );
 		sbPumpPressureMonitor.append("</table>");
 		
@@ -444,10 +489,10 @@ public class TopVolumeHighlighter {
 		//sbSummaryOnly.append( "<tr><td colspan='5'>&nbsp;</td></tr>" ).append("\n");
 		//sbSummaryOnly.append("Symbol,D Pressure(Min),P Pressure(Min),D Pressure(Realtime),P Pressure(Realtime),Total D Amount Involved (CxV),Total P Amount Involved (CxV),x Times (CxV)").append("\n");
 		sbSummaryOnly.append("\"").append(symbol).append("\",");
-		sbSummaryOnly.append("\"").append(Utility.round(dSumDumpPressure)).append("%\",");
-		sbSummaryOnly.append("\"").append(Utility.round(dSumPumpPressure)).append("%\",");
-		sbSummaryOnly.append("\"").append(Utility.round(dSumDumpPressureRealtime)).append("%\",");
-		sbSummaryOnly.append("\"").append(Utility.round(dSumPumpPressureRealtime)).append("%\",");
+		sbSummaryOnly.append("\"").append(Utility.round(dumpPcAgainstWhole)).append("%\",");
+		sbSummaryOnly.append("\"").append(Utility.round(pumpPcAgainstWhole)).append("%\",");
+		//sbSummaryOnly.append("\"").append(Utility.round(dSumDumpPressureRealtime)).append("%\",");
+		//sbSummaryOnly.append("\"").append(Utility.round(dSumPumpPressureRealtime)).append("%\",");
 		sbSummaryOnly.append("\"$").append(Utility.getFormattedInteger(dSumDumpPressureCxV)).append("\",");
 		sbSummaryOnly.append("\"$").append(Utility.getFormattedInteger(dSumPumpPressureCxV)).append("\",");
 		
