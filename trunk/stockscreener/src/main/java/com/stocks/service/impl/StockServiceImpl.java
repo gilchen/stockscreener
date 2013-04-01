@@ -401,7 +401,7 @@ public class StockServiceImpl implements StockService {
 		final IntraDayDataProcessor iddp = new IntraDayDataProcessor();
 		try{
 			sb.append( "Generating Chart for " ).append( symbols ).append("\n");
-			iddp.generateReport(symbols, writer);
+			iddp.generateReport(symbols, writer, null);
 			sb.append( writer.toString() );
 		}
 		catch(Exception e){
