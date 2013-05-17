@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.stocks.enums.Movement;
 import com.stocks.util.Utility;
 
 public class IntraDayDataProcessor {
@@ -266,25 +267,53 @@ public class IntraDayDataProcessor {
 			Long sVol = 0L;
 			for(int i=0; i<idsList.size(); i++){
 				final IntraDayStructure ids = idsList.get(i);
+				final IntraDayStructure prev;
 
 				// Get Total Buy/Sell Volume on a given day.
-				Double prevClose = null;
 				if( i == 0 ){
 					final Map.Entry<String, IntraDayStructure> me = mDayClose.lowerEntry( Utility.getStrDate(tradeDate) );
 					if( me != null ){
-						prevClose = me.getValue().getClose();
+						prev = me.getValue();
 					}else{
-						prevClose = idsList.get(i).getClose();
+						prev = idsList.get(i);
 					}
 				}else{
-					prevClose = idsList.get(i-1).getClose();
+					prev = idsList.get(i-1);
 				}
+				Double prevClose = prev.getClose();
 				
+
 				if( ids.getClose() >= prevClose ){
 					bVol += ids.getVolume();
 				}else if( ids.getClose() < prevClose ){
 					sVol += ids.getVolume();
 				}
+
+/*				
+				final Double absDiff = Math.abs( ((ids.getClose() - prev.getClose()) / prev.getClose())*100.0 );
+				if( absDiff > 0.30 ){ // If difference between closes is more than 0.30% then consider close.
+					if( ids.getClose() >= prevClose ){
+						bVol += ids.getVolume();
+						System.out.println( String.format( "%s,%s,%s,%s,%s,%s,%s,%s,%s", ids.getIndex(), ids.getOpen(), ids.getHigh(), ids.getLow(), ids.getClose(), ids.getVolume(), true, absDiff, "B" ) );
+					}else if( ids.getClose() < prevClose ){
+						sVol += ids.getVolume();
+						System.out.println( String.format( "%s,%s,%s,%s,%s,%s,%s,%s,%s", ids.getIndex(), ids.getOpen(), ids.getHigh(), ids.getLow(), ids.getClose(), ids.getVolume(), true, absDiff, "S" ) );
+					}
+				}else{ // Consider CandleStick.
+					Movement movement = Utility.getCandleStickType(ids);
+					if( movement.equals( Movement.PUMP ) ){
+						bVol += ids.getVolume();
+						System.out.println( String.format( "%s,%s,%s,%s,%s,%s,%s,%s,%s", ids.getIndex(), ids.getOpen(), ids.getHigh(), ids.getLow(), ids.getClose(), ids.getVolume(), false, absDiff, "B" ) );
+					}else if( movement.equals( Movement.DUMP ) ){
+						sVol += ids.getVolume();
+						System.out.println( String.format( "%s,%s,%s,%s,%s,%s,%s,%s,%s", ids.getIndex(), ids.getOpen(), ids.getHigh(), ids.getLow(), ids.getClose(), ids.getVolume(), false, absDiff, "S" ) );
+					}else{ // Indecision
+						bVol += ids.getVolume()/2;
+						sVol += ids.getVolume()/2;
+						System.out.println( String.format( "%s,%s,%s,%s,%s,%s,%s,%s,%s", ids.getIndex(), ids.getOpen(), ids.getHigh(), ids.getLow(), ids.getClose(), ids.getVolume(), false, absDiff, "U" ) );
+					}
+				}
+*/				
 			}
 			
 			final Double close = idsClose != null ? idsClose.getClose() : idsList.get(idsList.size()-1).getClose();
@@ -293,10 +322,15 @@ public class IntraDayDataProcessor {
 			volumeList.add(vol);
 			sumOfVolume += vol;
 			
-			if( vol > maxVolume ){
+			if( Math.abs(vol) > Math.abs(maxVolume) ){
 				maxVolume = vol;
 				maxVxC = (maxVolume * close);
 				noteMaxVolxClose = "Note: V x C on " +Utility.getStrDate(tradeDate)+ " was $" +Utility.getFormattedInteger(maxVxC);
+				
+				if( maxVxC < 0 ){
+					noteMaxVolxClose = "<font color=red>" +noteMaxVolxClose+ "</font>";
+				}
+				
 				dateWithMaxVolume = tradeDate;
 			}
 
@@ -322,7 +356,29 @@ public class IntraDayDataProcessor {
 		
 		final Double avgVolume = new Double(sumOfVolume) / new Double(volumeList.size());
 		
-		if( maxVolume >= (avgVolume * Double.parseDouble(properties.getProperty("qualification.max.vol.times.of.average.vol")) ) &&  maxVxC >= Double.parseDouble(properties.getProperty("qualification.max.vxc.greater.than")) ){
+		// ************** Start: Filter out if LastClose is close to 52WkHigh.  *********************** //
+		boolean check52WkPassed = true;
+		try{
+			Quote quote = CallerQuote.processCnbc(symbol);
+			String range52Wk = quote.getRange52wk();
+			final Double low52Wk = new Double( range52Wk.split(" - ")[0] );
+			final Double high52Wk = new Double( range52Wk.split(" - ")[1] );
+			final Double lastClose = new Double( sbCloseData.substring( sbCloseData.lastIndexOf(",")+1 ) );
+			final Double midPoint = (high52Wk - ((high52Wk - low52Wk)/2.00) );
+			if( lastClose > midPoint ){
+				check52WkPassed = false;
+			}
+			
+		}
+		catch(Exception e){
+			// Ignore
+			System.out.println( "::: Could not do 52WkCheck for " +symbol+ " due to " +e.getMessage() );
+		}
+		// ***************** End ************************** //
+		
+		if( Math.abs(maxVolume) >= (avgVolume * Double.parseDouble(properties.getProperty("qualification.max.vol.times.of.average.vol")) ) 
+				&&  Math.abs(maxVxC) >= Double.parseDouble(properties.getProperty("qualification.max.vxc.greater.than"))
+				&& ((check52WkPassed && maxVxC > 0) || (!check52WkPassed && maxVxC < 0) ) ){
 			sbQualified.append( sbTmp.toString() );
 		}
 	}

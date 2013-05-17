@@ -159,17 +159,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>UNG</symbol>
-			<entries>
-				<entry>
-					<buy-date>01/31/2012</buy-date>
-					<qty>11</qty>
-					<price>21.36</price>
-					<!-- Original BuyPrice before Split: $5.34 -->
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>UPL</symbol>
 			<entries>
 				<entry>
@@ -271,32 +260,7 @@
 				</entry>
 			</entries>
 		</position>
-		<position>
-			<symbol>ARAY</symbol>
-			<entries>
-				<entry>
-					<buy-date>02/07/2013</buy-date>
-					<qty>90</qty>
-					<price>4.42</price>
-				</entry>
-			</entries>
-		</position>
 
-		<position>
-			<symbol>NBG</symbol>
-			<entries>
-				<entry>
-					<buy-date>02/14/2013</buy-date>
-					<qty>340</qty>
-					<price>1.34</price>
-				</entry>
-				<entry>
-					<buy-date>03/08/2013</buy-date>
-					<qty>320</qty>
-					<price>1.09</price>
-				</entry>
-			</entries>
-		</position>
 		<position>
 			<symbol>ETRM</symbol>
 			<entries>
@@ -304,16 +268,6 @@
 					<buy-date>02/15/2013</buy-date>
 					<qty>320</qty>
 					<price>1.09</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
-			<symbol>MCP</symbol>
-			<entries>
-				<entry>
-					<buy-date>02/22/2013</buy-date>
-					<qty>56</qty>
-					<price>6.61</price>
 				</entry>
 			</entries>
 		</position>
@@ -348,12 +302,32 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>ETR</symbol>
+			<symbol>VOLC</symbol>
 			<entries>
 				<entry>
-					<buy-date>03/27/2013</buy-date>
-					<qty>6</qty>
-					<price>62.74</price>
+					<buy-date>04/15/2013</buy-date>
+					<qty>21</qty>
+					<price>21.43</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>TEVA</symbol>
+			<entries>
+				<entry>
+					<buy-date>04/24/2013</buy-date>
+					<qty>12</qty>
+					<price>38.58</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>CYS</symbol>
+			<entries>
+				<entry>
+					<buy-date>05/14/2013</buy-date>
+					<qty>40</qty>
+					<price>11.86</price>
 				</entry>
 			</entries>
 		</position>

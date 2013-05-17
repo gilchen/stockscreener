@@ -346,6 +346,12 @@ public class StockServiceImpl implements StockService {
     	return getSymbolMetadataDao().read(symbol);
     }
     
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    public List<Object[]> getNativeQueryResults(String nativeSql) {
+    	return this.getNyseDao().getQueryResults(nativeSql);
+    }    
+    
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void generateEntryTimingReport(String sql, String overrideSymbols, String reportName) {
     	overrideSymbols = overrideSymbols.trim().replaceAll(" ", "");
@@ -398,10 +404,15 @@ public class StockServiceImpl implements StockService {
 		symbols.addAll( overrideSymbolsList );
 		
 		final StringWriter writer = new StringWriter();
+		final StringWriter writerQualifiedOnly = new StringWriter();
 		final IntraDayDataProcessor iddp = new IntraDayDataProcessor();
 		try{
 			sb.append( "Generating Chart for " ).append( symbols ).append("\n");
-			iddp.generateReport(symbols, writer, null);
+			iddp.generateReport(symbols, writer, writerQualifiedOnly);
+			sb.append( "<H1>Qualified Only</H1>" );
+			sb.append( writerQualifiedOnly.toString() );
+			sb.append( "<HR>" );
+			sb.append( "<H1>All</H1>" );
 			sb.append( writer.toString() );
 		}
 		catch(Exception e){

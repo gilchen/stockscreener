@@ -89,7 +89,12 @@ public class IntraDayStructure{
 	public String toStringFor() {
 		java.util.Date dt = new java.util.Date(time);
 		return "IntraDayStructure [index=" + index + ", time=" + Utility.getStrDate(dt)+ " "+Utility.getStrTime(dt)
-				+ ", close=" + close + ", volume=" + volume + ", v*c=$" +Utility.getFormattedInteger((volume*close))+ "]";
+				+ ", open=" + open
+				+ ", high=" + high 
+				+ ", low=" + low
+				+ ", close=" + close
+				+ ", volume=" + volume 
+				+ ", v*c=$" +Utility.getFormattedInteger((volume*close))+ "]";
 	}
 
 }

@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import org.josql.Query;
 import org.josql.QueryResults;
 
+import com.stocks.enums.Movement;
 import com.stocks.util.Utility;
 
 public class TopVolumeHighlighter {
@@ -260,7 +261,7 @@ public class TopVolumeHighlighter {
 			final Long minVolume = resultsMinMax.get(0).get(0);
 			final Long maxVolume = resultsMinMax.get(0).get(1);
 			final String sDateReFormatted = Utility.getStrDate( Utility.getDateFor(sDate, "dd_MMM_yyyy") );
-			final String chartHTML = processSubList(idsSubList, symbol, sDateReFormatted, minVolume, maxVolume, -1, -1);
+			final String chartHTML = processSubList(idsSubList, null, symbol, sDateReFormatted, minVolume, maxVolume, -1, -1);
 			
 			sb.append( chartHTML ).append( "<BR>" );
 			
@@ -287,6 +288,7 @@ public class TopVolumeHighlighter {
 		
 		
 		final List<Integer> indices = new ArrayList<Integer>();
+		final List<Integer> pumpIndicesOnly = new ArrayList<Integer>();
 		int iTopDumps = 0, iTopPumps = 0;
 		Double highestPumpCxV = 0.0, highestDumpCxV = 0.0;
 
@@ -301,12 +303,12 @@ public class TopVolumeHighlighter {
 				iTopPumps++;
 				
 				indices.add( ids.getIndex() );
+				pumpIndicesOnly.add( ids.getIndex() );
 				
 				final Double CxV = ids.getClose() * ids.getVolume();
 				if( highestPumpCxV < CxV ){
 					highestPumpCxV = CxV;
 				}
-
 			}else if( iTopDumps < iTopN && ids.getClose() < idsPrev.getClose() ){
 				iTopDumps++;
 				
@@ -316,8 +318,57 @@ public class TopVolumeHighlighter {
 				if( highestDumpCxV < CxV ){
 					highestDumpCxV = CxV;
 				}
-
 			}
+			
+
+/*
+			final Double absDiff = Math.abs( ((ids.getClose() - idsPrev.getClose()) / idsPrev.getClose())*100.0 );
+			
+			if( absDiff > 0.30 ){ // If difference between closes is more than 0.30% then consider close.
+				if( iTopPumps < iTopN && ids.getClose() >= idsPrev.getClose() ){
+					iTopPumps++;
+					
+					indices.add( ids.getIndex() );
+					pumpIndicesOnly.add( ids.getIndex() );
+					
+					final Double CxV = ids.getClose() * ids.getVolume();
+					if( highestPumpCxV < CxV ){
+						highestPumpCxV = CxV;
+					}
+				}else if( iTopDumps < iTopN && ids.getClose() < idsPrev.getClose() ){
+					iTopDumps++;
+					
+					indices.add( ids.getIndex() );
+	
+					final Double CxV = ids.getClose() * ids.getVolume();
+					if( highestDumpCxV < CxV ){
+						highestDumpCxV = CxV;
+					}
+				}
+			}else{ // Consider CandleStick
+				Movement movement = Utility.getCandleStickType(ids);
+				if( iTopPumps < iTopN && movement.equals( Movement.PUMP ) ){
+					iTopPumps++;
+					
+					indices.add( ids.getIndex() );
+					pumpIndicesOnly.add( ids.getIndex() );
+					
+					final Double CxV = ids.getClose() * ids.getVolume();
+					if( highestPumpCxV < CxV ){
+						highestPumpCxV = CxV;
+					}
+				}else if( iTopDumps < iTopN && movement.equals( movement.DUMP ) ){
+					iTopDumps++;
+					
+					indices.add( ids.getIndex() );
+	
+					final Double CxV = ids.getClose() * ids.getVolume();
+					if( highestDumpCxV < CxV ){
+						highestDumpCxV = CxV;
+					}
+				}
+			}
+*/			
 			
 			if( iTopPumps == iTopN && iTopDumps == iTopN ){
 				break;
@@ -378,7 +429,8 @@ public class TopVolumeHighlighter {
 				final Double CxV = ids.getClose() * ids.getVolume();
 				
 				String sCheckBoxChecked = "";
-				if( ids.getClose() < idsPrev.getClose() ){
+				//if( ids.getClose() < idsPrev.getClose() ){
+				if( !pumpIndicesOnly.contains( ids.getIndex() ) ){
 					// Dump
 					Double nPC = (((CxV-highestDumpCxV)/highestDumpCxV)*10.0)+10.0; // Assuming 10% is the maximum pressure a Transaction can have on a stock.
 
@@ -391,7 +443,7 @@ public class TopVolumeHighlighter {
 					}
 					
 					sbDumpPressureMonitor.append("<tr>");
-					sbDumpPressureMonitor.append("<td>" +ids.getClose()+ "</td>");
+					sbDumpPressureMonitor.append("<td title='" +change+ "%'>" +ids.getClose()+ "</td>");
 					sbDumpPressureMonitor.append("<td title='$" +Utility.getFormattedInteger(CxV)+"'>" +minusNpc+ " (-" +Utility.round(nPC)+ "%)</td>");
 					Double tgt1 = (minusNpc >= min ? 0.0 : minusNpc);
 					//sbDumpPressureMonitor.append("<td>" +tgt1+ "</td>");
@@ -429,7 +481,7 @@ public class TopVolumeHighlighter {
 					}
 
 					sbPumpPressureMonitor.append("<tr>");
-					sbPumpPressureMonitor.append("<td>" +ids.getClose()+ "</td>");
+					sbPumpPressureMonitor.append("<td title='" +change+ "%'>" +ids.getClose()+ "</td>");
 					sbPumpPressureMonitor.append("<td title='$" +Utility.getFormattedInteger(CxV)+ "'>" +plusNpc+ " (" +Utility.round(nPC)+ "%)</td>");
 					Double tgt1 = (plusNpc <= max ? 0.0 : plusNpc);
 					//sbPumpPressureMonitor.append("<td>" +tgt1+ "</td>");
@@ -460,8 +512,8 @@ public class TopVolumeHighlighter {
 				sbAll.append("<tr>" +
 						"<td valign=middle align=center><input type=checkbox name='c" +ids.getIndex()+ "' " +sCheckBoxChecked+ "></td>" +
 						"<td valign=middle align=center>" +
-						"D <input type=radio name='r" +ids.getIndex()+ "' onclick='setBackground(this, \"#FFDDFF\")' value='D " +label+ "' " +(ids.getClose() < idsPrev.getClose() ? "checked" : "")+ "> " +
-						"P <input type=radio name='r" +ids.getIndex()+ "' onclick='setBackground(this, \"#99EEDD\")' value='P " +label+ "' " +(ids.getClose() >= idsPrev.getClose() ? "checked" : "")+ "> " +
+						"D <input type=radio name='r" +ids.getIndex()+ "' onclick='setBackground(this, \"#FFDDFF\")' value='D " +label+ "' " +(!pumpIndicesOnly.contains(ids.getIndex()) ? "checked" : "")+ "> " +
+						"P <input type=radio name='r" +ids.getIndex()+ "' onclick='setBackground(this, \"#99EEDD\")' value='P " +label+ "' " +(pumpIndicesOnly.contains(ids.getIndex()) ? "checked" : "")+ "> " +
 						"<BR>" +change+ "%</td>");
 				sbAll.append("<td>").append( idsPrev.toStringFor() );
 				sbAll.append("<BR>").append( ids.toStringFor() );
@@ -514,7 +566,7 @@ public class TopVolumeHighlighter {
 		sb.append("\n</select>");
 		sb.append("\n<input type='button' value='Update Chart' onclick='repaint(document.getElementById(\"highlightOnly\").value)'>");
 		
-		String chartHTMLAll = processSubList(idsList, symbol, "All", lowestVol, highestVol, ignoreBeforeIndex, considerAfterIndex);
+		String chartHTMLAll = processSubList(idsList, pumpIndicesOnly, symbol, "All", lowestVol, highestVol, ignoreBeforeIndex, considerAfterIndex);
 		chartHTMLAll = chartHTMLAll.replace("hidden", "visible");
 		chartHTMLAll = chartHTMLAll.replace("absolute", "relative");
 		chartHTMLAll = chartHTMLAll.replace("appletName", "appletAll");
@@ -542,7 +594,7 @@ public class TopVolumeHighlighter {
 		System.out.println( "Report generated @ " +rptPath );
 	}
 	
-	private static String processSubList(final List<IntraDayStructure> idsSubList, String symbol, String sDate, Long lowestVolume, Long highestVolume, int ignoreBeforeIndex, int considerAfterIndex) throws Exception{
+	private static String processSubList(final List<IntraDayStructure> idsSubList, final List<Integer> pumpIndicesOnly, String symbol, String sDate, Long lowestVolume, Long highestVolume, int ignoreBeforeIndex, int considerAfterIndex) throws Exception{
 		final StringBuilder sbCloseList = new StringBuilder();
 		final StringBuilder sbVolumeList = new StringBuilder();
 		final StringBuilder sbIndexList = new StringBuilder();
@@ -592,7 +644,19 @@ public class TopVolumeHighlighter {
 				double x = 100.00 + ((((double)relativeIndex - (double)idsSubList.size()) / (double)idsSubList.size()) * 100.00);
 				x = (x > 20.0 ? x-20.0 : x+40.0);
 				String strX = "0." +(x+"").replace(".", "");
-				label = (change < 0.0 ? "D" : "P")+ " Price: " +ids.getClose()+ " (" +idsPrev.getClose()+ " " +change+"%) Index: " +ids.getIndex()+ " Val $" +Utility.getFormattedInteger(ids.getClose()*ids.getVolume()).replaceAll(",", " ")+ "," +strX+ "," +Y_LABEL_POS.get(yIndex++)+ "," +(relativeIndex)+",0";
+				
+				String pdFlag = "";
+				if( pumpIndicesOnly != null ){
+					if( pumpIndicesOnly.contains( ids.getIndex() ) ){
+						pdFlag = "P";
+					}else{
+						pdFlag = "D";
+					}
+				}else{
+					pdFlag = (change < 0.0 ? "D" : "P");
+				}
+				
+				label = pdFlag+ " Price: " +ids.getClose()+ " (" +idsPrev.getClose()+ " " +change+"%) Index: " +ids.getIndex()+ " Val $" +Utility.getFormattedInteger(ids.getClose()*ids.getVolume()).replaceAll(",", " ")+ "," +strX+ "," +Y_LABEL_POS.get(yIndex++)+ "," +(relativeIndex)+",0";
 				
 				labels.add(label);
 			}
