@@ -61,4 +61,5 @@ public interface StockService {
 	SymbolMetadata getSymbolMetadata(String symbol);
 	
 	void generateEntryTimingReport(String sql, String overrideSymbols, String reportName);
+	List<Object[]> getNativeQueryResults(String nativeSql);
 }

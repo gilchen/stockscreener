@@ -11,6 +11,9 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.stocks.enums.Movement;
+import com.stocks.standalone.IntraDayStructure;
+
 public class Utility {
 	final static DecimalFormat df = new DecimalFormat("###,###.##");
 	final static DecimalFormat dfInteger = new DecimalFormat("###,###");
@@ -129,6 +132,59 @@ public class Utility {
 		
 		//System.out.println( strNum +" --> "+result );
 		return result;
+	}
+	
+	public static Movement getCandleStickType(final IntraDayStructure ids){
+		// Step1: Is Hammer-Like
+		if( ids.getClose() > ids.getOpen() ){
+			// Split OHLC into 3 parts
+			final Double diffHighToClose = ids.getHigh() - ids.getClose();
+			final Double body = ids.getClose() - ids.getOpen();
+			final Double diffOpenToLow = ids.getOpen() - ids.getLow();
+			if( body > diffHighToClose && body > diffOpenToLow ){ // If Body is largest
+				// Buy
+				return Movement.PUMP;
+			}else if( diffHighToClose > diffOpenToLow ){ // If HighToClose is largest
+				// Sell
+				return Movement.DUMP;
+			}else if( diffOpenToLow > diffHighToClose ){
+				// Buy
+				return Movement.PUMP;
+			}else{
+				return Movement.NONE;
+			}
+		}else if( ids.getClose() < ids.getOpen() ) { // Step2: Is Gravestone-Like
+			// Split OHLC into 3 parts
+			final Double diffHighToOpen = ids.getHigh() - ids.getOpen();
+			final Double body = ids.getOpen() - ids.getClose();
+			final Double diffCloseToLow = ids.getClose() - ids.getLow();
+			if( body > diffHighToOpen && body > diffCloseToLow ){ // If Body is largest
+				// Sell
+				return Movement.DUMP;
+			}else if( diffHighToOpen > diffCloseToLow ){ // If HighToOpen is largest
+				// Sell
+				return Movement.DUMP;
+			}else if( diffCloseToLow > diffHighToOpen ){
+				// Buy
+				return Movement.PUMP;
+			}else{
+				return Movement.NONE;
+			}
+		}else{ // Step3: Other (DOJI)
+			// Split OHLC into 3 parts
+			final Double diffHighToOpen = ids.getHigh() - ids.getOpen();
+			final Double body = ids.getOpen() - ids.getClose();
+			final Double diffCloseToLow = ids.getClose() - ids.getLow();
+			if( diffHighToOpen > diffCloseToLow ){ // If HighToOpen is largest
+				// Sell
+				return Movement.DUMP;
+			}else if( diffCloseToLow > diffHighToOpen ){
+				// Buy
+				return Movement.PUMP;
+			}else{
+				return Movement.NONE;
+			}
+		}
 	}
 	
 	public static void main(String args[]){
