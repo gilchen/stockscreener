@@ -80,6 +80,8 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 		<property name="summary52WkNyseDao" ref="summary52WkNyseDao" />
 		<property name="summary52WkBseDao" ref="summary52WkBseDao" />
 		<property name="symbolMetadataDao" ref="symbolMetadataDao" />
+		<property name="aggregateInformationDao" ref="aggregateInformationDao" />
+		<property name="aggregateInformationDetailsDao" ref="aggregateInformationDetailsDao" />
     </bean>
 
     <bean id="bseImportService" class="com.stocks.service.impl.BseImportServiceImpl">
@@ -238,6 +240,14 @@ $Id: applicationContext.xml 30503 2010-02-02 09:59:27Z vermas1 $
 
 	<bean id="symbolMetadataDao"
 		class="com.stocks.dao.impl.SymbolMetadataDaoImpl"
+		parent="dao" />
+		
+	<bean id="aggregateInformationDao"
+		class="com.stocks.dao.impl.AggregateInformationDaoImpl"
+		parent="dao" />
+
+	<bean id="aggregateInformationDetailsDao"
+		class="com.stocks.dao.impl.AggregateInformationDetailsDaoImpl"
 		parent="dao" />
 		
     <!-- End: DAO -->

@@ -129,6 +129,24 @@ CREATE TABLE SUMMARY_52_WK_BSE(
 	MAX_CLOSE DOUBLE
 );
 
+/* The following table stores the aggregate volume information e.g. The net effect of all buys and sells on a trade date. */
+CREATE TABLE AGGREGATE_INFORMATION(
+	TRADE_DATE  DATE,
+	SYMBOL      VARCHAR(30),
+	CLOSE       DOUBLE,
+	VOLUME      BIGINT(20),
+	PRIMARY KEY (TRADE_DATE, SYMBOL)
+);
+
+/* The following table stores the intra-day trades snapshot i.e., the List<IntraDayProcessor> for the trade date with most significant volume. */
+CREATE TABLE AGGREGATE_INFORMATION_DETAILS(
+	TRADE_DATE  DATE,
+	SYMBOL      VARCHAR(30),
+	JAVA_OBJECT BLOB,
+	PRIMARY KEY (TRADE_DATE, SYMBOL)
+);
+
+
 CREATE TABLE SYMBOL_METADATA(
 	SYMBOL VARCHAR(30),
 	SHARES_OUTSTANDING VARCHAR(30),

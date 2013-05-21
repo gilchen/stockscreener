@@ -3,6 +3,8 @@ package com.stocks.service;
 import java.util.Date;
 import java.util.List;
 
+import com.stocks.model.AggregateInformation;
+import com.stocks.model.AggregateInformationDetails;
 import com.stocks.model.Alert;
 import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
@@ -62,4 +64,10 @@ public interface StockService {
 	
 	void generateEntryTimingReport(String sql, String overrideSymbols, String reportName);
 	List<Object[]> getNativeQueryResults(String nativeSql);
+	
+	void saveAggregateInformation(List<AggregateInformation> aiList);
+	void saveAggregateInformationDetails(AggregateInformationDetails aggregateInformationDetails);
+	
+	List<AggregateInformation> getAggregateInformationBySymbol(String symbol);
+	AggregateInformationDetails getAggregateInformationDetails(String symbol, Date tradeDate);
 }

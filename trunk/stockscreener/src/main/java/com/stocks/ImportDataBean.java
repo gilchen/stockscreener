@@ -128,7 +128,7 @@ public class ImportDataBean{
 	public void importNyse(final ActionEvent ae){
 		try {
 			this.getNyseImportService().importData();
-			this.getStockService().syncUpSummary52WkNyse();
+			//this.getStockService().syncUpSummary52WkNyse();
 			
 			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Nyse Data Imported", "Nyse Data Imported"));
 		} catch (Exception e) {

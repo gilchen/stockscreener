@@ -1,8 +1,10 @@
 package com.stocks.standalone;
 
+import java.io.Serializable;
+
 import com.stocks.util.Utility;
 
-public class IntraDayStructure{
+public class IntraDayStructure implements Serializable{
 	private int index;
 	private Long time;
 	private Double close;
