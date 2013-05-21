@@ -14,6 +14,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.stocks.dao.AggregateInformationDao;
+import com.stocks.dao.AggregateInformationDetailsDao;
 import com.stocks.dao.AlertDao;
 import com.stocks.dao.BseDao;
 import com.stocks.dao.BseIciciMappingDao;
@@ -27,6 +29,9 @@ import com.stocks.dao.Summary52WkBseDao;
 import com.stocks.dao.Summary52WkNyseDao;
 import com.stocks.dao.Summary52WkNyseDao.DURATION;
 import com.stocks.dao.SymbolMetadataDao;
+import com.stocks.model.AggregateInformation;
+import com.stocks.model.AggregateInformationDetails;
+import com.stocks.model.AggregateInformationDetailsPK;
 import com.stocks.model.Alert;
 import com.stocks.model.Bse;
 import com.stocks.model.BseIciciMapping;
@@ -42,7 +47,6 @@ import com.stocks.search.NyseAlertResult;
 import com.stocks.service.StockService;
 import com.stocks.standalone.CurrentSnapshot;
 import com.stocks.standalone.CurrentSnapshotBean;
-import com.stocks.standalone.CurrentSnapshotPositionBean;
 import com.stocks.standalone.IntraDayDataProcessor;
 import com.stocks.util.Utility;
 
@@ -57,6 +61,8 @@ public class StockServiceImpl implements StockService {
     private NyseAlertDao nyseAlertDao;
     private BseDao bseDao;
     private NyseDao nyseDao;
+    private AggregateInformationDao aggregateInformationDao;
+    private AggregateInformationDetailsDao aggregateInformationDetailsDao;
     private BseIciciMappingDao bseIciciMappingDao;
     private KeyValueDao keyValueDao;
     private ReportDao reportDao;
@@ -109,6 +115,26 @@ public class StockServiceImpl implements StockService {
 	@Required
 	public void setNyseDao(NyseDao nyseDao) {
 		this.nyseDao = nyseDao;
+	}
+
+	public AggregateInformationDao getAggregateInformationDao() {
+		return aggregateInformationDao;
+	}
+
+	@Required
+	public void setAggregateInformationDao(
+			AggregateInformationDao aggregateInformationDao) {
+		this.aggregateInformationDao = aggregateInformationDao;
+	}
+
+	public AggregateInformationDetailsDao getAggregateInformationDetailsDao() {
+		return aggregateInformationDetailsDao;
+	}
+
+	@Required
+	public void setAggregateInformationDetailsDao(
+			AggregateInformationDetailsDao aggregateInformationDetailsDao) {
+		this.aggregateInformationDetailsDao = aggregateInformationDetailsDao;
 	}
 
 	public BseIciciMappingDao getBseIciciMappingDao() {
@@ -430,5 +456,39 @@ public class StockServiceImpl implements StockService {
     		System.out.println( "Exception in saving report." );
     		e.printStackTrace();
     	}
+    }
+    
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Override
+    public void saveAggregateInformation(final List<AggregateInformation> aiList) {
+    	for(final AggregateInformation ai : aiList){
+    		if( this.getAggregateInformationDao().read(ai.getAggregateInformationPK()) == null){
+    			this.getAggregateInformationDao().save(ai);
+    		}
+    	}
+    }
+    
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Override
+    public void saveAggregateInformationDetails(final AggregateInformationDetails aggregateInformationDetails) {
+    	if( this.getAggregateInformationDetailsDao().read(aggregateInformationDetails.getAggregateInformationDetailsPK()) == null ){
+    		this.getAggregateInformationDetailsDao().save(aggregateInformationDetails);
+    	}
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Override
+    public List<AggregateInformation> getAggregateInformationBySymbol(final String symbol) {
+    	return this.getAggregateInformationDao().getAggregateInformationBySymbol(symbol);
+    }
+    
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Override
+    public AggregateInformationDetails getAggregateInformationDetails(final String symbol, final Date tradeDate) {
+    	AggregateInformationDetailsPK aggregateInformationDetailsPK = new AggregateInformationDetailsPK();
+    	aggregateInformationDetailsPK.setSymbol(symbol);
+    	aggregateInformationDetailsPK.setTradeDate(tradeDate);
+
+    	return this.getAggregateInformationDetailsDao().read( aggregateInformationDetailsPK );
     }
 }
