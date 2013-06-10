@@ -9,6 +9,7 @@ import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import com.stocks.enums.Movement;
@@ -185,6 +186,19 @@ public class Utility {
 				return Movement.NONE;
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * @return True of the current time is after 4:15PM, false otherwise
+	 */
+	public static boolean isAfter415(){
+		Calendar c415 = Calendar.getInstance();
+		c415.set( Calendar.HOUR, 4 );
+		c415.set( Calendar.MINUTE, 15 );
+		c415.set( Calendar.AM_PM, Calendar.PM );
+
+		return Calendar.getInstance().after(c415);
 	}
 	
 	public static void main(String args[]){
