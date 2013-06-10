@@ -260,17 +260,6 @@
 				</entry>
 			</entries>
 		</position>
-
-		<position>
-			<symbol>ETRM</symbol>
-			<entries>
-				<entry>
-					<buy-date>02/15/2013</buy-date>
-					<qty>320</qty>
-					<price>1.09</price>
-				</entry>
-			</entries>
-		</position>
 		<position>
 			<symbol>WLT</symbol>
 			<entries>
@@ -312,22 +301,33 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>TEVA</symbol>
-			<entries>
-				<entry>
-					<buy-date>04/24/2013</buy-date>
-					<qty>12</qty>
-					<price>38.58</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>CYS</symbol>
 			<entries>
 				<entry>
 					<buy-date>05/14/2013</buy-date>
 					<qty>40</qty>
 					<price>11.86</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>AEGR</symbol>
+			<entries>
+				<entry desc="Short Sale">
+					<buy-date>06/03/2013</buy-date>
+					<qty>5</qty>
+					<price>70.48</price>
+				</entry>
+			</entries>
+		</position>
+		
+		<position>
+			<symbol>MCP</symbol>
+			<entries>
+				<entry>
+					<buy-date>06/05/2013</buy-date>
+					<qty>58</qty>
+					<price>5.89</price>
 				</entry>
 			</entries>
 		</position>

@@ -94,7 +94,7 @@ public class BseImportServiceImpl implements ImportService{
 		}
 
 		// http://bseindia.com/bhavcopy/eq140109_csv.zip
-		String sUrl = "http://bseindia.com/bhavcopy/";
+		String sUrl = "http://www.bseindia.com/bhavcopy/";
 		String fileName = "eq" +new SimpleDateFormat("ddMMyy").format(calendar.getTime()) +"_csv.zip";
 		sUrl += fileName;
 

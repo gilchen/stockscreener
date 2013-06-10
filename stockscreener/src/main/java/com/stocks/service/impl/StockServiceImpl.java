@@ -3,6 +3,7 @@ package com.stocks.service.impl;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -463,7 +464,15 @@ public class StockServiceImpl implements StockService {
     public void saveAggregateInformation(final List<AggregateInformation> aiList) {
     	for(final AggregateInformation ai : aiList){
     		if( this.getAggregateInformationDao().read(ai.getAggregateInformationPK()) == null){
-    			this.getAggregateInformationDao().save(ai);
+    			if( Utility.areDatesEqual(ai.getAggregateInformationPK().getTradeDate(), Calendar.getInstance().getTime()) ){
+    				if( Utility.isAfter415() ){
+    					this.getAggregateInformationDao().save(ai);
+    				}else{
+    					System.out.println( "**** Not saving Aggregate Information as time is not after 4:15 PM." );
+    				}
+    			}else{
+    				this.getAggregateInformationDao().save(ai);
+    			}
     		}
     	}
     }
@@ -472,7 +481,16 @@ public class StockServiceImpl implements StockService {
     @Override
     public void saveAggregateInformationDetails(final AggregateInformationDetails aggregateInformationDetails) {
     	if( this.getAggregateInformationDetailsDao().read(aggregateInformationDetails.getAggregateInformationDetailsPK()) == null ){
-    		this.getAggregateInformationDetailsDao().save(aggregateInformationDetails);
+			if( Utility.areDatesEqual(aggregateInformationDetails.getAggregateInformationDetailsPK().getTradeDate(), Calendar.getInstance().getTime()) ){
+				if( Utility.isAfter415() ){
+					this.getAggregateInformationDetailsDao().save(aggregateInformationDetails);
+				}else{
+					System.out.println( "**** Not saving Aggregate Information Details as time is not after 4:15 PM." );
+				}
+			}else{
+				this.getAggregateInformationDetailsDao().save(aggregateInformationDetails);
+			}
+    		
     	}
     }
 

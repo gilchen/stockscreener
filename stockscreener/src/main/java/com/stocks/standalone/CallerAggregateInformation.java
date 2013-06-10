@@ -2,6 +2,7 @@ package com.stocks.standalone;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class CallerAggregateInformation {
 		}
 	}
 	
-	private static final String NATIVE_SQL = "SELECT A.SYMBOL, A.CLOSE, B.EXPANDED_SHARES_OUTSTANDING*A.CLOSE MKT_CAP FROM NYSE A LEFT JOIN SYMBOL_METADATA B ON A.SYMBOL=B.SYMBOL WHERE A.TRADE_DATE=(SELECT MAX(TRADE_DATE) FROM NYSE WHERE SYMBOL='DJI.IDX' AND VOLUME>0) AND A.CLOSE*A.VOLUME > 10000000 AND A.SYMBOL NOT LIKE '%-%' AND A.SYMBOL NOT LIKE '%.%' AND LENGTH(A.SYMBOL) <= 4 ORDER BY B.EXPANDED_SHARES_OUTSTANDING DESC";
+	private static final String NATIVE_SQL = "SELECT A.SYMBOL, A.CLOSE, B.EXPANDED_SHARES_OUTSTANDING*A.CLOSE MKT_CAP FROM NYSE A LEFT JOIN SYMBOL_METADATA B ON A.SYMBOL=B.SYMBOL WHERE A.TRADE_DATE=(SELECT MAX(TRADE_DATE) FROM NYSE WHERE SYMBOL='AA' AND VOLUME>0) AND A.CLOSE*A.VOLUME > 20000000 AND A.SYMBOL NOT LIKE '%-%' AND A.SYMBOL NOT LIKE '%.%' AND LENGTH(A.SYMBOL) <= 4 ORDER BY B.EXPANDED_SHARES_OUTSTANDING DESC";
 	
 	public static void main(String args[]) throws Exception {
 		final ApplicationContext context = new FileSystemXmlApplicationContext("src/main/resources/applicationContext.xml");
@@ -57,9 +58,16 @@ public class CallerAggregateInformation {
 			metaDataList.add(new MetaData( symbol, mktCap) );
 		}
 
+		//
+//		metaDataList.clear();
+//		String[] symbolArr = new String[]{"RXN", "AKRX", "QLGC", "PACT", "LOCK", "SOL", "IMGN", "VVC", "SSRI", "TOO", "EVTC", "DPM", "WTI", "ASIA", "GUNR", "ARPI", "SZYM", "QSII", "IFGL", "CBF", "CJES", "REXX", "TFI", "ACTG", "BKE", "XNPT", "CCOI", "MAKO", "JCOM", "BOH", "PHB", "PCH", "TRS", "NTGR", "AVIV", "WBSN", "DORM", "RAVN", "RRTS", "MX", "GSG", "HYD", "HGG", "VFH", "VPRT", "SWM", "BWX", "DGS", "REGI", "GHDX", "IEV", "IJJ", "IJK", "HTCH", "AMBA", "MCHI", "WIP", "VOE", "LOGM", "CBRL", "AQ", "ROLL", "LXU", "JKS", "BGFV", "NPO", "TISI", "FORR", "UST", "EWX", "MDIV", "SIVR", "VPU", "DTN", "EIDO", "CYNO", "OIL", "DZZ", "GEOS", "PFSI", "WRLD", "IYJ", "EWP", "VIS", "BLV", "ENZL", "HEDJ", "DUG", "BBH", "KBWB", "TAN", "SRTY", "SOXX", "TUZ", "SOXL", "MLPI", "SYLD"};
+//		for(String s : symbolArr){
+//			metaDataList.add(new MetaData( s, null) );
+//		}
+		//
+		
 		// Step 2: Pull Aggregate Information from Google and save it to database.
 		pullAndSaveAggregateInformationFromGoogle(metaDataList, stockService);
-		
 		//symbols.clear();
 		//symbols.add("NBG");
 		
@@ -75,74 +83,94 @@ public class CallerAggregateInformation {
 		final StringBuilder sbMain = new StringBuilder("<html><body><pre>\n");
 		final StringBuilder sbQualified = new StringBuilder("<html><body><pre>\n");
 		
+		// Populate list of Marginable stocks from sogotrade.
+		final List<String> sogoMarginables = new ArrayList<String>();
+		final String shortList = Utility.getContent( "http://wangvestonline.com/sogotrade/list/shortlist.txt" );
+		for( String line : shortList.split("\n") ){
+			sogoMarginables.add( line.split("\t")[0] );
+		}
+		//
+		
+		final List<String> exceptionSymbols = new ArrayList<String>();
+		
 		for( final MetaData metaData : metaDataList ){
 			System.out.println( "Generating Report for " +metaData.getSymbol() );
-			
-			final StringBuilder sbCloseData = new StringBuilder();
-			final StringBuilder sbDates = new StringBuilder();
-			final List<Long> volumeList = new ArrayList<Long>();
-			
-			Long maxVolume = 0L, sumOfVolume = 0L;
-			Double maxVxC = 0.0, diffFromPrevClose = 0.0, prevClose = null;
-			String noteMaxVolxClose = "";
-			final List<AggregateInformation> aiList = stockService.getAggregateInformationBySymbol(metaData.getSymbol());
-			for( final AggregateInformation ai : aiList ){
-				sbCloseData.append(",").append(ai.getClose());
-				volumeList.add( ai.getVolume() );
-				sbDates.append(",").append(Utility.getStrDate(ai.getAggregateInformationPK().getTradeDate()));
+			try{
+				final StringBuilder sbCloseData = new StringBuilder();
+				final StringBuilder sbDates = new StringBuilder();
+				final List<Long> volumeList = new ArrayList<Long>();
 				
-				sumOfVolume += ai.getVolume();
-				//
-				if( Math.abs(ai.getVolume()) > Math.abs(maxVolume) ){
-					maxVolume = ai.getVolume();
-					maxVxC = (maxVolume * ai.getClose());
-					noteMaxVolxClose = "Note: V x C on " +Utility.getStrDate(ai.getAggregateInformationPK().getTradeDate())+ " was $" +Utility.getFormattedInteger(maxVxC);
+				Long maxVolume = 0L, sumOfVolume = 0L;
+				Double maxVxC = 0.0, diffFromPrevClose = 0.0, prevClose = null;
+				String noteMaxVolxClose = "";
+				final List<AggregateInformation> aiList = stockService.getAggregateInformationBySymbol(metaData.getSymbol());
+				for( final AggregateInformation ai : aiList ){
+					sbCloseData.append(",").append(ai.getClose());
+					volumeList.add( ai.getVolume() );
+					sbDates.append(",").append(Utility.getStrDate(ai.getAggregateInformationPK().getTradeDate()));
 					
-					if( maxVxC < 0 ){
-						noteMaxVolxClose = "<font color=red>" +noteMaxVolxClose+ "</font>";
+					sumOfVolume += ai.getVolume();
+					//
+					if( Math.abs(ai.getVolume()) > Math.abs(maxVolume) ){
+						maxVolume = ai.getVolume();
+						maxVxC = (maxVolume * ai.getClose());
+						noteMaxVolxClose = "Note: V x C on " +Utility.getStrDate(ai.getAggregateInformationPK().getTradeDate())+ " was $" +Utility.getFormattedInteger(maxVxC);
+						
+						if( maxVxC < 0 ){
+							noteMaxVolxClose = "<font color=red>" +noteMaxVolxClose+ "</font>";
+						}
+						
+						if( prevClose != null ){
+							diffFromPrevClose = ((ai.getClose() - prevClose)/ai.getClose())*100.0;
+						}
 					}
 					
-					if( prevClose != null ){
-						diffFromPrevClose = ((ai.getClose() - prevClose)/ai.getClose())*100.0;
-					}
+					prevClose = ai.getClose();
 				}
 				
-				prevClose = ai.getClose();
-			}
-			
-			final Double avgVolume = new Double(sumOfVolume) / new Double(volumeList.size());
-			
-			String CHART_HTML_DATA = IntraDayDataProcessor.CHART_HTML;
-
-			CHART_HTML_DATA = CHART_HTML_DATA.replace("~SYMBOL", metaData.getSymbol());
-			CHART_HTML_DATA = CHART_HTML_DATA.replace("~CLOSE_DATA", sbCloseData.substring(1));
-			CHART_HTML_DATA = CHART_HTML_DATA.replace("~VOLUME_DATA", volumeList.toString().replaceAll("\\[|\\]", "").replaceAll(" ", ""));
-			CHART_HTML_DATA = CHART_HTML_DATA.replace("~DATES_DATA", sbDates.substring(1));
-			
-			final StringBuilder sbTmp = new StringBuilder();
-			sbTmp.append( "<a href='http://www.google.com/finance?q=" +metaData.getSymbol()+ "' target='_new'>" +metaData.getSymbol()+ "</a> " );
-			sbTmp.append( noteMaxVolxClose +" \n" );
-			sbTmp.append( CHART_HTML_DATA +"\n\n" );
-			
-			sbMain.append( sbTmp.toString() );
-			
-			// Checks for Qualified only.
-			if( Math.abs(maxVxC) >= Double.parseDouble( properties.getProperty("qualification.max.vxc.greater.than") )
-				&& Math.abs(maxVolume) >= (avgVolume * Double.parseDouble(properties.getProperty("qualification.max.vol.times.of.average.vol")) ) 
-				&& Math.abs(diffFromPrevClose) >= 5.0 ){
+				final Double avgVolume = new Double(sumOfVolume) / new Double(volumeList.size());
 				
-				if( metaData.getMktCap() != null ){
-					if( Math.abs(maxVxC) >= (metaData.getMktCap() / 20.0) ){
+				String CHART_HTML_DATA = IntraDayDataProcessor.CHART_HTML;
+	
+				CHART_HTML_DATA = CHART_HTML_DATA.replace("~SYMBOL", metaData.getSymbol());
+				CHART_HTML_DATA = CHART_HTML_DATA.replace("~CLOSE_DATA", sbCloseData.substring(1));
+				CHART_HTML_DATA = CHART_HTML_DATA.replace("~VOLUME_DATA", volumeList.toString().replaceAll("\\[|\\]", "").replaceAll(" ", ""));
+				CHART_HTML_DATA = CHART_HTML_DATA.replace("~DATES_DATA", sbDates.substring(1));
+				
+				final StringBuilder sbTmp = new StringBuilder();
+				sbTmp.append( "<a href='http://www.google.com/finance?q=" +metaData.getSymbol()+ "' target='_new' " +(sogoMarginables.contains(metaData.getSymbol()) ? "style='background-color:#00FF00'" : "")+ ">" +metaData.getSymbol()+ "</a> " );
+				sbTmp.append( noteMaxVolxClose +" \n" );
+				sbTmp.append( CHART_HTML_DATA +"\n\n" );
+				
+				sbMain.append( sbTmp.toString() );
+				
+				// Checks for Qualified only.
+				if( Math.abs(maxVxC) >= Double.parseDouble( properties.getProperty("qualification.max.vxc.greater.than") )
+					&& Math.abs(maxVolume) >= (avgVolume * Double.parseDouble(properties.getProperty("qualification.max.vol.times.of.average.vol")) ) 
+					&& Math.abs(diffFromPrevClose) >= 2.0 ){
+					
+					if( metaData.getMktCap() != null ){
+						if( Math.abs(maxVxC) >= (metaData.getMktCap() / 30.0) ){
+							sbQualified.append( sbTmp.toString() );
+						}
+					}else{
 						sbQualified.append( sbTmp.toString() );
 					}
-				}else{
-					sbQualified.append( sbTmp.toString() );
 				}
 			}
+			catch(Exception e){
+				System.out.println( "Exception occured while processing " +metaData.getSymbol() );
+				exceptionSymbols.add(metaData.getSymbol());
+			}
+			
 			
 		}
 		sbMain.append( "</pre></body></html>" );
 		sbQualified.append( "</pre></body></html>" );
+		
+		if( !exceptionSymbols.isEmpty() ){
+			System.out.println( "\nCould not process " +exceptionSymbols.size()+ " symbols: " +exceptionSymbols );
+		}
 		
 		Utility.saveContent(properties.getProperty("rpt.aggregate.path"), sbMain.toString());
 		Utility.saveContent(properties.getProperty("rpt.aggregate.for.qualified.path"), sbQualified.toString());
@@ -151,16 +179,64 @@ public class CallerAggregateInformation {
 	private static void pullAndSaveAggregateInformationFromGoogle(final List<MetaData> metaDataList, final StockService stockService) throws Exception{
 		int ctr = 0;
 		final List<String> exceptionSymbols = new ArrayList<String>();
+		
+		final String GOOGLE_URL_INTRA_DAY = properties.getProperty("google.url.intra.day");
+		final String GOOGLE_URL_DAY_CLOSE = properties.getProperty("google.url.day.close");
+		
 		for(final MetaData metaData : metaDataList){
 			System.out.println( "Processing " +metaData.getSymbol() );
 			try{
 				final List<AggregateInformation> aiList = new ArrayList<AggregateInformation>();
 				
-				String GOOGLE_URL_INTRA_DAY = properties.getProperty("google.url.intra.day"); 
-				String GOOGLE_URL_DAY_CLOSE = properties.getProperty("google.url.day.close");
+				// ********************************* START: CACHE IMPLEMENTATION ********************************** //
+				final String CACHE_FILE_SUFFIX_INTRA_DAY = "-INTRA-DAY";
+				final String CACHE_FILE_SUFFIX_DAY_CLOSE = "-DAY-CLOSE";
 				
-				String intraDayContent = Utility.getContent( GOOGLE_URL_INTRA_DAY.replaceAll("~SYMBOL", metaData.getSymbol()) );
-				String dayCloseContent = Utility.getContent( GOOGLE_URL_DAY_CLOSE.replaceAll("~SYMBOL", metaData.getSymbol()) );
+				String intraDayContent = null;
+				String dayCloseContent = null;
+				//if( properties.getProperty("use.cache").equals("true") ){
+					try{
+						File intraDayFile = new File( properties.getProperty("cache.folder") + metaData.getSymbol() + CACHE_FILE_SUFFIX_INTRA_DAY );
+						if( intraDayFile.exists() ){
+							intraDayContent = Utility.getContent( intraDayFile.toURL().toString() );
+						}
+					}
+					catch(Exception e){
+						e.printStackTrace();
+					}
+
+					try{
+						File dayCloseFile = new File( properties.getProperty("cache.folder") + metaData.getSymbol() + CACHE_FILE_SUFFIX_DAY_CLOSE );
+						if( dayCloseFile.exists() ){
+							dayCloseContent = Utility.getContent( dayCloseFile.toURL().toString() );
+						}
+					}
+					catch(Exception e){
+						e.printStackTrace();
+					}
+					
+				//}
+
+				if( intraDayContent == null ){
+					intraDayContent = Utility.getContent( GOOGLE_URL_INTRA_DAY.replaceAll("~SYMBOL", metaData.getSymbol()) );
+					try{
+						Utility.saveContent(properties.getProperty("cache.folder") + metaData.getSymbol() + CACHE_FILE_SUFFIX_INTRA_DAY, intraDayContent);
+					}
+					catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+				if( dayCloseContent == null ){
+					dayCloseContent = Utility.getContent( GOOGLE_URL_DAY_CLOSE.replaceAll("~SYMBOL", metaData.getSymbol()) );
+
+					try{
+						Utility.saveContent(properties.getProperty("cache.folder") + metaData.getSymbol() + CACHE_FILE_SUFFIX_DAY_CLOSE, dayCloseContent);
+					}
+					catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+				// ********************************* END: CACHE IMPLEMENTATION ********************************** //
 				
 				final Map<Date, List<IntraDayStructure>> mapGIntraDay = IntraDayDataProcessor.fetchG( intraDayContent, true );
 				final Map<Date, List<IntraDayStructure>> mapGDayClose = IntraDayDataProcessor.fetchG( dayCloseContent, false );
@@ -265,12 +341,12 @@ public class CallerAggregateInformation {
 				stockService.saveAggregateInformation(aiList);
 			}
 			catch(Exception e){
-				System.out.println( "Exception occured while processing " +metaData.getSymbol() );
+				System.out.println( "****************** Exception occured while processing " +metaData.getSymbol() );
 				exceptionSymbols.add(metaData.getSymbol());
 			}
 			
 			try{
-				if( ++ctr % 10 == 0 ){
+				if( ++ctr % 20 == 0 ){
 					int sleepTimeMillis = Integer.parseInt(properties.getProperty("sleep.time.millis"));
 					System.out.println( "\nSleeping for " +sleepTimeMillis+ " millis .... " +Utility.round(((double)ctr/(double)metaDataList.size())*100.00)+ "% completed.\n" );
 					Thread.sleep(sleepTimeMillis);
