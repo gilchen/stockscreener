@@ -234,22 +234,24 @@
 				</entry>
 			</entries>
 		</position>
+<!-- 
 		<position>
 			<symbol>UVXY</symbol>
 			<entries>
-				<entry>
+				Finally, the position was force-liquidated due to 1:10 reverse split as 5 shares could not accommodate it.
+				<entry desc="After Reverse Split">
 					<buy-date>08/13/2012</buy-date>
 					<qty>5</qty>
 					<price>51.9</price>
 				</entry>
-				<!-- entry>
+				<entry desc="Original Entry">
 					<buy-date>08/13/2012</buy-date>
 					<qty>50</qty>
 					<price>5.19</price>
-				</entry-->
+				</entry>
 			</entries>
 		</position>
-		
+ -->		
 		<position>
 			<symbol>SID</symbol>
 			<entries>
@@ -311,23 +313,32 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>AEGR</symbol>
+			<symbol>WIN</symbol>
 			<entries>
-				<entry desc="Short Sale">
-					<buy-date>06/03/2013</buy-date>
-					<qty>5</qty>
-					<price>70.48</price>
+				<entry>
+					<buy-date>06/11/2013</buy-date>
+					<qty>60</qty>
+					<price>8.06</price>
 				</entry>
 			</entries>
 		</position>
-		
 		<position>
-			<symbol>MCP</symbol>
+			<symbol>AA</symbol>
 			<entries>
 				<entry>
-					<buy-date>06/05/2013</buy-date>
-					<qty>58</qty>
-					<price>5.89</price>
+					<buy-date>06/20/2013</buy-date>
+					<qty>52</qty>
+					<price>8.02</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>PBYI</symbol>
+			<entries>
+				<entry desc="Short Sale">
+					<buy-date>07/05/2013</buy-date>
+					<qty>8</qty>
+					<price>54.5</price>
 				</entry>
 			</entries>
 		</position>

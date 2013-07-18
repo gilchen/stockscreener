@@ -70,4 +70,5 @@ public interface StockService {
 	
 	List<AggregateInformation> getAggregateInformationBySymbol(String symbol);
 	AggregateInformationDetails getAggregateInformationDetails(String symbol, Date tradeDate);
+	List<AggregateInformationDetails> getAggregateInformationDetailsBySymbol(String symbol);
 }
