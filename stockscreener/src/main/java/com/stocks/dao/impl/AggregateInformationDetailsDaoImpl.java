@@ -28,6 +28,15 @@ public class AggregateInformationDetailsDaoImpl extends AbstractDao implements A
 		
 		return results;
 	}
+
+	public List<AggregateInformationDetails> findAggregateInformationDetailsBySymbol(final String symbol){
+		Query query = entityManager.createNamedQuery("aggregateInformationDetailsBySymbol");
+		query.setHint("org.hibernate.fetchSize", "500");
+		query.setParameter("symbol", symbol);
+		List<AggregateInformationDetails> results = query.getResultList();
+		
+		return results;
+	}
 	
 	public AggregateInformationDetails read(AggregateInformationDetailsPK aggregateInformationDetailsPK) {
 		return get(AggregateInformationDetails.class, aggregateInformationDetailsPK);

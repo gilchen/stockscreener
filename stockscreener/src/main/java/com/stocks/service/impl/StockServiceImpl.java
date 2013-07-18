@@ -509,4 +509,10 @@ public class StockServiceImpl implements StockService {
 
     	return this.getAggregateInformationDetailsDao().read( aggregateInformationDetailsPK );
     }
+    
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Override
+    public List<AggregateInformationDetails> getAggregateInformationDetailsBySymbol(final String symbol) {
+    	return this.getAggregateInformationDetailsDao().findAggregateInformationDetailsBySymbol(symbol);
+    }
 }

@@ -116,7 +116,7 @@ public class ImportDataBean{
 	public void importBse(final ActionEvent ae){
 		try {
 			this.getBseImportService().importData();
-			this.getStockService().syncUpSummary52WkBse();
+			//this.getStockService().syncUpSummary52WkBse();
 			
 			FacesContext.getCurrentInstance().addMessage("", new FacesMessage(FacesMessage.SEVERITY_INFO, "Bse Data Imported", "Bse Data Imported"));
 		} catch (Exception e) {

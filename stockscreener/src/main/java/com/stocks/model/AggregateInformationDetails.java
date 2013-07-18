@@ -15,7 +15,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "aggregate_information_details")
 @NamedQueries({
-	@NamedQuery(name = "aggregateInformationDetailsBySymbolAndTradeDate", query = "select a from AggregateInformationDetails a where a.aggregateInformationDetailsPK.symbol = :symbol and date(a.aggregateInformationDetailsPK.tradeDate) = date(:tradeDate)")
+	@NamedQuery(name = "aggregateInformationDetailsBySymbolAndTradeDate", query = "select a from AggregateInformationDetails a where a.aggregateInformationDetailsPK.symbol = :symbol and date(a.aggregateInformationDetailsPK.tradeDate) = date(:tradeDate)"),
+	@NamedQuery(name = "aggregateInformationDetailsBySymbol", query = "select a from AggregateInformationDetails a where a.aggregateInformationDetailsPK.symbol = :symbol")
 })
 public class AggregateInformationDetails implements Serializable{
     private final static long serialVersionUID = 2l;
