@@ -3,6 +3,7 @@ package com.stocks.service;
 import java.util.Date;
 import java.util.List;
 
+import com.stocks.dao.AggregateInformationDetailsDao;
 import com.stocks.model.AggregateInformation;
 import com.stocks.model.AggregateInformationDetails;
 import com.stocks.model.Alert;
@@ -71,4 +72,6 @@ public interface StockService {
 	List<AggregateInformation> getAggregateInformationBySymbol(String symbol);
 	AggregateInformationDetails getAggregateInformationDetails(String symbol, Date tradeDate);
 	List<AggregateInformationDetails> getAggregateInformationDetailsBySymbol(String symbol);
+	
+	//AggregateInformationDetailsDao getAggregateInformationDetailsDao();
 }
