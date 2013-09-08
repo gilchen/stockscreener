@@ -1,53 +1,114 @@
 package com.stocks.dao.impl;
 
-import java.util.Date;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.Query;
 
 import com.stocks.dao.AbstractDao;
 import com.stocks.dao.AggregateInformationDetailsDao;
 import com.stocks.model.AggregateInformationDetails;
 import com.stocks.model.AggregateInformationDetailsPK;
+import com.stocks.util.Utility;
 
 public class AggregateInformationDetailsDaoImpl extends AbstractDao implements AggregateInformationDetailsDao {
+	private static final String JAVA_OBJECT_REPO_PATH = "C:/Temp/ForSrid/aggregate_information_details/";
+	
 	public void delete(AggregateInformationDetails aggregateInformationDetails) {
-		entityManager.remove(aggregateInformationDetails);
+		//entityManager.remove(aggregateInformationDetails);
+		throw new RuntimeException("Not Implemented.");
 	}
 
 	public List<AggregateInformationDetails> findAll() {
+//		String[] symbols = new String[]{"AAPL", "ABT", "ALKS", "ARB", "ATW", "AVP", "BCR", "BRCD", "CMC", "CRUS", "ENH", "ENI", "FAZ", "FCFS", "GFI", "GGB", "GME", "GMF", "GSK", "IEF", "INXN", "IVW", "LUFK", "M", "MHR", "MS", "MUR", "NFX", "ONNN", "ONXX", "PNK", "POM", "QID", "RCL", "RIG", "RWM", "SEMG", "SHO", "SHW", "SQM", "SUI", "TLM", "TS", "TV", "TVIX", "TW", "TWM", "TZA", "UVXY", "UYG", "VIXY", "VXX", "WTFC", "ABC", "AGRO", "ANN", "APL", "ARIA", "BOND", "BP", "CELG", "CLB", "CNX", "CSJ", "CUB", "CYS", "CZZ", "DBC", "DXD", "ELN", "EPI", "EPL", "EWBC", "EWZ", "EXAS", "FNV", "FWM", "FXY", "GLNG", "GOL", "GPOR", "I", "IMOS", "IVV", "IXN", "LFL", "LIFE", "MAT", "NFP", "NGD", "NOK", "PENN", "PEP", "QLD", "REM", "RGLD", "SBH", "SCO", "SH", "SHY", "SPXU", "SQQQ", "THI", "TQQQ", "UNG", "V", "VALE", "VC", "VCSH", "VXF", "XLY", "AEE", "AFL", "AIRM", "ALB", "ALXN", "AMP", "AMX", "APD", "ATO", "AXP", "BEAM", "BIOS", "BKH", "BMRN", "BMS", "CAG", "CAH", "CBSH", "CEF", "CHMT", "CHU", "CINF", "CLV", "CLX", "CMG", "COH", "COL", "COP", "CRK", "CY", "D", "DBD", "DD", "DG", "DIS", "ENS", "EV", "EWT", "EXC", "FDO", "FXI", "HD", "HFC", "HIW", "HLSS", "HMA", "HNZ", "HRL", "IBM", "INFY", "INTC", "ISIS", "ITMN", "IWR", "JBHT", "JNJ", "KMI", "KO", "LEG", "LGF", "LLL", "LXP", "MDLZ", "MDU", "MKC", "MOO", "MPW", "MTH", "NEE", "NFG", "NOC", "NUE", "NVR", "NWSA", "OSTK", "PBI", "PCG", "PEG", "PNY", "PPG", "PPL", "PVH", "QGEN", "RLGY", "RPM", "RRC", "SCCO", "SEAS", "SEIC", "SIAL", "SJM", "SLGN", "SON", "SPG", "STAG", "STI", "STR", "STZ", "SWFT", "SYK", "TAP", "TDS", "TEG", "TMH", "TMHC", "TTM", "TWC", "UGI", "UTEK", "UUP", "VAL", "VIP", "VMI", "VRTX", "WGL", "WTR", "WYNN", "XLB", "XLU", "YCS", "ABBV", "ACAD", "ACHC", "ACTG", "AFSI", "AGG", "ARCC", "BIIB", "BPT", "BPY", "BSV", "CME", "CMP", "COST", "CRM", "CSOD", "CTL", "CXW", "DSLV", "FE", "FLIR", "FLOT", "FRX", "FXE", "G", "GCO", "GWW", "HLX", "HYD", "HYS", "IEMG", "IYJ", "IYT", "KMB", "LEN", "LH", "LII", "MHO", "NFLX", "NVE", "PCYC", "PHYS", "PM", "PRAA", "PTR", "PWER", "RGR", "RWT", "SAP", "TK", "UNS", "UNT", "UPS", "VFH", "VGK", "VGT", "VLO", "WAT", "WDR", "WWD", "ACAT", "ADSK", "AM", "AOS", "ARMH", "AUQ", "AZN", "BG", "BGC", "BKLN", "BLK", "CBT", "CEO", "CIT", "CLR", "CPLA", "CZR", "DAL", "DEM", "DEO", "EAT", "EUO", "EWP", "EXPR", "FIRE", "FTI", "GRA", "HNT", "IART", "IBN", "IDLV", "IDXX", "ILMN", "IPG", "IVE", "IWO", "IYK", "JO", "KEY", "L", "LAD", "LCC", "LULU", "LYV", "MDC", "MET", "MJN", "MRK", "MTU", "MWW", "MXIM", "NU", "NXPI", "OC", "OEF", "OGE", "PALL", "PAY", "PBR", "PNRA", "RATE", "RE", "ROLL", "SAN", "SBNY", "SIG", "SKT", "SKX", "SMH", "SNV", "SOXL", "SOXS", "SPXL", "SPXS", "STE", "STM", "TCB", "TEF", "TGT", "TNA", "TOL", "TRP", "TSCO", "URTY", "USNA", "VB", "VCR", "VDC", "VDE", "VHC", "VTV", "VV", "WU", "XLF", "ZION", "AA", "ABX", "ACOR", "AEP", "AKS", "AMJ", "ATU", "AVY", "BBH", "BEN", "BGG", "BJRI", "BKI", "BLC", "BPO", "BTE", "CCJ", "CF", "CIU", "CLDX", "CLNE", "CREE", "CSL", "CVI", "CYN", "DELL", "DOG", "EBAY", "ECA", "ET", "FCX", "FLR", "FNFG", "FSLR", "GCI", "GD", "GDX", "GDXJ", "GGN", "GIS", "GLW", "GOLD", "GRFS", "GTU", "HDB", "HE", "HL", "HNP", "HSY", "IEP", "IMO", "IRBT", "IRWD", "JCI", "JNPR", "KBE", "KR", "LPL", "LTM", "MBB", "MPLX", "MRO", "MT", "NEM", "NS", "NUGT", "NVO", "NYT", "OI", "OIH", "OII", "OSIS", "OVTI", "OXY", "PAG", "PLCE", "PNC", "PPLT", "RCII", "RFMD", "RHI", "RKT", "RY", "S", "SBS", "SBY", "SLW", "SRTY", "ST", "SVU", "TEL", "TMO", "TRQ", "TSS", "UIS", "USG", "VIS", "WLK", "WLP", "XBI", "XHB", "ZTS", "ADI", "ADM", "AGQ", "AKAM", "AMRI", "ANH", "APC", "ASML", "AVD", "AXE", "BJK", "BKW", "BLL", "BLOX", "BNS", "BPOP", "BRF", "BSX", "BYI", "CA", "CAB", "CAM", "CCI", "CDNS", "CFR", "CHKP", "CIM", "CNI", "CNO", "COF", "COG", "CPHD", "CPWR", "CR", "CRI", "CROX", "CSTR", "CSX", "CUK", "DAN", "DAR", "DGP", "DNKN", "DTO", "DV", "EQT", "ESI", "EW", "EWW", "EWY", "FMCN", "FORR", "GLD", "HCA", "HMC", "HON", "HSP", "IEO", "IM", "INFN", "INTU", "ITW", "IWM", "IYE", "IYZ", "KKR", "KORS", "LFC", "LKQ", "LRCX", "LVS", "MMP", "MMR", "MON", "MYL", "NG", "NNN", "NTGR", "OIL", "OLN", "ORLY", "OTEX", "PBH", "PCL", "PFG", "PRLB", "PSLV", "PXP", "QCOM", "RJF", "ROK", "RRD", "RS", "RTN", "RYL", "SFI", "SID", "SJNK", "SLV", "SPLK", "SPLV", "SPR", "SRCL", "SSRI", "SWK", "SWN", "SWY", "TE", "TQNT", "TRW", "TSM", "TWI", "TYL", "UN", "USLV", "USMV", "VAR", "VCI", "VECO", "VIAB", "VT", "VYM", "WAB", "WCN", "WDAY", "WDC", "WLL", "WPC", "WRI", "X", "AAN", "ACWI", "AMAT", "AME", "AMZN", "AWR", "BSBR", "BUD", "CL", "CLWR", "CSIQ", "DECK", "DGLD", "DHI", "DISH", "DUK", "EEMV", "EME", "FAF", "FCG", "GLL", "GMT", "GNC", "GPN", "HAIN", "HBHC", "HITT", "HMSY", "HRB", "HRC", "IDCC", "IGV", "IWN", "JAH", "JCP", "KBH", "KLAC", "KUB", "LXK", "MCRS", "MDVN", "N", "NATI", "NBG", "PMTC", "SD", "SGOL", "SIVB", "SOXX", "SUPN", "TXT", "TYC", "UGL", "UHS", "WFC", "XME", "XTEX", "ZNGA", "ZSL", "ABAX", "ACAS", "ACC", "AHL", "AIZ", "ASBC", "AXS", "BAS", "BBBY", "BMO", "BRO", "BRS", "BYD", "CLGX", "CM", "CNK", "COV", "CPTS", "CYT", "DB", "DE", "DOW", "E", "EPHE", "EWI", "EZA", "FHN", "FICO", "FIS", "GWR", "GWRE", "HLF", "ICA", "INGR", "IWS", "KAR", "KEX", "KMT", "LAZ", "LOGM", "MAA", "MDCO", "MDT", "MOS", "MPEL", "NAV", "O", "PDLI", "PFF", "PKG", "PKI", "PMT", "RAI", "ROP", "SWKS", "TIF", "TXI", "VAW", "VPRT", "WX", "AAP", "AAXJ", "ABV", "ACM", "ACXM", "ADS", "ADTN", "AEM", "AEO", "AGCO", "AHGP", "AJG", "AKR", "ALTR", "AMG", "AMRN", "AMT", "AON", "ARCO", "ASGN", "ASR", "AUXL", "AUY", "AVGO", "AVT", "AWK", "AYI", "AZO", "BAP", "BBD", "BBL", "BBRY", "BDN", "BHP", "BKD", "BKU", "BNNY", "BRC", "BRCM", "BRFS", "BTU", "CAKE", "CAVM", "CBD", "CCK", "CE", "CERN", "CHD", "CHL", "CIG", "CLI", "CMI", "CMO", "CMS", "CNH", "CODE", "CP", "CPT", "CRR", "CS", "CSC", "CSE", "CTXS", "CUBE", "CX", "CYH", "DBO", "DHR", "DJP", "DLPH", "DLR", "DLTR", "DOV", "DPS", "DRH", "DRI", "DRQ", "DTE", "DVY", "EC", "EFX", "EGN", "EGO", "EGP", "ELS", "EMB", "EMLP", "ENB", "EQIX", "ERJ", "ERY", "ESS", "ETN", "EVR", "EWH", "EXP", "EXR", "FCN", "FDS", "FL", "FLO", "FLS", "FLT", "FMER", "FNF", "FRAN", "FSC", "FTNT", "GGP", "GNW", "GPC", "GSG", "HBI", "HCC", "HIG", "HMY", "HOT", "HPT", "HRS", "HSH", "HSIC", "HTWR", "ICE", "ICLR", "IDTI", "IEX", "IGE", "IJH", "IJR", "INFA", "IPGP", "IRF", "IT", "ITRI", "ITUB", "IWF", "JCOM", "JEC", "JIVE", "JKHY", "KBR", "KGC", "KMR", "KMX", "KRC", "LECO", "LFUS", "LG", "LLTC", "LNT", "LPNT", "LRY", "LUK", "LYG", "MBT", "MCK", "MDSO", "MDY", "MIC", "MMM", "MO", "MOLX", "MSFT", "MTG", "MTOR", "NDAQ", "NEU", "NGG", "NYCB", "NYMT", "ODP", "OIS", "OMC", "ORB", "ORCL", "PAAS", "PCY", "PDCO", "PETM", "PH", "PIN", "PL", "PLCM", "PLL", "PLT", "PNR", "PPS", "PTEN", "PX", "REG", "REGN", "RF", "RIO", "RL", "RMD", "ROSE", "ROST", "RRGB", "RSO", "RTI", "RVBD", "RWR", "RYN", "SAH", "SBAC", "SCG", "SCHA", "SCHD", "SCI", "SIRI", "SIX", "SLCA", "SLG", "SNPS", "SO", "SPN", "SSO", "SSS", "STLD", "STWD", "SU", "SWC", "SYT", "TCO", "TDG", "TEN", "THC", "THD", "TLK", "TRI", "UA", "UBS", "ULTI", "UNP", "URE", "UTX", "VAC", "VBR", "VEU", "VNQ", "VRNT", "VSH", "VVC", "WIN", "WOOF", "WOR", "WPRT", "WRB", "WSH", "XLK", "XOM", "Y", "YPF", "ZMH", "AAWW", "AET", "AGN", "ALDW", "ALR", "AMD", "AMLP", "ANGI", "AREX", "ARG", "ATML", "AVEO", "AWI", "BIL", "CAR", "CDE", "CLD", "CLH", "DKS", "DLX", "DWA", "ELGX", "ENR", "EQM", "EXH", "FBR", "GIL", "GS", "HAE", "HLS", "HTSI", "HYG", "IEI", "IHS", "IJT", "INT", "IPE", "ITC", "IYR", "JOBS", "JRCC", "KMP", "LL", "MKL", "MPC", "MUB", "NCR", "NE", "NKE", "NOW", "NPSP", "NTI", "OKE", "PCAR", "PEI", "REGI", "RIGL", "SAVE", "SM", "SNA", "SONC", "SPB", "SUSQ", "SWI", "TEVA", "TIP", "TLLP", "TLT", "TUP", "TWX", "TXN", "UST", "UWM", "VRSK", "VZ", "WEX", "WSO", "XIV", "ABMD", "ADT", "ALV", "ANSS", "ANV", "AOL", "APH", "ATLS", "BECN", "BLV", "BRY", "BZH", "CBST", "CCE", "CNQR", "CRH", "CTAS", "DBA", "DDM", "DGAZ", "DGX", "EIDO", "EL", "ELLI", "ESL", "ESRX", "EWL", "FB", "FBHS", "FEIC", "FMX", "FOSL", "FRC", "FUN", "FWLT", "GM", "GY", "H", "HME", "HOS", "HST", "IBKC", "IJJ", "IJK", "IMAX", "IP", "IPXL", "IYH", "KBWB", "KEG", "KKD", "LNC", "MAS", "MFC", "MGM", "MITT", "MMC", "MMS", "MTW", "NCT", "NI", "NUAN", "NUS", "NYX", "OHI", "OPEN", "OSK", "PBF", "PCI", "PDM", "PFE", "PHH", "PHI", "PHM", "PODD", "PRF", "PWE", "PWR", "PXD", "QCOR", "RRTS", "SAM", "SDIV", "SE", "SFY", "SHPG", "SI", "SKM", "SLF", "SNH", "SNI", "SNY", "SPW", "SPWR", "SRE", "SRPT", "SSI", "STX", "TD", "TDW", "TGI", "TMUS", "TOO", "TOT", "TRGP", "TTEK", "TTS", "TUR", "UCO", "ULTA", "VNQI", "VOYA", "VPHM", "WCC", "WTI", "YELP", "AGNC", "AIG", "ALE", "AMTD", "ASH", "ATHN", "ATI", "AU", "BBG", "BDC", "BERY", "BIG", "BLMN", "BPL", "BRKR", "BSMX", "BX", "CAF", "CB", "CBI", "CCL", "CHRW", "CLC", "CMA", "COO", "CPB", "CSG", "CSGP", "CXO", "CYMI", "DIN", "DO", "DOX", "DVA", "EDC", "EPAY", "EPB", "ERX", "ESV", "EZU", "FLEX", "FPF", "GEOS", "GNTX", "GPI", "HDGE", "HERO", "HES", "HK", "HP", "HXL", "IAU", "IDV", "IDX", "INVN", "IR", "IWV", "IYG", "JDSU", "JOY", "LNKD", "LPS", "LQD", "LSI", "LTC", "MCHP", "MCO", "MNRO", "MSM", "MTGE", "NDSN", "NTRS", "ODFL", "OKS", "ORI", "PDCE", "PF", "PLD", "PNW", "POR", "PRU", "QLGC", "QQQ", "RDC", "SBUX", "SCHW", "SCZ", "SFL", "SHV", "SIMG", "STT", "TCBI", "TDC", "TRLA", "TRMB", "TRS", "VCRA", "VMC", "VMED", "VMW", "VPL", "VTI", "WFT", "WM", "WPZ", "WWWW", "XCO", "XES", "ABFS", "AGO", "ALGN", "ALK", "ASPS", "AWH", "AZPN", "BAC", "BMC", "BMR", "BRE", "CG", "CVE", "DANG", "DCT", "DFS", "DK", "EFAV", "ERIC", "F", "FBG", "FCS", "FFIV", "GDI", "HOV", "IYW", "KALU", "KRE", "KRFT", "LINE", "LNN", "LYB", "MBI", "MFRM", "MRC", "MSTR", "MTD", "MWE", "NGLS", "NMR", "NPO", "NRGY", "NWS", "NYC", "PBCT", "PTP", "QIHU", "RNR", "SDRL", "SF", "SPNC", "SWHC", "SXC", "SYY", "TEX", "THO", "TSN", "UDR", "UNFI", "UNM", "URI", "VCIT", "VNR", "VOX", "WEN", "WERN", "WETF", "XLE", "XLI", "XLP", "XRX", "YRCW", "YY", "ZQK", "ACIW", "ACMP", "AEL", "ALGT", "AMTG", "AN", "ANF", "ARNA", "ARO", "ATK", "AVIV", "AXL", "BAX", "BC", "BHI", "BIO", "BXS", "CACC", "CAT", "CHS", "CLNY", "CNP", "CNQ", "CPN", "CVA", "CVD", "CVLT", "DGS", "DNB", "DPZ", "DTN", "DTV", "DWRE", "DZZ", "EBIX", "ECL", "ECON", "EMLC", "EWA", "EXPD", "EXXI", "FISV", "FMC", "FTE", "GDP", "GGG", "GNRC", "GOV", "GPK", "GTLS", "HAS", "HBAN", "HCI", "HGG", "HII", "HOG", "HOLX", "HPTX", "HTA", "HTS", "IEFA", "IVR", "JBL", "LGND", "LO", "LSTR", "LTD", "MD", "MDIV", "MELI", "MLPI", "MRVL", "MTN", "NBL", "NTT", "NWL", "OAK", "OAS", "PKW", "POOL", "PRE", "PSMT", "RGC", "RGP", "RLJ", "RPRX", "RWX", "SAI", "SCSS", "SDY", "SEP", "SGY", "SHM", "SHOO", "SLH", "SRLN", "STPZ", "SXL", "THOR", "TJX", "TKR", "TU", "UL", "URBN", "VR", "VSI", "WAG", "WEC", "WPX", "WYN", "XEC", "XEL", "XLS", "ABCO", "ACG", "ACI", "ACN", "AFFY", "AG", "AGU", "ALNY", "ALU", "AMBC", "ANDE", "ANR", "ARRS", "ARUN", "ARW", "B", "BBEP", "BCE", "BIDU", "BIP", "BR", "BTI", "BVN", "BWP", "BXP", "CACI", "CBL", "CFX", "CI", "CIE", "CJES", "CLF", "CLP", "COR", "CTB", "DDD", "DEI", "DFT", "DRC", "DST", "DXM", "EA", "ECH", "EEM", "EEP", "ENZL", "EOG", "EPD", "EVTC", "EWC", "EWU", "FCH", "FDX", "FINL", "FIO", "FNSR", "GE", "GEL", "GG", "HCBK", "IAG", "ICUI", "IEV", "ING", "IWP", "IYM", "JAZZ", "JLL", "JMI", "LOW", "LPX", "LVLT", "MAC", "MEOH", "MFA", "MINI", "MSCI", "MSG", "MU", "NSR", "NVS", "OCN", "PAA", "PCRX", "PII", "PKX", "POST", "PRA", "PSE", "R", "RBC", "RGA", "ROC", "ROVI", "RSP", "SAFM", "SLXP", "SODA", "SPLS", "STC", "SUSS", "SYMC", "TCK", "TIBX", "TM", "TMK", "TPX", "TRV", "TWO", "TWTC", "UNH", "URS", "VCLK", "VIG", "VNTV", "VOE", "VRTS", "VVUS", "WBS", "WCG", "WD", "WFM", "WLT", "WSM", "WTW", "Z", "ACE", "ACWX", "ADP", "AL", "AMCX", "ARPI", "AT", "BOH", "CAJ", "CBB", "CFT", "CLMT", "CTRP", "CVC", "CYNO", "DOLE", "DXCM", "ETP", "EWS", "FSL", "FXC", "GMCR", "GRT", "GVA", "ILF", "IRM", "LNCO", "MCD", "MIDD", "MLU", "MNST", "NKTR", "NTES", "OFIX", "P", "PCP", "PFSI", "PGF", "PNM", "Q", "QLIK", "RBA", "RBS", "SAIA", "SBGI", "SMG", "SNCR", "SNDK", "SNTA", "SSNC", "SVXY", "SZYM", "TRAK", "TROX", "TUMI", "UPL", "USO", "VSAT", "WMB", "XRAY", "ABB", "ACT", "AEG", "AES", "AMGN", "APA", "APO", "BCS", "BDX", "BID", "BKS", "BWC", "CFN", "CGNX", "CHE", "CIB", "CONN", "CWB", "CYBX", "DGI", "DIOD", "DNDN", "DUG", "DVN", "DWX", "ED", "EDU", "ELD", "EPP", "ERF", "EVEP", "EWG", "EXPE", "FAST", "FIVE", "FNP", "FSP", "GHL", "GPS", "GVI", "HBC", "HCP", "HIBB", "HPY", "HTZ", "ICON", "IGT", "IJS", "IVZ", "K", "KIE", "LEA", "LNG", "LOPE", "MAKO", "MCP", "MDR", "MDRX", "MGA", "MHK", "MNKD", "MOH", "MW", "MYGN", "NBR", "NIHD", "NSM", "NVDA", "NXST", "PANL", "PCLN", "PGR", "PHB", "POL", "PRGO", "QEP", "RAX", "RSX", "SCHE", "SDOW", "SEE", "SGEN", "SHLD", "SINA", "SNTS", "SPRD", "STJ", "SYNA", "TBF", "TIVO", "TRLG", "TSL", "TSU", "TTWO", "UBNT", "UNIS", "UTHR", "VHT", "VOLC", "VRSN", "VUG", "WHR", "WMGI", "YHOO", "YUM", "AFG", "AXLL", "BBT", "CBS", "CHK", "CWH", "CYB", "DPM", "ENDP", "EQR", "EWQ", "EXLS", "FITB", "FRT", "FXB", "GHDX", "HAL", "HTH", "HUM", "IBB", "IDA", "IMGN", "ISRG", "ITT", "JNK", "KERX", "KSU", "LLY", "MENT", "MGLN", "NKY", "OPTR", "PB", "PBYI", "PGX", "PIR", "PPHM", "PPO", "RDEN", "SATS", "SCHB", "SLB", "SNE", "SOHU", "SOL", "SQNM", "SRC", "STNG", "TFM", "THRX", "TTC", "UAL", "VGLT", "VIV", "VNO", "VOO", "VPU", "VRX", "WCRX", "XLV", "ACRX", "ALL", "ARE", "ARII", "ASIA", "ATVI", "AVA", "AVB", "BA", "BAM", "BBY", "BCC", "BCEI", "BGFV", "BK", "BKE", "C", "CASY", "CLDT", "COCO", "CPRT", "CRL", "CRZO", "CSH", "CST", "CTCT", "CTRX", "CVS", "CVX", "DDS", "DIA", "DNR", "DSW", "DWM", "EDR", "EMR", "ETFC", "FAS", "FIG", "FNGN", "FR", "FST", "FTR", "FXA", "GAS", "GEO", "GILD", "GRPN", "GXP", "HAR", "IACI", "IFF", "INCY", "IOC", "IWD", "JACK", "JOSB", "JWN", "LHO", "LMCA", "LQDT", "MAN", "MLM", "MSI", "NCLH", "NLSN", "NSC", "OZM", "PANW", "PDI", "PHG", "PRXL", "PSEC", "PSX", "RAVN", "RDN", "RDY", "RHP", "RSH", "SBRA", "SFD", "SKS", "SMFG", "SMTC", "SPH", "SPHB", "SPPI", "SPY", "SSYS", "T", "TAL", "TBT", "TEAR", "TFI", "TMV", "TRIP", "TROW", "TSLA", "TSRA", "TSRO", "UDOW", "UPRO", "VEA", "VO", "VRA", "VWO", "WAC", "WBC", "WES", "WMT", "WRLD", "WY", "XL", "XYL", "A", "ACGL", "ADBE", "AINV", "AIV", "APOL", "ARCP", "AWAY", "BEAV", "BEE", "BIV", "BMY", "BND", "BWA", "CBG", "CBOE", "CHTR", "CNC", "CPA", "CPSI", "CRS", "CTSH", "CVRR", "DCI", "DF", "DRE", "DRN", "DUST", "DXJ", "EFA", "EIX", "EMN", "ENV", "ETE", "ETR", "EWJ", "EWM", "GA", "GOOG", "GUNR", "HDV", "HHC", "HIMX", "HUN", "ICF", "IFGL", "INSM", "JBLU", "JNS", "JNY", "JPM", "KNX", "KOF", "KYN", "LM", "LMT", "LPI", "LPLA", "LRN", "LUV", "MA", "MAR", "MHFI", "MINT", "MLNX", "MM", "MTB", "MTL", "MTZ", "MWV", "NAT", "NBIX", "NOV", "NQ", "NX", "OCR", "OMX", "PAYX", "PCH", "PG", "PIE", "PSQ", "RCI", "RH", "RHT", "RXN", "SFLY", "SLM", "SPF", "TER", "TRN", "UMPQ", "UNXL", "VFC", "VIPS", "VLY", "VOD", "VTR", "WFR", "WNR", "WR", "WWAV", "XLNX", "XONE", "YOKU", "AB", "AEGR", "ALJ", "ANW", "ARR", "ASCA", "ASNA", "BDBD", "BRLI", "BWLD", "CCOI", "CIEN", "CNW", "CSCO", "CSTE", "CTY", "DDR", "DLB", "DRYS", "DSX", "EAC", "EBSB", "EGLE", "EMC", "EPR", "EWD", "EXG", "FANG", "FII", "FRO", "GEF", "GES", "GIII", "GLDD", "GPRE", "GREK", "GRMN", "GT", "GTAT", "GTI", "HALO", "HPQ", "HR", "INFI", "ITB", "IYF", "JE", "JOE", "KIM", "KOG", "KSS", "LAMR", "MCHI", "MDP", "MHGC", "MORN", "MR", "MRH", "MSCC", "NLY", "NRF", "NRG", "NTAP", "OEH", "PACT", "PGH", "PIKE", "POT", "PSA", "RKUS", "RSG", "SAPE", "SDS", "SIRO", "SN", "STO", "TFX", "THG", "TKC", "TSO", "UFS", "USB", "WLH", "WMC", "WWW", "XOP", "XRT", "YNDX", "ZIXI", "CBF", "CBRL", "CLVS", "CLY", "CONE", "DATA", "DGZ", "DVAX", "EOX", "EPU", "EQY", "ERUS", "FAX", "FEZ", "FOR", "FURX", "GTS", "GWX", "HCN", "IDIX", "IPI", "IWB", "KWK", "LF", "LPSN", "MDXG", "MKTO", "NLNK", "NRZ", "OFC", "PTY", "RAD", "REXX", "RPAI", "RSOL", "SCHX", "SCMP", "SCTY", "SGYP", "SLAB", "STML", "STRA", "TCP", "TDY", "VBK", "VNDA", "VNM", "VTWO", "XOOM", "YGE", "AKRX", "AMBA", "AQ", "ASTI", "BFAM", "BWX", "DORM", "DYN", "EWX", "FMS", "HEDJ", "HTCH", "JASO", "JKS", "KOS", "LDK", "LOCK", "LXU", "MUX", "MX", "NJ", "NM", "QSII", "RALY", "RENN", "SIVR", "STP", "SWM", "SYLD", "TAN", "TISI", "TUZ", "WBSN", "WIP", "XNPT", "AIMC", "CENX", "DMND", "EDZ", "FPO", "FXEN", "IGTE", "KLIC", "MAIN", "MDAS", "MLPN", "NILE", "PNX", "SDBT", "TCPC", "UGP", "UIL", "VTIP", "WPO", "BAH", "CLNT", "FEM", "FRGI", "IPFF", "MBND", "MVV", "OMTH", "OREX", "OWW", "PGTI", "SCHP", "TNGO", "UAN", "ZLC", "BXMT", "DFJ", "FET", "IDU", "MMLP", "RUE", "SCHF", "WAIR", "CPST", "EFV", "FCEL", "HCLP", "INDA", "IWX", "KXI", "RWO", "SCHM", "STEI", "TDTT", "TITN", "ZIOP", "BLDP", "ENOC", "FDL", "FIGY", "FXCM", "IHF", "IO", "IXJ", "LSE", "OMI", "PHK", "PZA", "REZ", "SCPB", "SGMS", "SONS", "AEC", "BANR", "BWS", "CHDN", "CLSN", "IRC", "ISHG", "NTSP", "NWE", "PWRD", "WTSL", "ACHN", "FM", "RMBS", "SHOS", "THR", "ADC", "AMRE", "BBN", "DCNG", "EGHT", "EPZM", "EUM", "EXI", "HOTT", "IXC", "LTPZ", "NCS", "OLP", "PACW", "VXZ", "ABM", "ASI", "CEW", "DSL", "FTK", "HSNI", "IGOV", "IHI", "IXP", "JXI", "PZZA", "SFG", "WBMD", "AFCE", "ARRY", "BGS", "FXP", "GFA", "GXC", "HT", "NR", "OIBR", "PKY", "PPH", "PRI", "PRIM", "PSK", "RES", "SCHH", "SEB", "TVL", "TXRH", "VGIT", "XSD", "AVNR", "CHFN", "FXH", "HDG", "ITOT", "KNDI", "NGL", "PBJ", "REK", "SKF", "SUB", "SUNE", "TMF", "XLG", "BOBE", "BOIL", "DLN", "EPAM", "FXN", "IN", "JKF", "LITB", "MEG", "PDS", "RST", "SCS", "VCLT", "WMS", "FXG", "GBCI", "GURU", "IWY", "PPC", "USCI", "WPS", "AGII", "ARP", "BBVA", "CVY", "FRI", "IWC", "KS", "SBB", "TAM", "VXUS", "FXL", "GNMK", "GNR", "NSPH", "PUK", "PVI", "VQT", "WAGE", "AOSL", "BEAT", "EEV", "GIMO", "GSY", "PIZ", "SGOC", "WST", "ADVS", "CERE", "CHG", "COTY", "ECPG", "MCC", "MITK", "SSL", "UGAZ", "XPH", "AGZ", "ITM", "NJR", "PNNT", "SREV", "SYRG", "TREX", "XVZ", "AVG", "BAB", "COLB", "EFII", "FNB", "FXF", "PST", "ACRE", "AMCC", "BOFI", "CYTK", "HAWK", "HCSG", "INKM", "LZB", "MGI", "NMFC", "PLXS", "RALS", "RYT", "WRLS", "WTM", "BLUE", "ICPT", "NBHC", "TCRD", "APAM", "BKF", "CATY", "EFZ", "ISIL", "MANT", "MASI", "MUNI", "NRGM", "PVTB", "UCI", "UHAL", "UMBF", "VIIX", "WABC", "AHT", "APOG", "ASTX", "ATR", "AZZ", "BGCP", "BPI", "BTG", "CCC", "CKH", "CNA", "CNL", "CVG", "EPOL", "ETH", "FULT", "GMED", "GOGO", "GORO", "HTGC", "KCG", "KT", "MBFI", "MEMP", "MWA", "NOG", "NSH", "NSU", "NWBI", "OPK", "PJC", "PRGS", "PVR", "REN", "SGMO", "TCAP", "TECH", "TEO", "TLAB", "TRMK", "UBSI", "UFPI", "UNF", "VPFG", "WSTC", "WTS", "XXIA", "BNDX", "CAMP", "DFP", "DTYS", "ELP", "KEYN", "LAG", "QRE", "STEC", "VHS", "CBMX", "COLE", "DMD", "EBND", "GMM", "HOMB", "HWAY", "SCHO", "ACWV", "AVAV", "CQP", "ESPR", "EVC", "EVER", "FBT", "GBX", "IAT", "MG", "PSB", "RPTP", "SNX", "TESO", "DLLR", "HDS", "SIR", "VMBS", "WGO", "WNC", "ACO", "AEIS", "ALEX", "AMED", "APFC", "AYR", "BCOV", "BNCN", "BV", "CBK", "CCXI", "CFFN", "CHTP", "CHUY", "CMRX", "COHR", "CUBI", "CWI", "DW", "EEFT", "EGL", "ENT", "EOPN", "ERA", "ESC", "ESGR", "EZPW", "FBC", "FFIN", "FFKT", "FLTX", "FOE", "GALE", "GBDC", "GEVA", "GLT", "GTIV", "GTN", "HURN", "HY", "IIVI", "IMPV", "IOSP", "IQNT", "IRDM", "LEAP", "LFVN", "LNCE", "MACK", "MANH", "MATX", "MLI", "MTDR", "MYE", "NBBC", "NDLS", "NFBK", "NLS", "NPBC", "OLED", "PEB", "PFLT", "PFMT", "PFPT", "PGEM", "PMCS", "POWR", "PPBI", "PRSC", "PRTA", "PSMI", "PSUN", "PTLA", "REIS", "REMY", "RESI", "RFP", "RGS", "RP", "RPXC", "RVLT", "SAAS", "SMP", "SPSC", "SSTK", "STNR", "STSA", "TGH", "TRNX", "TTEC", "TWGP", "TXMD", "UCFC", "USCR", "UTIW", "VRNG", "VVTV", "WDFC", "YDKN", "FXD", "FXO", "FXR", "FXU", "FXZ", "LVB", "MNK", "FOX", "FOXA", "ELX", "KRO", "OUTR", "BIN", "ENTG", "APU", "PERI", "VSTM", "FLY", "GTXI", "HELE", "INO", "MCY", "NEON", "RLI", "ONEQ", "PSIX", "RMTI", "TSRX", "ZROZ", "ONVO", "ARAY", "POWI", "TAYC", "TLP", "BZ", "KOP", "NTCT", "SFUN", "SHFL", "XPO", "EEMA", "FDN", "EXEL", "IGF", "IWW", "JAKK"};
+//		
+//		for( final String symbol : symbols ){
+//			System.out.println( "Saving " +symbol );
+//			try{
+//				Query query = entityManager.createNamedQuery("aggregateInformationDetailsBySymbol");
+//				query.setHint("org.hibernate.fetchSize", "20");
+//				query.setParameter("symbol", symbol);
+//				
+//				List<AggregateInformationDetails> results = query.getResultList();
+//				
+//				for( final AggregateInformationDetails aid : results ){
+//					Utility.saveObjectToDisk(JAVA_OBJECT_REPO_PATH +getFileName(aid.getAggregateInformationDetailsPK()), aid);
+//				}
+//			}
+//			catch(Exception e){
+//				System.out.println( "Exception in saving " +symbol );
+//			}
+//		}
+//		
+//		return null;
 		throw new RuntimeException("Not Implemented.");
 	}
 	
-	public List<AggregateInformationDetails> findAggregateInformationDetailsBySymbolAndTradeDate(final String symbol, final Date tradeDate){
-		Query query = entityManager.createNamedQuery("aggregateInformationDetailsBySymbolAndTradeDate");
-		query.setHint("org.hibernate.fetchSize", "500");
-		query.setParameter("symbol", symbol);
-		query.setParameter("tradeDate", tradeDate);
-		List<AggregateInformationDetails> results = query.getResultList();
-		
-		return results;
-	}
+//	public List<AggregateInformationDetails> findAggregateInformationDetailsBySymbolAndTradeDate(final String symbol, final Date tradeDate){
+//		Query query = entityManager.createNamedQuery("aggregateInformationDetailsBySymbolAndTradeDate");
+//		query.setHint("org.hibernate.fetchSize", "500");
+//		query.setParameter("symbol", symbol);
+//		query.setParameter("tradeDate", tradeDate);
+//		List<AggregateInformationDetails> results = query.getResultList();
+//		
+//		return results;
+//	}
 
 	public List<AggregateInformationDetails> findAggregateInformationDetailsBySymbol(final String symbol){
-		Query query = entityManager.createNamedQuery("aggregateInformationDetailsBySymbol");
-		query.setHint("org.hibernate.fetchSize", "500");
-		query.setParameter("symbol", symbol);
-		List<AggregateInformationDetails> results = query.getResultList();
+//		Query query = entityManager.createNamedQuery("aggregateInformationDetailsBySymbol");
+//		query.setHint("org.hibernate.fetchSize", "500");
+//		query.setParameter("symbol", symbol);
+//		List<AggregateInformationDetails> results = query.getResultList();
+		
+		List<AggregateInformationDetails> results = new ArrayList<AggregateInformationDetails>();
+		final File repoFolder = new File(JAVA_OBJECT_REPO_PATH);
+		String[] files = repoFolder.list(new FilenameFilter(){
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.startsWith(symbol+"_");
+			}
+		});
+		
+		for( final String fileName : files ){
+			try{
+				results.add( (AggregateInformationDetails) Utility.readObjectFromDisk(JAVA_OBJECT_REPO_PATH+fileName) );
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 		
 		return results;
 	}
 	
 	public AggregateInformationDetails read(AggregateInformationDetailsPK aggregateInformationDetailsPK) {
-		return get(AggregateInformationDetails.class, aggregateInformationDetailsPK);
-	}
-
-	public void save(AggregateInformationDetails aggregateInformationDetails) {
 		try{
-			entityManager.persist(aggregateInformationDetails);
+			final AggregateInformationDetails aggregateInformationDetails = (AggregateInformationDetails) Utility.readObjectFromDisk(JAVA_OBJECT_REPO_PATH +getFileName(aggregateInformationDetailsPK));
+			return aggregateInformationDetails;
+		}
+		catch(FileNotFoundException e){
+			return null;
 		}
 		catch(Exception e){
 			throw new RuntimeException(e);
 		}
+		
+		//return get(AggregateInformationDetails.class, aggregateInformationDetailsPK);
+	}
+
+	public void save(AggregateInformationDetails aggregateInformationDetails) {
+		try{
+			//entityManager.persist(aggregateInformationDetails);
+			Utility.saveObjectToDisk(JAVA_OBJECT_REPO_PATH +getFileName(aggregateInformationDetails.getAggregateInformationDetailsPK()), aggregateInformationDetails);
+		}
+		catch(Exception e){
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private String getFileName(final AggregateInformationDetailsPK aggregateInformationDetailsPK){
+		String fileName = aggregateInformationDetailsPK.getSymbol() +"_"+ Utility.getStrDate(aggregateInformationDetailsPK.getTradeDate(), "MM_dd_yyyy") +".ser";
+		return fileName;
 	}
 }

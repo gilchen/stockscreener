@@ -293,16 +293,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>VOLC</symbol>
-			<entries>
-				<entry>
-					<buy-date>04/15/2013</buy-date>
-					<qty>21</qty>
-					<price>21.43</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>CYS</symbol>
 			<entries>
 				<entry>
@@ -333,16 +323,45 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>PBYI</symbol>
+			<symbol>LRY</symbol>
 			<entries>
-				<entry desc="Short Sale">
-					<buy-date>07/05/2013</buy-date>
-					<qty>8</qty>
-					<price>54.5</price>
+				<entry>
+					<buy-date>08/05/2013</buy-date>
+					<qty>15</qty>
+					<price>36.60</price>
 				</entry>
 			</entries>
 		</position>
-
+		<position>
+			<symbol>EVR</symbol>
+			<entries>
+				<entry desc="Short Sale">
+					<buy-date>08/06/2013</buy-date>
+					<qty>11</qty>
+					<price>45.93</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>AEO</symbol>
+			<entries>
+				<entry>
+					<buy-date>08/22/2013</buy-date>
+					<qty>35</qty>
+					<price>14.86</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>TWO</symbol>
+			<entries>
+				<entry>
+					<buy-date>09/05/2013</buy-date>
+					<qty>45</qty>
+					<price>9.57</price>
+				</entry>
+			</entries>
+		</position>
 	</positions>
 
 </current_snapshot>

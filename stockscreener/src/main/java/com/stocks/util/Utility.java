@@ -1,8 +1,13 @@
 package com.stocks.util;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
@@ -45,6 +50,33 @@ public class Utility {
 		writer.append(content);
 		writer.close();
 	}
+	
+	public static void saveObjectToDisk(String absoluteFilePath, Serializable o) throws Exception{
+		ObjectOutputStream oos = null;
+		try{
+			oos = new ObjectOutputStream( new FileOutputStream( absoluteFilePath ) );
+			oos.writeObject(o);
+		}
+		finally{
+			if( oos != null ){
+				oos.close();
+			}
+		}
+	}
+	
+	public static Serializable readObjectFromDisk(String absoluteFilePath) throws Exception{
+		ObjectInputStream ois = null;
+        try{
+        	ois = new ObjectInputStream( new FileInputStream( absoluteFilePath ) );
+        	return (Serializable) ois.readObject();
+        }
+        finally{
+        	if( ois != null ){
+        		ois.close();
+        	}
+        }
+	}
+	
 
 	public static Double round(Double d){
 		BigDecimal bd = new BigDecimal( d );

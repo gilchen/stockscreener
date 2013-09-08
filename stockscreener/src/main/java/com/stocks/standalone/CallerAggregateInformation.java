@@ -49,6 +49,14 @@ public class CallerAggregateInformation {
 		final ApplicationContext context = new FileSystemXmlApplicationContext("src/main/resources/applicationContext.xml");
 		final StockService stockService = (StockService) context.getBean("stockService");
 		
+//		stockService.getAggregateInformationDetailsDao().findAll();
+//		if( true ){
+//			System.out.println( "Done" );
+//			return;
+//		}
+		
+		
+		
 		// Step 1: Pull Qualifying Symbols
 		final List<MetaData> metaDataList = new ArrayList<MetaData>();
 		
@@ -56,7 +64,7 @@ public class CallerAggregateInformation {
 		
 		
 		//
-//		overrides = Arrays.asList( "ARCP,APOL,CAR,DYN,DDD,BLOX,ALEX,SIR,PBYI,FST,CMC,FIO,ALK,BGC,CRR ".split(",") );
+//		overrides = Arrays.asList( "PBYI".split(",") );
 //		results.clear();
 //		for(String symbol : overrides) { results.add( new Object[]{symbol, null} ); }
 		//
@@ -76,7 +84,7 @@ public class CallerAggregateInformation {
 
 		//
 //		metaDataList.clear();
-//		String[] symbolArr = new String[]{"SRPT", "PBYI", "AEGR"};
+//		String[] symbolArr = new String[]{"EVR"};
 //		for(String s : symbolArr){
 //			metaDataList.add(new MetaData( s, null) );
 //		}
@@ -112,7 +120,7 @@ public class CallerAggregateInformation {
 			sbHead.append( "		symbol = chrt.getTitle();\n" );
 			sbHead.append( "		sample0 = chrt.getChartData().getSample(0, selectedIndex);\n" );
 			sbHead.append( "		fileName = './cache/' +symbol+ '_'+ sample0.getLabel().replace(/\\//g, '_')+ '.html';\n" );
-			sbHead.append( "		window.open(fileName, '_intraDaySnapshot', 'width=720,height=600,scrollbars,resizable')\n" );
+			sbHead.append( "		window.open(fileName, '_intraDaySnapshot', 'width=830,height=600,scrollbars,resizable')\n" );
 			sbHead.append( "	}else{\n" );
 			sbHead.append( "		alert('Please make a selection in Chart.');\n" );
 			sbHead.append( "	}\n" );
@@ -141,7 +149,7 @@ public class CallerAggregateInformation {
 					final List<Long> volumeList = new ArrayList<Long>();
 					
 					Long maxVolume = 0L, sumOfVolume = 0L;
-					Double maxVxC = 0.0, diffFromPrevClose = 0.0, prevClose = null;
+					Double maxVxC = 0.0;
 					String noteMaxVolxClose = "";
 					final List<AggregateInformation> aiList = stockService.getAggregateInformationBySymbol(metaData.getSymbol());
 					for( final AggregateInformation ai : aiList ){
@@ -159,16 +167,27 @@ public class CallerAggregateInformation {
 							if( maxVxC < 0 ){
 								noteMaxVolxClose = "<font color=red>" +noteMaxVolxClose+ "</font>";
 							}
-							
-							if( prevClose != null ){
-								diffFromPrevClose = ((ai.getClose() - prevClose)/ai.getClose())*100.0;
-							}
 						}
-						
-						prevClose = ai.getClose();
 					}
 					
 					final Double avgVolume = new Double(sumOfVolume) / new Double(volumeList.size());
+					
+					// *********** Start: Sub List ***************** //
+					final int DURATION_DAYS = 20;
+					Long subMaxVolume = 0L;
+					Double subAvgVolume = 0.0;
+					if( volumeList.size() > DURATION_DAYS ){
+						final List<Long> subVolumeList = volumeList.subList(volumeList.size() - DURATION_DAYS, volumeList.size());
+						Long sumOfSubVolume = 0L;
+						for( Long volume : subVolumeList ){
+							sumOfSubVolume += volume;
+							if( Math.abs(volume) > Math.abs(subMaxVolume) ){
+								subMaxVolume = Math.abs(volume);
+							}
+						}
+						subAvgVolume = new Double(sumOfSubVolume) / new Double(subVolumeList.size());
+					}
+					// *********** End: Sub List ***************** //
 					
 					String CHART_HTML_DATA = IntraDayDataProcessor.CHART_HTML;
 		
@@ -182,14 +201,15 @@ public class CallerAggregateInformation {
 					sbTmp.append( "<input type=button value='Show Intra Day Details' onclick=\"showIntraDayDetails('" +metaData.getSymbol()+ "')\">\n" );
 					sbTmp.append( noteMaxVolxClose +" \n" );
 					sbTmp.append( CHART_HTML_DATA +"\n\n" );
-					generateSnapshotFor( metaData.getSymbol(), stockService );
 					bwMain.append( sbTmp.toString() );
 					
 					// Checks for Qualified only.
 					boolean bQualified = false;
 					if( Math.abs(maxVxC) >= Double.parseDouble( properties.getProperty("qualification.max.vxc.greater.than") )
-						&& Math.abs(maxVolume) >= (avgVolume * Double.parseDouble(properties.getProperty("qualification.max.vol.times.of.average.vol")) ) 
-						&& Math.abs(diffFromPrevClose) >= 0.0 ){
+						&& ( 
+							Math.abs(maxVolume) >= (avgVolume * Double.parseDouble(properties.getProperty("qualification.max.vol.times.of.average.vol")) ) ||
+							Math.abs(subMaxVolume) >= (subAvgVolume * Double.parseDouble(properties.getProperty("qualification.max.vol.times.of.average.vol")) )
+						)){
 						
 						if( metaData.getMktCap() != null ){
 							if( Math.abs(maxVxC) >= (metaData.getMktCap() / 30.0) ){
@@ -202,6 +222,7 @@ public class CallerAggregateInformation {
 					
 					if( bQualified || overrides.contains( metaData.getSymbol() )){
 						bwQualified.append( sbTmp.toString() );
+						generateSnapshotFor( metaData.getSymbol(), stockService );
 					}
 					
 				}
@@ -239,13 +260,13 @@ public class CallerAggregateInformation {
 				QueryResults qrTopN = Query.parseAndExec("SELECT * FROM com.stocks.standalone.IntraDayStructure order by volume desc", new ArrayList<IntraDayStructure>(idsList) );
 				List<IntraDayStructure> results = qrTopN.getResults();
 				
-				final ArrayList topIndices = new ArrayList();
+				final ArrayList<Integer> topIndices = new ArrayList<Integer>();
 				for( int i=0; i<20 && results.size() > i; i++ ){
 					topIndices.add( results.get(i).getIndex() );
 				}
 				// End: Top n
 				
-				StringBuilder sbTable = new StringBuilder( "<table border=1><tr><td>&nbsp;</td> <td>index</td> <td>time</td> <td>%change from prev</td> <td>close</td> <td>high</td> <td>low</td> <td>open</td> <td>volume</td></tr>\n" );
+				StringBuilder sbTable = new StringBuilder( "<table border=1><tr><td>&nbsp;</td> <td>index</td> <td>time</td> <td>%change from prev</td> <td>open</td> <td>high</td> <td>low</td> <td>close</td> <td>volume</td> <td>CxV</td></tr>\n" );
 				IntraDayStructure idsPrev = null;
 				for( final IntraDayStructure ids : idsList ){
 					String pcChange = "";
@@ -264,11 +285,12 @@ public class CallerAggregateInformation {
 					sbTable.append("<td>").append(ids.getIndex()).append("</td>");
 					sbTable.append("<td>").append( new Date( ids.getTime() ) ).append("</td>");
 					sbTable.append("<td align=right>").append( pcChange ).append("&nbsp;</td>");
-					sbTable.append("<td>").append( ids.getClose() ).append("</td>");
+					sbTable.append("<td>").append( ids.getOpen() ).append("</td>");
 					sbTable.append("<td>").append( ids.getHigh() ).append("</td>");
 					sbTable.append("<td>").append( ids.getLow() ).append("</td>");
-					sbTable.append("<td>").append( ids.getOpen() ).append("</td>");
-					sbTable.append("<td>").append( ids.getVolume() ).append("</td>");
+					sbTable.append("<td>").append( ids.getClose() ).append("</td>");
+					sbTable.append("<td>").append( Utility.getFormattedInteger( ids.getVolume() ) ).append("</td>");
+					sbTable.append("<td>").append( "$" +Utility.getFormattedInteger( ids.getClose() * ids.getVolume() ) ).append("</td>");
 					sbTable.append("</tr>\n");
 					idsPrev = ids;
 				}
