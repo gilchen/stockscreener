@@ -36,7 +36,9 @@ public class GoogleStockScreener {
 			}
 		}
 		System.out.println( "Total " +symbols.size()+ " symbols pulled from Google Stock Screener." );
-
+		System.out.println( symbols );
+		if(true) return;
+		
 		final IntraDayDataProcessor iddp = new IntraDayDataProcessor();
 		iddp.properties.setProperty("symbols", symbols.toString().replaceAll("\\[|\\]", ""));
 		iddp.properties.setProperty("qualification.max.vxc.greater.than", properties.getProperty("qualification.max.vxc.greater.than"));

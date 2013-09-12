@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -35,6 +36,11 @@ public class Utility {
 
 		URL url = new URL(sUrl);
 		final URLConnection urlConnection = url.openConnection();
+		
+		if( url.getProtocol().toLowerCase().equals("http") ){
+			((HttpURLConnection) urlConnection).setInstanceFollowRedirects(true);
+		}
+		
 		urlConnection.setUseCaches(false);
 		BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 		String inputLine;

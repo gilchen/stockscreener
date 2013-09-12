@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,6 +22,7 @@ import java.util.TreeSet;
 import org.josql.Query;
 import org.josql.QueryResults;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.stocks.model.AggregateInformation;
@@ -31,74 +33,77 @@ import com.stocks.service.StockService;
 import com.stocks.util.Utility;
 
 public class CallerAggregateInformation {
-	static List<String> overrides = new ArrayList<String>();
 	static Properties properties = new Properties();
 	static{
+		FileInputStream fis = null;
 		try{
-			properties.load( IntraDayDataProcessor.class.getResourceAsStream("/IntraDayDataProcessor.properties") );
+			fis = new FileInputStream( System.getProperty("propsFilePath") );
+			properties.load( fis );
 		}
 		catch(Exception e){
 			e.printStackTrace();
 			throw new RuntimeException("Exception in loading properties: " +e);
 		}
+		finally{
+			if( fis != null ){
+				try{
+					fis.close();
+				}
+				catch(Exception e){
+					e.printStackTrace();
+					throw new RuntimeException("Exception in closing properties file: " +e);
+				}
+			}
+		}
 	}
 	
-	private static final String NATIVE_SQL = "SELECT A.SYMBOL, A.CLOSE, B.EXPANDED_SHARES_OUTSTANDING*A.CLOSE MKT_CAP FROM NYSE A LEFT JOIN SYMBOL_METADATA B ON A.SYMBOL=B.SYMBOL WHERE A.TRADE_DATE=(SELECT MAX(TRADE_DATE) FROM NYSE WHERE SYMBOL='AA' AND VOLUME>0) AND A.CLOSE*A.VOLUME > 20000000 AND A.SYMBOL NOT LIKE '%-%' AND A.SYMBOL NOT LIKE '%.%' AND LENGTH(A.SYMBOL) <= 4 ORDER BY B.EXPANDED_SHARES_OUTSTANDING DESC";
+	//private static final String NATIVE_SQL = "SELECT A.SYMBOL, A.CLOSE, B.EXPANDED_SHARES_OUTSTANDING*A.CLOSE MKT_CAP FROM NYSE A LEFT JOIN SYMBOL_METADATA B ON A.SYMBOL=B.SYMBOL WHERE A.TRADE_DATE=(SELECT MAX(TRADE_DATE) FROM NYSE WHERE SYMBOL='AA' AND VOLUME>0) AND A.CLOSE*A.VOLUME > 20000000 AND A.SYMBOL NOT LIKE '%-%' AND A.SYMBOL NOT LIKE '%.%' AND LENGTH(A.SYMBOL) <= 4 ORDER BY B.EXPANDED_SHARES_OUTSTANDING DESC";
 	
 	public static void main(String args[]) throws Exception {
-		final ApplicationContext context = new FileSystemXmlApplicationContext("src/main/resources/applicationContext.xml");
+		ApplicationContext context = null;
+		try{
+			context = new FileSystemXmlApplicationContext("src/main/resources/applicationContext.xml");
+		}
+		catch(Exception e){
+			// For running from jar file as in: java -jar ....
+			// When building jar using mvn assembly:single, it gets packaged such that applicationContext.xml is placed at root "/" rather than src/main/resources
+			System.out.println( "\nWarning: Could not find applicationContext.xml file. Trying classpath.\n" );
+			context = new ClassPathXmlApplicationContext("applicationContext.xml");
+		}
+		
 		final StockService stockService = (StockService) context.getBean("stockService");
-		
-//		stockService.getAggregateInformationDetailsDao().findAll();
-//		if( true ){
-//			System.out.println( "Done" );
-//			return;
-//		}
-		
-		
 		
 		// Step 1: Pull Qualifying Symbols
 		final List<MetaData> metaDataList = new ArrayList<MetaData>();
 		
-		List<Object[]> results = stockService.getNativeQueryResults(NATIVE_SQL);
-		
-		
-		//
-//		overrides = Arrays.asList( "PBYI".split(",") );
-//		results.clear();
-//		for(String symbol : overrides) { results.add( new Object[]{symbol, null} ); }
-		//
-		
-		
-		for( final Object[] result : results ){
-			final String symbol = result[0].toString();
-			Double mktCap = null;
-			try{
-				mktCap = Double.valueOf( result[2].toString() );
-			}
-			catch(Exception e){
-			}
-			
-			metaDataList.add(new MetaData( symbol, mktCap) );
+//		List<Object[]> results = stockService.getNativeQueryResults(NATIVE_SQL);
+//		for( final Object[] result : results ){
+//			final String symbol = result[0].toString();
+//			Double mktCap = null;
+//			try{
+//				mktCap = Double.valueOf( result[2].toString() );
+//			}
+//			catch(Exception e){
+//			}
+//			
+//			metaDataList.add(new MetaData( symbol, mktCap) );
+//		}
+
+		for( final String symbol : properties.getProperty("symbols").split(",") ){
+			metaDataList.add(new MetaData( symbol.trim(), null ) );
 		}
 
-		//
-//		metaDataList.clear();
-//		String[] symbolArr = new String[]{"EVR"};
-//		for(String s : symbolArr){
-//			metaDataList.add(new MetaData( s, null) );
-//		}
-		//
+		System.out.println( "Starting to process a total of " +metaDataList.size()+ " symbols." );
 		
 		// Step 2: Pull Aggregate Information from Google and save it to database.
-		pullAndSaveAggregateInformationFromGoogle(metaDataList, stockService);
-		//symbols.clear();
-		//symbols.add("NBG");
+		if( properties.getProperty("generate.report.only").equalsIgnoreCase("false") ){
+			pullAndSaveAggregateInformationFromGoogle(metaDataList, stockService);
+		}
 		
 		// Step 3: Generate Report
 		generateReport(metaDataList, stockService);
 		
-		//System.out.println( "--> "+ convertByteArrayToJavaObject( stockService.getAggregateInformationDetails("A", Utility.getDate("05/15/2013")).getJavaObject() ) );
+		System.out.println( "\n\nNote: Run GoogleStockScreener every 2 weeks to include new qualifying symbols.\n" );
 		System.out.println( "Done." );
 		System.exit(0);
 	}
@@ -220,7 +225,7 @@ public class CallerAggregateInformation {
 						}
 					}
 					
-					if( bQualified || overrides.contains( metaData.getSymbol() )){
+					if( bQualified ){
 						bwQualified.append( sbTmp.toString() );
 						generateSnapshotFor( metaData.getSymbol(), stockService );
 					}
@@ -315,6 +320,12 @@ public class CallerAggregateInformation {
 		
 		for(final MetaData metaData : metaDataList){
 			System.out.println( "Processing " +metaData.getSymbol() );
+			
+			if( exceptionSymbols.size() >= 5 ){
+				System.out.println( "\nException occured for more than 5 synbols. Exiting now. Please rerun after 20 minutes: " +new Date() );
+				System.exit(-1);
+			}
+			
 			try{
 				final List<AggregateInformation> aiList = new ArrayList<AggregateInformation>();
 				
@@ -471,7 +482,7 @@ public class CallerAggregateInformation {
 				stockService.saveAggregateInformation(aiList);
 			}
 			catch(Exception e){
-				System.out.println( "****************** Exception occured while processing " +metaData.getSymbol() );
+				System.out.println( "****************** Exception occured while processing " +metaData.getSymbol()+ " -> " +e.getMessage() );
 				exceptionSymbols.add(metaData.getSymbol());
 			}
 			
