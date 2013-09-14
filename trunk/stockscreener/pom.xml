@@ -37,6 +37,10 @@
           					<name>jetty.port</name>
           					<value>9091</value>
           				</systemProperty>
+          				<systemProperty>
+          					<name>propsFilePath</name>
+          					<value>src/main/resources/IntraDayDataProcessor.properties</value>
+          				</systemProperty>
           			</systemProperties>
                 </configuration>
             </plugin>
