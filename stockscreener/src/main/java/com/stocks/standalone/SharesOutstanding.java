@@ -40,7 +40,6 @@ public class SharesOutstanding {
 	 * 
 	 */
 	private static void processCnbc(List<String> list) throws Exception {
-		System.out.println( "Symbol,Shares Outstanding,Expanded Shares Outstanding" );
 		for (String symbol : list) {
 			symbol = symbol.trim();
 			//System.out.println("Pulling [" + symbol + "]");
@@ -55,7 +54,7 @@ public class SharesOutstanding {
 					sharesOutstanding = sbExtn.substring(index5 + 38, sbExtn.indexOf("<", index5 + 38));
 					sharesOutstanding = sharesOutstanding.trim().replaceAll(",", "");
 				}
-				System.out.println( symbol+","+sharesOutstanding+","+Utility.convertFinancials(sharesOutstanding) );
+				System.out.println( "INSERT INTO SYMBOL_METADATA VALUES('"+ symbol+"', '"+sharesOutstanding+"', "+Utility.convertFinancials(sharesOutstanding)+ ");" );
 
 			} catch (Exception e) {
 				System.out.println( "Error in pulling "+symbol );

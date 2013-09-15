@@ -29,6 +29,7 @@ import com.stocks.model.AggregateInformation;
 import com.stocks.model.AggregateInformationDetails;
 import com.stocks.model.AggregateInformationDetailsPK;
 import com.stocks.model.AggregateInformationPK;
+import com.stocks.model.SymbolMetadata;
 import com.stocks.service.StockService;
 import com.stocks.util.Utility;
 
@@ -89,9 +90,13 @@ public class CallerAggregateInformation {
 //			metaDataList.add(new MetaData( symbol, mktCap) );
 //		}
 
+		long start = System.currentTimeMillis();
 		for( final String symbol : properties.getProperty("symbols").split(",") ){
-			metaDataList.add(new MetaData( symbol.trim(), null ) );
+			final SymbolMetadata symbolMetadata = stockService.getSymbolMetadata(symbol.trim());
+			metaDataList.add(new MetaData( symbol.trim(), symbolMetadata != null ? symbolMetadata.getExpandedSharesOutstanding() : null ) );
 		}
+		long end = System.currentTimeMillis();
+		System.out.println( "MetaData pulled in " +(end-start)+ " ms." );
 
 		System.out.println( "Starting to process a total of " +metaDataList.size()+ " symbols." );
 		
@@ -167,8 +172,11 @@ public class CallerAggregateInformation {
 						if( Math.abs(ai.getVolume()) > Math.abs(maxVolume) ){
 							maxVolume = ai.getVolume();
 							maxVxC = (maxVolume * ai.getClose());
-							noteMaxVolxClose = "Note: V x C on " +Utility.getStrDate(ai.getAggregateInformationPK().getTradeDate())+ " was $" +Utility.getFormattedInteger(maxVxC);
-							
+							final Number mktCap = (metaData.getSharesOutstanding() != null ? (metaData.getSharesOutstanding()*ai.getClose()) : null);
+							noteMaxVolxClose = "Note: V x C on " +Utility.getStrDate(ai.getAggregateInformationPK().getTradeDate())+ " was $" +Utility.getFormattedInteger(maxVxC)+ ". MktCap: " +Utility.getFormattedInteger(mktCap);
+							if( mktCap != null ){
+								noteMaxVolxClose += ". Best if (MktCap/maxVxC) less than 25 -> " +Utility.round(mktCap.doubleValue()/Math.abs(maxVxC));
+							}
 							if( maxVxC < 0 ){
 								noteMaxVolxClose = "<font color=red>" +noteMaxVolxClose+ "</font>";
 							}
@@ -203,7 +211,7 @@ public class CallerAggregateInformation {
 					
 					final StringBuilder sbTmp = new StringBuilder();
 					sbTmp.append( "<a href='http://www.google.com/finance?q=" +metaData.getSymbol()+ "' target='_new' " +(sogoMarginables.contains(metaData.getSymbol()) ? "style='background-color:#00FF00'" : "")+ ">" +metaData.getSymbol()+ "</a> " );
-					sbTmp.append( "<input type=button value='Show Intra Day Details' onclick=\"showIntraDayDetails('" +metaData.getSymbol()+ "')\">\n" );
+					sbTmp.append( "<input type=button value='Show Intra Day Details' onclick=\"showIntraDayDetails('" +metaData.getSymbol()+ "')\"><BR>" );
 					sbTmp.append( noteMaxVolxClose +" \n" );
 					sbTmp.append( CHART_HTML_DATA +"\n\n" );
 					bwMain.append( sbTmp.toString() );
@@ -216,8 +224,9 @@ public class CallerAggregateInformation {
 							Math.abs(subMaxVolume) >= (subAvgVolume * Double.parseDouble(properties.getProperty("qualification.max.vol.times.of.average.vol")) )
 						)){
 						
-						if( metaData.getMktCap() != null ){
-							if( Math.abs(maxVxC) >= (metaData.getMktCap() / 30.0) ){
+						if( metaData.getSharesOutstanding() != null ){
+							Double mktCap = metaData.getSharesOutstanding() * (maxVxC / maxVolume);
+							if( Math.abs(maxVxC) >= (mktCap / 30.0) || Math.abs(maxVxC) >= 1000000000.00 ){ // Added OR condition --> if maxVxC >= 1B
 								bQualified = true;
 							}
 						}else{
@@ -529,11 +538,11 @@ public class CallerAggregateInformation {
 
 class MetaData{
 	private String symbol;
-	private Double mktCap;
+	private Long sharesOutstanding;
 	
-	public MetaData(String symbol, Double mktCap) {
+	public MetaData(String symbol, Long sharesOutstanding) {
 		this.symbol = symbol;
-		this.mktCap = mktCap;
+		this.sharesOutstanding = sharesOutstanding;
 	}
 	
 	public String getSymbol() {
@@ -542,11 +551,14 @@ class MetaData{
 	public void setSymbol(String symbol) {
 		this.symbol = symbol;
 	}
-	public Double getMktCap() {
-		return mktCap;
+
+	public Long getSharesOutstanding() {
+		return sharesOutstanding;
 	}
-	public void setMktCap(Double mktCap) {
-		this.mktCap = mktCap;
+
+	public void setSharesOutstanding(Long sharesOutstanding) {
+		this.sharesOutstanding = sharesOutstanding;
 	}
+
 }
 
