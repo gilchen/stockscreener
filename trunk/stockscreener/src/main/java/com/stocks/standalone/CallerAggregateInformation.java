@@ -499,7 +499,7 @@ public class CallerAggregateInformation {
 			try{
 				++ctr;
 				
-				if( ctr % 1050 == 0 ){
+				if( ctr % 1000 == 0 ){
 					int sleepTimeMillis = 21 * 60 * 1000;
 					System.out.println( "\nSleeping for " +sleepTimeMillis+ " millis .... " +Utility.round(((double)ctr/(double)metaDataList.size())*100.00)+ "% completed.\n" );
 					Thread.sleep(sleepTimeMillis);
