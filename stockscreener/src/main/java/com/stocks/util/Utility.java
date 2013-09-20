@@ -38,7 +38,10 @@ public class Utility {
 		final URLConnection urlConnection = url.openConnection();
 		
 		if( url.getProtocol().toLowerCase().equals("http") ){
-			((HttpURLConnection) urlConnection).setInstanceFollowRedirects(true);
+			HttpURLConnection httpURLConnection = ((HttpURLConnection) urlConnection);
+			httpURLConnection.setInstanceFollowRedirects(true);
+//			httpURLConnection.setRequestProperty("Referer", "http://www.google.com/finance");
+//			httpURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0");
 		}
 		
 		urlConnection.setUseCaches(false);

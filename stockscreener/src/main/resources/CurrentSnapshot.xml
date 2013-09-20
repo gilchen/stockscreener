@@ -362,6 +362,16 @@
 				</entry>
 			</entries>
 		</position>
+		<position>
+			<symbol>S</symbol>
+			<entries>
+				<entry>
+					<buy-date>09/18/2013</buy-date>
+					<qty>56</qty>
+					<price>6.29</price>
+				</entry>
+			</entries>
+		</position>
 	</positions>
 
 </current_snapshot>
