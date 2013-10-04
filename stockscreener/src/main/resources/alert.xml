@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Alerts>
+	<!-- Template
+	<Alert>
+		<Symbol>SYMBOL</Symbol>
+		<PositionDate>MM/DD/YYYY</PositionDate>
+		<PositionPrice>00.00</PositionPrice>
+		<TriggerChangePercent>+-9.99</TriggerChangePercent>
+		<Description>{Short/Long} Position @00.00 on MM/DD. Must go +-9.99% then {short/long}</Description>
+	</Alert>
+ 	-->
+
+	<!-- To Long -->
+	<Alert>
+		<Symbol>AME</Symbol>
+		<PositionDate>09/20/2013</PositionDate>
+		<PositionPrice>46</PositionPrice>
+		<TriggerChangePercent>-10</TriggerChangePercent>
+		<Description>Long Position @46 on 9/20. Must go -10% then long</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>CDE</Symbol>
+		<PositionDate>09/20/2013</PositionDate>
+		<PositionPrice>13.19</PositionPrice>
+		<TriggerChangePercent>-25</TriggerChangePercent>
+		<Description>Long Position @13.19 on 9/20. Must go -25% then long</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>CMO</Symbol>
+		<PositionDate>09/20/2013</PositionDate>
+		<PositionPrice>12.45</PositionPrice>
+		<TriggerChangePercent>-15</TriggerChangePercent>
+		<Description>Long position @12.45 on 9/20. Must go -15% then long</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>CSG</Symbol>
+		<PositionDate>06/28/2013</PositionDate>
+		<PositionPrice>10.00</PositionPrice>
+		<TriggerChangePercent>-10</TriggerChangePercent>
+		<Description>Long Position @10.00 on 06/28. Must go -10% then long</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>FNV</Symbol>
+		<PositionDate>09/20/2013</PositionDate>
+		<PositionPrice>45</PositionPrice>
+		<TriggerChangePercent>-10</TriggerChangePercent>
+		<Description>Long Position @45 on 9/20. Must go -10% then long</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>IAG</Symbol>
+		<PositionDate>09/20/2013</PositionDate>
+		<PositionPrice>5.10</PositionPrice>
+		<TriggerChangePercent>-10</TriggerChangePercent>
+		<Description>Long Position @5.1 on 9/20. Must go -10% then long</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>SBGL</Symbol>
+		<PositionDate>09/20/2013</PositionDate>
+		<PositionPrice>5.04</PositionPrice>
+		<TriggerChangePercent>-20</TriggerChangePercent>
+		<Description>Long Position @5.04 on 9/20. Must go -20% then long</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>STWD</Symbol>
+		<PositionDate>06/28/2013</PositionDate>
+		<PositionPrice>24.75</PositionPrice>
+		<TriggerChangePercent>-10</TriggerChangePercent>
+		<Description>Long Position @24.75 on 6/28. Must go -10% then long</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>TREX</Symbol>
+		<PositionDate>06/21/2013</PositionDate>
+		<PositionPrice>53.25</PositionPrice>
+		<TriggerChangePercent>-20</TriggerChangePercent>
+		<Description>Long Position @53.25 on 6/21, another Long Position @46.88 on 9/20. Must go -20% then long</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>VRTX</Symbol>
+		<PositionDate>09/20/2013</PositionDate>
+		<PositionPrice>76.15</PositionPrice>
+		<TriggerChangePercent>-8</TriggerChangePercent>
+		<Description>Long Position @76.15 on 9/20. Must go -8% then long</Description>
+	</Alert>
+
+	<!-- To Short -->
+	
+	<Alert>
+		<Symbol>AMD</Symbol>
+		<PositionDate>09/20/2013</PositionDate>
+		<PositionPrice>3.83</PositionPrice>
+		<TriggerChangePercent>10</TriggerChangePercent>
+		<Description>Short Position @3.83 on 9/20. Must go 10% then short.</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>DAL</Symbol>
+		<PositionDate>09/10/2013</PositionDate>
+		<PositionPrice>22.63</PositionPrice>
+		<TriggerChangePercent>10</TriggerChangePercent>
+		<Description>Short Position @22.63 on 9/10, Must go 10% then short.</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>EPAM</Symbol>
+		<PositionDate>08/29/2013</PositionDate>
+		<PositionPrice>30.36</PositionPrice>
+		<TriggerChangePercent>10</TriggerChangePercent>
+		<Description>Short Position @30.36 on 8/29, Must go 10% then short.</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>IPXL</Symbol>
+		<PositionDate>05/31/2013</PositionDate>
+		<PositionPrice>18.95</PositionPrice>
+		<TriggerChangePercent>20</TriggerChangePercent>
+		<Description>Short Position @18.95 on 5/31. Must go 20% then short</Description>
+	</Alert>
+
+	<Alert>
+		<Symbol>SAI</Symbol>
+		<PositionDate>09/20/2013</PositionDate>
+		<PositionPrice>15.12</PositionPrice>
+		<TriggerChangePercent>15</TriggerChangePercent>
+		<Description>Short Position @15.12 on 9/20. Must go 15% then short</Description>
+	</Alert>
+
+
+</Alerts>
