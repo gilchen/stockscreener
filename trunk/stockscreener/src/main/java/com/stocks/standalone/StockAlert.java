@@ -16,7 +16,7 @@ import com.stocks.util.Utility;
 
 public class StockAlert {
 
-	final static List<ShortPosition> shortPositions = new ArrayList<ShortPosition>();
+	final static List<Alert> alerts = new ArrayList<Alert>();
 	
 	static{
 		loadConfigurationFromXml();
@@ -27,21 +27,21 @@ public class StockAlert {
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse( StockAlert.class.getResourceAsStream("/StockAlert.xml") );
+			Document doc = dBuilder.parse( StockAlert.class.getResourceAsStream("/alert.xml") );
 			doc.getDocumentElement().normalize();
 
-			NodeList shortPositionList = doc.getElementsByTagName("short_position");
-			for (int i=0; i < shortPositionList.getLength(); i++) {
-				final Node nNode = shortPositionList.item(i);
+			NodeList alertList = doc.getElementsByTagName("Alert");
+			for (int i=0; i < alertList.getLength(); i++) {
+				final Node nNode = alertList.item(i);
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					final Element eElement = (Element) nNode;
-					final String symbol = getTagValue("symbol", eElement);
-					final Date date = Utility.getDateFor( getTagValue("date", eElement), "MM/dd/yyyy" );
-					final Double price = Double.parseDouble(getTagValue("price", eElement));
-					final Long volume = Long.parseLong(getTagValue("volume", eElement));
-					final String description = getTagValue("description", eElement);
+					final String symbol = getTagValue("Symbol", eElement);
+					final Date positionDate = Utility.getDateFor( getTagValue("PositionDate", eElement), "MM/dd/yyyy" );
+					final Double positionPrice = Double.parseDouble(getTagValue("PositionPrice", eElement));
+					final Double triggerChangePercent = Double.parseDouble(getTagValue("TriggerChangePercent", eElement));
+					final String description = getTagValue("Description", eElement);
 					
-					shortPositions.add( new StockAlert().new ShortPosition(symbol, date, price, volume, description) );
+					alerts.add( new StockAlert().new Alert(symbol, positionDate, positionPrice, triggerChangePercent, description) );
 				}
 			}
 		} catch (Exception e) {
@@ -58,81 +58,117 @@ public class StockAlert {
 	
 	public static void main(String... args) throws Exception{
 		final String ROW_FORMAT = "%-10s %-10s %-25s %-12s %-8s %-20s %-15s %-23s %s";
+		final String ROW_FORMAT_CSV = "%s,%s,%s,%s,%s,%s,%s,%s,%s";
 		
-		System.out.println( String.format(ROW_FORMAT, "Symbol", "realTime", "range", "% Change", "time", "Alert Age", "Target Price", "Reqd drop for Trigger", "Description") );
-		for(final ShortPosition shortPosition : shortPositions){
+		final StringBuilder sbCsv = new StringBuilder();
+		
+		System.out.println( String.format(ROW_FORMAT, "Symbol", "realTime", "range", "% Change", "time", "Alert Age", "Target Price", "Reqd change for Trigger", "Description") );
+		
+		sbCsv.append( String.format(ROW_FORMAT_CSV, "Symbol", "realTime", "range", "% Change", "time", "Alert Age", "Target Price", "Reqd change for Trigger", "Description") ).append( "\n" );
+		
+		for(final Alert alert : alerts){
 			try{
-				final Quote quote = CallerQuote.processCnbc(shortPosition.getSymbol());
+				final Quote quote = CallerQuote.processCnbc(alert.getSymbol());
 				
-				long days = Utility.getDaysDiffBetween(shortPosition.getDate(), new Date());
+				long days = Utility.getDaysDiffBetween(alert.getPositionDate(), new Date());
 				String alertAge = days +" Days";
-				if( days > 30 ){
-					alertAge += " (EXPIRED)";
-				}
 				
-				Double minus10pc = Utility.round( shortPosition.getPrice() - (shortPosition.getPrice() * (10.0/100.0)) );
+				Double triggerPrice = Utility.round( alert.getPositionPrice() + (alert.getPositionPrice() * (alert.getTriggerChangePercent()/100.0)) );
 				Double realTime = Double.parseDouble(quote.getRealTime());
-				Double dayMin = null;
+				Double dayMin = realTime;
+				Double dayMax = realTime;
 				String sDayMin = quote.getRangeToday().substring(0, quote.getRangeToday().indexOf("-"));
+				String sDayMax = quote.getRangeToday().substring(quote.getRangeToday().indexOf("-")+1 );
 				try{
 					dayMin = Double.parseDouble( sDayMin.trim() );
 				}
 				catch(Exception e){
-					dayMin = realTime;
+				}
+				try{
+					dayMax = Double.parseDouble( sDayMax.trim() );
+				}
+				catch(Exception e){
 				}
 				
-				final Double reqdDrop = Utility.round( ((minus10pc - dayMin) / dayMin)*100.0 );
-				String sReqdDrop = null;
-				if( reqdDrop < 0 ){
-					sReqdDrop = reqdDrop+"%";
+				
+				Double reqdChange = null;
+				if( alert.getTriggerChangePercent() > 0 ){
+					reqdChange = Utility.round( ((triggerPrice - dayMax) / dayMax)*100.0 );
 				}else{
-					sReqdDrop = "-- TRIGGERRED--";
+					reqdChange = Utility.round( ((triggerPrice - dayMin) / dayMin)*100.0 );
 				}
-				System.out.println( String.format(ROW_FORMAT, quote.getSymbol(), quote.getRealTime(), quote.getRangeToday(), quote.getPcChange(), quote.getTime(), alertAge, minus10pc, sReqdDrop, shortPosition.getDescription()) );
+				
+				String sReqdChange = null;
+				if( alert.getTriggerChangePercent() > 0 && reqdChange > 0 ){
+					sReqdChange = reqdChange+"%";
+				}else if( alert.getTriggerChangePercent() < 0 && reqdChange < 0){
+					sReqdChange = reqdChange+"%";
+				}else{
+					sReqdChange = "** TRIGGERRED **";
+				}
+				System.out.println( String.format(ROW_FORMAT, quote.getSymbol(), quote.getRealTime(), quote.getRangeToday(), quote.getPcChange(), quote.getTime(), alertAge, triggerPrice, sReqdChange, alert.getDescription()) );
+				sbCsv.append( String.format(ROW_FORMAT_CSV, quote.getSymbol(), quote.getRealTime(), quote.getRangeToday(), quote.getPcChange(), quote.getTime(), alertAge, triggerPrice, sReqdChange, "\"" +alert.getDescription()+ "\"") ).append("\n");
 			}
 			catch(Exception e){
-				System.out.println( "Exception in getting data for " +shortPosition.getSymbol() );
+				System.out.println( "Exception in getting data for " +alert.getSymbol() );
+				sbCsv.append( "Exception in getting data for " +alert.getSymbol() ).append( "\n" );
 			}
 		}
+		Utility.saveContent("alert.csv", sbCsv.toString());
 		System.out.println( "Done." );
 	}
 	
-	class ShortPosition{
+	class Alert{
 		String symbol;
-		Date date;
-		Double price;
-		Long volume;
+		Date positionDate;
+		Double positionPrice;
+		Double triggerChangePercent;
 		String description;
-		public ShortPosition(String symbol, Date date, Double price,
-				Long volume, String description) {
+		public Alert(String symbol, Date positionDate, Double positionPrice,
+				Double triggerChangePercent, String description) {
 			super();
 			this.symbol = symbol;
-			this.date = date;
-			this.price = price;
-			this.volume = volume;
+			this.positionDate = positionDate;
+			this.positionPrice = positionPrice;
+			this.triggerChangePercent = triggerChangePercent;
 			this.description = description;
 		}
-		
 		public String getSymbol() {
 			return symbol;
 		}
-		public Date getDate() {
-			return date;
+		public void setSymbol(String symbol) {
+			this.symbol = symbol;
 		}
-		public Double getPrice() {
-			return price;
+		public Date getPositionDate() {
+			return positionDate;
 		}
-		public Long getVolume() {
-			return volume;
+		public void setPositionDate(Date positionDate) {
+			this.positionDate = positionDate;
+		}
+		public Double getPositionPrice() {
+			return positionPrice;
+		}
+		public void setPositionPrice(Double positionPrice) {
+			this.positionPrice = positionPrice;
+		}
+		public Double getTriggerChangePercent() {
+			return triggerChangePercent;
+		}
+		public void setTriggerChangePercent(Double triggerChangePercent) {
+			this.triggerChangePercent = triggerChangePercent;
 		}
 		public String getDescription() {
 			return description;
 		}
-
+		public void setDescription(String description) {
+			this.description = description;
+		}
+		
 		@Override
 		public String toString() {
-			return "ShortPosition [symbol=" + symbol + ", date=" + date
-					+ ", price=" + price + ", volume=" + volume
+			return "Alert [symbol=" + symbol + ", positionDate=" + positionDate
+					+ ", positionPrice=" + positionPrice
+					+ ", triggerChangePercent=" + triggerChangePercent
 					+ ", description=" + description + "]";
 		}
 		
