@@ -81,11 +81,13 @@ public class StockAlert {
 				String sDayMax = quote.getRangeToday().substring(quote.getRangeToday().indexOf("-")+1 );
 				try{
 					dayMin = Double.parseDouble( sDayMin.trim() );
+					dayMin = dayMin < realTime ? dayMin : realTime;
 				}
 				catch(Exception e){
 				}
 				try{
 					dayMax = Double.parseDouble( sDayMax.trim() );
+					dayMax = dayMax > realTime ? dayMax : realTime;
 				}
 				catch(Exception e){
 				}
