@@ -331,8 +331,8 @@ public class CallerAggregateInformation {
 			System.out.println( "Processing " +metaData.getSymbol() );
 			
 			if( exceptionSymbols.size() >= 5 ){
-				System.out.println( "\nException occured for more than 5 synbols. Exiting now. Please rerun after 20 minutes: " +new Date() );
-				System.out.println( "\007\007\007" ); // Beep Character \007
+				System.out.println( "\nException occured for more than 5 symbols " +exceptionSymbols+ ".\nExiting now. Please rerun after 20 minutes: " +new Date() );
+				//System.out.println( "\007\007\007" ); // Beep Character \007
 				System.exit(-1);
 			}
 			

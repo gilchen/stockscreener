@@ -313,16 +313,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>AA</symbol>
-			<entries>
-				<entry>
-					<buy-date>06/20/2013</buy-date>
-					<qty>52</qty>
-					<price>8.02</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>LRY</symbol>
 			<entries>
 				<entry>
@@ -373,15 +363,16 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>IAG</symbol>
+			<symbol>EPAM</symbol>
 			<entries>
-				<entry>
-					<buy-date>10/01/2013</buy-date>
-					<qty>77</qty>
-					<price>4.59</price>
+				<entry desc="Short Sale">
+					<buy-date>10/10/2013</buy-date>
+					<qty>11</qty>
+					<price>36.92</price>
 				</entry>
 			</entries>
 		</position>
+
 
 	</positions>
 
