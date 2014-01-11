@@ -139,26 +139,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>SDOW</symbol>
-			<entries>
-				<!-- entry>
-					<buy-date>04/10/2011</buy-date>
-					<qty>13</qty>
-					<price>44.33</price>
-				</entry>
-				<entry>
-					<buy-date>17/10/2011</buy-date>
-					<qty>15</qty>
-					<price>34.15</price>
-				</entry -->
-				<entry>
-					<buy-date>04/10/2011</buy-date>
-					<qty>7</qty>
-					<price>155.52</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>UPL</symbol>
 			<entries>
 				<entry>
@@ -213,10 +193,11 @@
 				</entry>
 			</entries>
 		</position>
+	<!-- 
 		<position>
 			<symbol>TVIX</symbol>
 			<entries>
-				<!-- entry>
+				<entry>
 					<buy-date>06/20/2012</buy-date>
 					<qty>17</qty>
 					<price>5.86</price>
@@ -225,15 +206,17 @@
 					<buy-date>09/25/2012</buy-date>
 					<qty>63</qty>
 					<price>1.43</price>
-				</entry -->
-				<!-- After reverse split 1:10 -->
+				</entry>
+				// After reverse split 1:10
 				<entry>
 					<buy-date>06/20/2012</buy-date>
 					<qty>8</qty>
 					<price>23.71</price>
 				</entry>
+				// Force liquidated after another reverse split 1:10
 			</entries>
 		</position>
+-->		
 <!-- 
 		<position>
 			<symbol>UVXY</symbol>
@@ -283,16 +266,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>VELT</symbol>
-			<entries>
-				<entry>
-					<buy-date>03/19/2013</buy-date>
-					<qty>175</qty>
-					<price>2.02</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>CYS</symbol>
 			<entries>
 				<entry>
@@ -333,16 +306,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>AEO</symbol>
-			<entries>
-				<entry>
-					<buy-date>08/22/2013</buy-date>
-					<qty>35</qty>
-					<price>14.86</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>TWO</symbol>
 			<entries>
 				<entry>
@@ -353,27 +316,65 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>S</symbol>
+			<symbol>DAL</symbol>
 			<entries>
-				<entry>
-					<buy-date>09/18/2013</buy-date>
-					<qty>56</qty>
-					<price>6.29</price>
+				<entry desc="Short Sale">
+					<buy-date>10/25/2013</buy-date>
+					<qty>25</qty>
+					<price>26.05</price>
 				</entry>
 			</entries>
 		</position>
 		<position>
-			<symbol>EPAM</symbol>
+			<symbol>AGI</symbol>
 			<entries>
-				<entry desc="Short Sale">
-					<buy-date>10/10/2013</buy-date>
-					<qty>11</qty>
-					<price>36.92</price>
+				<entry>
+					<buy-date>11/11/2013</buy-date>
+					<qty>43</qty>
+					<price>13.66</price>
 				</entry>
 			</entries>
 		</position>
-
-
+		<position>
+			<symbol>KORS</symbol>
+			<entries>
+				<entry>
+					<buy-date>11/15/2013</buy-date>
+					<qty>5</qty>
+					<price>82.25</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>CSG</symbol>
+			<entries>
+				<entry>
+					<buy-date>11/18/2013</buy-date>
+					<qty>45</qty>
+					<price>8.31</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>CDE</symbol>
+			<entries>
+				<entry>
+					<buy-date>12/03/2013</buy-date>
+					<qty>42</qty>
+					<price>10.46</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>GPOR</symbol>
+			<entries>
+				<entry>
+					<buy-date>01/08/2014</buy-date>
+					<qty>12</qty>
+					<price>54.10</price>
+				</entry>
+			</entries>
+		</position>
 	</positions>
 
 </current_snapshot>
