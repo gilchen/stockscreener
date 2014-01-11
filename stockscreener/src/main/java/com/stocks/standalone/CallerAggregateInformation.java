@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -100,13 +101,18 @@ public class CallerAggregateInformation {
 
 		System.out.println( "Starting to process a total of " +metaDataList.size()+ " symbols." );
 		
+		final List<String> exceptionInSymbols = new ArrayList<String>();
 		// Step 2: Pull Aggregate Information from Google and save it to database.
 		if( properties.getProperty("generate.report.only").equalsIgnoreCase("false") ){
-			pullAndSaveAggregateInformationFromGoogle(metaDataList, stockService);
+			pullAndSaveAggregateInformationFromGoogle(metaDataList, stockService, exceptionInSymbols);
 		}
 		
 		// Step 3: Generate Report
 		generateReport(metaDataList, stockService);
+		
+		if( exceptionInSymbols != null && !exceptionInSymbols.isEmpty() ){
+			System.out.println( "\nCould not process " +exceptionInSymbols.size()+ " symbols: " +exceptionInSymbols );
+		}
 		
 		System.out.println( "\n\nNote: Run GoogleStockScreener every 2 weeks to include new qualifying symbols.\n" );
 		System.out.println( "Done." );
@@ -116,6 +122,8 @@ public class CallerAggregateInformation {
 	private static void generateReport(final List<MetaData> metaDataList, final StockService stockService) throws Exception{
 		Writer bwMain = null;
 		Writer bwQualified = null;
+		
+		final List<String> noRecentActivity = new ArrayList<String>();
 		try{
 			bwMain = new BufferedWriter( new FileWriter(properties.getProperty("rpt.aggregate.path")) );
 			bwQualified = new BufferedWriter( new FileWriter(properties.getProperty("rpt.aggregate.for.qualified.path")) );
@@ -143,7 +151,13 @@ public class CallerAggregateInformation {
 			
 			// Populate list of Marginable stocks from sogotrade.
 			final List<String> sogoMarginables = new ArrayList<String>();
-			final String shortList = Utility.getContent( "http://wangvestonline.com/sogotrade/list/shortlist.txt" );
+			String shortList = "";
+			try{
+				shortList = Utility.getContent( "http://wangvestonline.com/sogotrade/list/shortlist.txt" );
+			}
+			catch(Exception e){
+				System.out.println( "\n\nUnable to pull shortlist.txt from wangvestonline.com: " +e.getMessage()+ "\n\n" );
+			}
 			for( String line : shortList.split("\n") ){
 				sogoMarginables.add( line.split("\t")[0] );
 			}
@@ -239,6 +253,12 @@ public class CallerAggregateInformation {
 						generateSnapshotFor( metaData.getSymbol(), stockService );
 					}
 					
+					Calendar ONE_WEEK_FROM_TODAY = Calendar.getInstance();
+					ONE_WEEK_FROM_TODAY.add(Calendar.DATE, -7);
+					if( aiList != null && !aiList.isEmpty() && aiList.get( aiList.size()-1 ).getAggregateInformationPK().getTradeDate().before( ONE_WEEK_FROM_TODAY.getTime() ) ){
+						noRecentActivity.add( metaData.getSymbol() );
+					}
+					
 				}
 				catch(Exception e){
 					System.out.println( "Exception occured while processing " +metaData.getSymbol() );
@@ -252,6 +272,10 @@ public class CallerAggregateInformation {
 			
 			if( !exceptionSymbols.isEmpty() ){
 				System.out.println( "\nCould not process " +exceptionSymbols.size()+ " symbols: " +exceptionSymbols );
+			}
+
+			if( noRecentActivity != null && !noRecentActivity.isEmpty() ){
+				System.out.println( "\nNo Recent activity found in " +noRecentActivity+ ". Consider removing them from properties file." );
 			}
 		}
 		finally{
@@ -320,9 +344,8 @@ public class CallerAggregateInformation {
 		}
 	}
 	
-	private static void pullAndSaveAggregateInformationFromGoogle(final List<MetaData> metaDataList, final StockService stockService) throws Exception{
+	private static void pullAndSaveAggregateInformationFromGoogle(final List<MetaData> metaDataList, final StockService stockService, final List<String> exceptionSymbols) throws Exception{
 		int ctr = 0;
-		final List<String> exceptionSymbols = new ArrayList<String>();
 		
 		final String GOOGLE_URL_INTRA_DAY = properties.getProperty("google.url.intra.day");
 		final String GOOGLE_URL_DAY_CLOSE = properties.getProperty("google.url.day.close");
@@ -331,7 +354,7 @@ public class CallerAggregateInformation {
 			System.out.println( "Processing " +metaData.getSymbol() );
 			
 			if( exceptionSymbols.size() >= 5 ){
-				System.out.println( "\nException occured for more than 5 symbols " +exceptionSymbols+ ".\nExiting now. Please rerun after 20 minutes: " +new Date() );
+				System.out.println( "\nException occured for more than 5 symbols " +exceptionSymbols+ " at " +new Date()+ ".\nExiting now." );
 				//System.out.println( "\007\007\007" ); // Beep Character \007
 				System.exit(-1);
 			}
