@@ -52,7 +52,7 @@ public class AggregateInformationDetailsDaoImpl extends AbstractDao implements A
 	
 	public List<AggregateInformationDetails> findAggregateInformationDetailsBySymbol(final String symbol){
 		List<AggregateInformationDetails> results = new ArrayList<AggregateInformationDetails>();
-		final File repoFolder = new File(JAVA_OBJECT_REPO_PATH);
+		final File repoFolder = new File(JAVA_OBJECT_REPO_PATH + symbol + "/");
 		String[] files = repoFolder.list(new FilenameFilter(){
 			@Override
 			public boolean accept(File dir, String name) {
@@ -62,7 +62,7 @@ public class AggregateInformationDetailsDaoImpl extends AbstractDao implements A
 		
 		for( final String fileName : files ){
 			try{
-				results.add( (AggregateInformationDetails) Utility.readObjectFromDisk(JAVA_OBJECT_REPO_PATH+fileName) );
+				results.add( (AggregateInformationDetails) Utility.readObjectFromDisk(JAVA_OBJECT_REPO_PATH + symbol + "/" +fileName) );
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -74,7 +74,7 @@ public class AggregateInformationDetailsDaoImpl extends AbstractDao implements A
 	
 	public AggregateInformationDetails read(AggregateInformationDetailsPK aggregateInformationDetailsPK) {
 		try{
-			final AggregateInformationDetails aggregateInformationDetails = (AggregateInformationDetails) Utility.readObjectFromDisk(JAVA_OBJECT_REPO_PATH +getFileName(aggregateInformationDetailsPK));
+			final AggregateInformationDetails aggregateInformationDetails = (AggregateInformationDetails) Utility.readObjectFromDisk(JAVA_OBJECT_REPO_PATH + aggregateInformationDetailsPK.getSymbol() + "/" +getFileName(aggregateInformationDetailsPK));
 			return aggregateInformationDetails;
 		}
 		catch(FileNotFoundException e){
@@ -87,7 +87,7 @@ public class AggregateInformationDetailsDaoImpl extends AbstractDao implements A
 
 	public void save(AggregateInformationDetails aggregateInformationDetails) {
 		try{
-			Utility.saveObjectToDisk(JAVA_OBJECT_REPO_PATH +getFileName(aggregateInformationDetails.getAggregateInformationDetailsPK()), aggregateInformationDetails);
+			Utility.saveObjectToDisk(JAVA_OBJECT_REPO_PATH + aggregateInformationDetails.getAggregateInformationDetailsPK().getSymbol() + "/" + getFileName(aggregateInformationDetails.getAggregateInformationDetailsPK()), aggregateInformationDetails);
 		}
 		catch(Exception e){
 			throw new RuntimeException(e);
