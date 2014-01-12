@@ -87,6 +87,11 @@ public class AggregateInformationDetailsDaoImpl extends AbstractDao implements A
 
 	public void save(AggregateInformationDetails aggregateInformationDetails) {
 		try{
+			File folder = new File(JAVA_OBJECT_REPO_PATH + aggregateInformationDetails.getAggregateInformationDetailsPK().getSymbol());
+			if( !folder.exists() ){
+				folder.mkdir();
+			}
+			
 			Utility.saveObjectToDisk(JAVA_OBJECT_REPO_PATH + aggregateInformationDetails.getAggregateInformationDetailsPK().getSymbol() + "/" + getFileName(aggregateInformationDetails.getAggregateInformationDetailsPK()), aggregateInformationDetails);
 		}
 		catch(Exception e){
