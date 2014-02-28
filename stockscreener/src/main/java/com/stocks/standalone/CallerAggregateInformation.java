@@ -587,7 +587,7 @@ public class CallerAggregateInformation {
 				final String content = entry.getValue();
 				
 				try{
-					File existingIntraDayFile = new File( properties.getProperty("one.minute.data.folder") +"/"+ symbol );
+					File existingIntraDayFile = new File( properties.getProperty("one.minute.data.folder") +"/"+ symbol+"-INTRA-DAY" );
 					if( existingIntraDayFile.exists() ){ // Append
 						String existingContent = Utility.getContent( existingIntraDayFile.toURL().toString() );
 						// Read Last line
