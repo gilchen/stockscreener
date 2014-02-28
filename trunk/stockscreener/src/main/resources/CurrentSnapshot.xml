@@ -164,16 +164,6 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>DMND</symbol>
-			<entries>
-				<entry>
-					<buy-date>02/23/2012</buy-date>
-					<qty>11</qty>
-					<price>24</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
 			<symbol>ANR</symbol>
 			<entries>
 				<entry>
@@ -333,15 +323,10 @@
 					<qty>43</qty>
 					<price>13.66</price>
 				</entry>
-			</entries>
-		</position>
-		<position>
-			<symbol>KORS</symbol>
-			<entries>
 				<entry>
-					<buy-date>11/15/2013</buy-date>
-					<qty>5</qty>
-					<price>82.25</price>
+					<buy-date>01/16/2014</buy-date>
+					<qty>37</qty>
+					<price>10.32</price>
 				</entry>
 			</entries>
 		</position>
@@ -356,25 +341,66 @@
 			</entries>
 		</position>
 		<position>
-			<symbol>CDE</symbol>
+			<symbol>ARO</symbol>
 			<entries>
 				<entry>
-					<buy-date>12/03/2013</buy-date>
-					<qty>42</qty>
-					<price>10.46</price>
+					<buy-date>01/13/2014</buy-date>
+					<qty>45</qty>
+					<price>7.75</price>
 				</entry>
 			</entries>
 		</position>
 		<position>
-			<symbol>GPOR</symbol>
+			<symbol>ALGN</symbol>
 			<entries>
 				<entry>
-					<buy-date>01/08/2014</buy-date>
-					<qty>12</qty>
-					<price>54.10</price>
+					<buy-date>01/27/2014</buy-date>
+					<qty>9</qty>
+					<price>54.62</price>
 				</entry>
 			</entries>
 		</position>
+		<position>
+			<symbol>TSCO</symbol>
+			<entries>
+				<entry>
+					<buy-date>01/29/2014</buy-date>
+					<qty>6</qty>
+					<price>68.9</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>AOS</symbol>
+			<entries>
+				<entry>
+					<buy-date>02/05/2014</buy-date>
+					<qty>16</qty>
+					<price>45.67</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>PBCT</symbol>
+			<entries>
+				<entry>
+					<buy-date>02/20/2014</buy-date>
+					<qty>26</qty>
+					<price>13.92</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>SIRO</symbol>
+			<entries>
+				<entry>
+					<buy-date>02/21/2014</buy-date>
+					<qty>7</qty>
+					<price>67.35</price>
+				</entry>
+			</entries>
+		</position>
+
 	</positions>
 
 </current_snapshot>
