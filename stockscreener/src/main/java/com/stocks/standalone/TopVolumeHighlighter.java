@@ -224,9 +224,41 @@ public class TopVolumeHighlighter {
 		sb.append( "	return null;" ).append("\n");
 		sb.append( "}" ).append("\n");
 		
+		sb.append( "function drawOHLC(cnvs, o, h, l, c){" ).append("\n");
+		sb.append( "	oMinusLow = o-l;" ).append("\n");
+		sb.append( "	hMinusLow = h-l;" ).append("\n");
+		sb.append( "	lMinusLow = l-l;" ).append("\n");
+		sb.append( "	cMinusLow = c-l;" ).append("\n");
+		sb.append( "" ).append("\n");
+		sb.append( "	height = cnvs.height; // 100.0" ).append("\n");
+		sb.append( "" ).append("\n");
+		sb.append( "	newO = Math.abs( ((oMinusLow-hMinusLow)/hMinusLow)*height );" ).append("\n");
+		sb.append( "	newH = Math.abs( ((hMinusLow-hMinusLow)/hMinusLow)*height );" ).append("\n");
+		sb.append( "	newL = Math.abs( ((lMinusLow-hMinusLow)/hMinusLow)*height );" ).append("\n");
+		sb.append( "	newC = Math.abs( ((cMinusLow-hMinusLow)/hMinusLow)*height );" ).append("\n");
+		sb.append( "" ).append("\n");
+		sb.append( "	newO = isNaN(newO) ? 20 : newO;" ).append("\n");
+		sb.append( "	newH = isNaN(newH) ? 20 : newH;" ).append("\n");
+		sb.append( "	newL = isNaN(newL) ? 20 : newL;" ).append("\n");
+		sb.append( "	newC = isNaN(newC) ? 20 : newC;" ).append("\n");
+		sb.append( "" ).append("\n");
+		sb.append( "	var ctx = cnvs.getContext('2d');" ).append("\n");
+		sb.append( "" ).append("\n");
+		sb.append( "	ctx.moveTo(25,newH); ctx.lineTo(25,newL); ctx.stroke(); // vertical line" ).append("\n");
+		sb.append( "	ctx.moveTo(0,newO); ctx.lineTo(25,newO); ctx.stroke(); // open" ).append("\n");
+		sb.append( "	ctx.moveTo(25,newC); ctx.lineTo(50,newC); ctx.stroke(); // close" ).append("\n");
+		sb.append( "}" ).append("\n");
+		
+		sb.append( "function drawOHLCs(){" ).append("\n");
+		sb.append( "	arr = document.getElementsByTagName('canvas');" ).append("\n");
+		sb.append( "	for( i=0; i<arr.length; i++ ){" ).append("\n");
+		sb.append( "		arr[i].click();" ).append("\n");
+		sb.append( "	}" ).append("\n");
+		sb.append( "}" ).append("\n");
+		
 		sb.append( "</script>" ).append("\n");
 		sb.append( "</head>" ).append("\n");
-		sb.append( "<body>" ).append("\n");
+		sb.append( "<body onload='drawOHLCs()'>" ).append("\n");
 		sb.append( "Report generated on <B>" ).append( new Date() ).append("</B>").append("\n");
 		sb.append( "<P>This report reads IntraDay data from Google Finance. It generates Intra Day Charts for each day in the Past Month." ).append("\n");
 		sb.append( "It lays out 1 min close and volume for each day. Clicking the date link will display 1 min IntraDay Chart for that day." ).append("\n");
@@ -517,6 +549,7 @@ public class TopVolumeHighlighter {
 						"<BR>" +change+ "%</td>");
 				sbAll.append("<td>").append( idsPrev.toStringFor() );
 				sbAll.append("<BR>").append( ids.toStringFor() );
+				sbAll.append("</td><td><canvas id='myCanvas' width='50' height='40' style='border:0px solid #000000;' onclick='drawOHLC(this, " +ids.getOpen()+ ", " +ids.getHigh()+ ", " +ids.getLow()+ ", " +ids.getClose()+ ")'></canvas>");
 				sbAll.append("</td></tr>");
 			}
 		}
@@ -602,7 +635,10 @@ public class TopVolumeHighlighter {
 		for( final IntraDayStructure ids : idsSubList ){
 			sbCloseList.append(",").append(ids.getClose());
 			sbVolumeList.append(",").append(ids.getVolume());
-			sbIndexList.append(",").append(ids.getIndex());
+			
+			String ohlc = ids.getIndex() +"\\nO: " +ids.getOpen()+ "  H: " +ids.getHigh()+ "  L: " +ids.getLow()+ "  C: " +ids.getClose();
+			//sbIndexList.append(",").append(ids.getIndex());
+			sbIndexList.append(",").append( ohlc );
 		}
 		
 		final QueryResults qrMinMax = Query.parseAndExec("SELECT min(close), max(close) FROM com.stocks.standalone.IntraDayStructure LIMIT 1,1", new ArrayList<IntraDayStructure>(idsSubList) );

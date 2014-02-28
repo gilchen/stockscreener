@@ -14,9 +14,13 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -102,9 +106,10 @@ public class CallerAggregateInformation {
 		System.out.println( "Starting to process a total of " +metaDataList.size()+ " symbols." );
 		
 		final List<String> exceptionInSymbols = new ArrayList<String>();
+		final List<String> exceptionOneMinuteSymbols = new ArrayList<String>();
 		// Step 2: Pull Aggregate Information from Google and save it to database.
 		if( properties.getProperty("generate.report.only").equalsIgnoreCase("false") ){
-			pullAndSaveAggregateInformationFromGoogle(metaDataList, stockService, exceptionInSymbols);
+			pullAndSaveAggregateInformationFromGoogle(metaDataList, stockService, exceptionInSymbols, exceptionOneMinuteSymbols);
 		}
 		
 		// Step 3: Generate Report
@@ -112,6 +117,9 @@ public class CallerAggregateInformation {
 		
 		if( exceptionInSymbols != null && !exceptionInSymbols.isEmpty() ){
 			System.out.println( "\nCould not process " +exceptionInSymbols.size()+ " symbols: " +exceptionInSymbols );
+		}
+		if( exceptionOneMinuteSymbols != null && !exceptionOneMinuteSymbols.isEmpty() ){
+			System.out.println( "\nCould not save one.minute data for : " +exceptionOneMinuteSymbols+". To resolve delete <SYMBOL>-INTRA-DAY file from cache.folder, remove any zero-volume entries towards the end of one.minute file for these symbols and rerun the process for these symbols with generate.report.only=false. \nCaution: Keep a copy of generated report otherwise it will overwrite it and you will have to re-run report again for all symbols." );
 		}
 		
 		System.out.println( "\n\nNote: Run GoogleStockScreener every 2 weeks to include new qualifying symbols.\n" );
@@ -344,8 +352,8 @@ public class CallerAggregateInformation {
 		}
 	}
 	
-	private static void pullAndSaveAggregateInformationFromGoogle(final List<MetaData> metaDataList, final StockService stockService, final List<String> exceptionSymbols) throws Exception{
-		int ctr = 0;
+	private static void pullAndSaveAggregateInformationFromGoogle(final List<MetaData> metaDataList, final StockService stockService, final List<String> exceptionSymbols, final List<String> exceptionOneMinuteSymbols) throws Exception{
+		final Map<String, String> mapSymbolContent = new HashMap<String, String>();
 		
 		final String GOOGLE_URL_INTRA_DAY = properties.getProperty("google.url.intra.day");
 		final String GOOGLE_URL_DAY_CLOSE = properties.getProperty("google.url.day.close");
@@ -395,6 +403,7 @@ public class CallerAggregateInformation {
 					intraDayContent = Utility.getContent( GOOGLE_URL_INTRA_DAY.replaceAll("~SYMBOL", metaData.getSymbol()) );
 					try{
 						Utility.saveContent(properties.getProperty("cache.folder") + metaData.getSymbol() + CACHE_FILE_SUFFIX_INTRA_DAY, intraDayContent);
+						mapSymbolContent.put(metaData.getSymbol(), intraDayContent);
 					}
 					catch(Exception e){
 						e.printStackTrace();
@@ -520,15 +529,22 @@ public class CallerAggregateInformation {
 			}
 			
 			try{
-				if( ++ctr % 20 == 0 ){
+				if( !mapSymbolContent.isEmpty() && mapSymbolContent.size() >= 20 ){
+					exceptionOneMinuteSymbols.addAll( appendToIntraDayFile(mapSymbolContent) );
+					mapSymbolContent.clear();
 					int sleepTimeMillis = Integer.parseInt(properties.getProperty("sleep.time.millis"));
-					System.out.println( "\nSleeping for " +sleepTimeMillis+ " millis .... " +Utility.round(((double)ctr/(double)metaDataList.size())*100.00)+ "% completed.\n" );
+					System.out.println( "\nSleeping for " +sleepTimeMillis+ " millis .... " );
 					Thread.sleep(sleepTimeMillis);
 				}
 			}
 			catch(Exception e){
 			}
 		}
+
+		// Run again for any left overs IntraDayContent not appended.
+		exceptionOneMinuteSymbols.addAll( appendToIntraDayFile(mapSymbolContent) );
+		mapSymbolContent.clear();
+
 		
 		if( !exceptionSymbols.isEmpty() ){
 			System.out.println( "\nCould not process " +exceptionSymbols.size()+ " symbols: " +exceptionSymbols );
@@ -557,6 +573,65 @@ public class CallerAggregateInformation {
         	o.close();
         }
 	}
+	
+	private static List<String> appendToIntraDayFile(final Map<String, String> mapSymbolContent){
+		final List<String> exceptionOneMinuteSymbols = new ArrayList<String>();
+		
+		final Set<Entry<String, String>> entrySet = mapSymbolContent.entrySet();
+		
+		if( !entrySet.isEmpty() ){
+			Iterator<Entry<String, String>> iterator = entrySet.iterator();
+			while( iterator.hasNext() ){
+				final Map.Entry<String, String> entry = iterator.next();
+				final String symbol = entry.getKey();
+				final String content = entry.getValue();
+				
+				try{
+					File existingIntraDayFile = new File( properties.getProperty("one.minute.data.folder") +"/"+ symbol );
+					if( existingIntraDayFile.exists() ){ // Append
+						String existingContent = Utility.getContent( existingIntraDayFile.toURL().toString() );
+						// Read Last line
+						final String[] arrExistingContent = existingContent.split("[\n]");
+						String lastLineWithVolume = null;
+						if( arrExistingContent.length >= 25 ){ // To be on safe side, pull last 25 min data
+							for( int i=(arrExistingContent.length-25); i<arrExistingContent.length; i++ ){
+								final String line = arrExistingContent[i];
+								
+								String cols[] = line.split(",");
+								if( !cols[cols.length-1].equals("0") ){ // Last Column Volume
+									lastLineWithVolume = arrExistingContent[i];
+									break;
+								}
+							}
+							System.out.println( "\tlastLineWithVolume: "+lastLineWithVolume );
+						}
+						
+						// Find last line in content
+						int indexOfLastLineWithVolume = -1;
+						if( lastLineWithVolume != null ){
+							indexOfLastLineWithVolume = content.lastIndexOf( lastLineWithVolume );
+						}
+						
+						// Append to file.
+						final String contentToAppend = content.substring( indexOfLastLineWithVolume );
+						Utility.saveContent( existingIntraDayFile.getAbsolutePath(), existingContent.substring(0, existingContent.indexOf(lastLineWithVolume) ).trim()+"\n"+contentToAppend.trim());
+						System.out.println( "Successfully appended one.minute data for " +symbol );
+					}else{ // Save as is.
+						Utility.saveContent(existingIntraDayFile.getAbsolutePath(), content);
+						System.out.println( "Successfully created new one.minute data for [" +symbol+ "] as no existing one.minute data was present." );
+					}
+				}
+				catch(Exception e){
+					exceptionOneMinuteSymbols.add( symbol );
+					System.out.println( "********* Exception in saving one.minute data for " +symbol );
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return exceptionOneMinuteSymbols;
+	}
+	
 }
 
 class MetaData{
