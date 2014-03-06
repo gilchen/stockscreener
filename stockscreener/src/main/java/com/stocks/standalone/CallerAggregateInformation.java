@@ -549,6 +549,10 @@ public class CallerAggregateInformation {
 		if( !exceptionSymbols.isEmpty() ){
 			System.out.println( "\nCould not process " +exceptionSymbols.size()+ " symbols: " +exceptionSymbols );
 		}
+		
+		if( !exceptionOneMinuteSymbols.isEmpty() ){
+			System.out.println( "\nCould not save one.minute data for : " +exceptionOneMinuteSymbols+". To resolve delete <SYMBOL>-INTRA-DAY file from cache.folder, remove any zero-volume entries towards the end of one.minute file for these symbols and rerun the process for these symbols with generate.report.only=false. \nCaution: Keep a copy of generated report otherwise it will overwrite it and you will have to re-run report again for all symbols." );
+		}
 	}
 	
 	private static byte[] convertJavaObjectToByteArray(Object obj) throws Exception{
