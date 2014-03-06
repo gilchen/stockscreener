@@ -275,8 +275,8 @@
 				</entry>
 			</entries>
 		</position>
-		<position>
-			<symbol>LRY</symbol>
+		<position description="Formerly LRY, now LPT">
+			<symbol>LPT</symbol>
 			<entries>
 				<entry>
 					<buy-date>08/05/2013</buy-date>
@@ -292,16 +292,6 @@
 					<buy-date>08/06/2013</buy-date>
 					<qty>11</qty>
 					<price>45.93</price>
-				</entry>
-			</entries>
-		</position>
-		<position>
-			<symbol>TWO</symbol>
-			<entries>
-				<entry>
-					<buy-date>09/05/2013</buy-date>
-					<qty>45</qty>
-					<price>9.57</price>
 				</entry>
 			</entries>
 		</position>
@@ -397,6 +387,16 @@
 					<buy-date>02/21/2014</buy-date>
 					<qty>7</qty>
 					<price>67.35</price>
+				</entry>
+			</entries>
+		</position>
+		<position>
+			<symbol>BCC</symbol>
+			<entries>
+				<entry>
+					<buy-date>03/04/2014</buy-date>
+					<qty>20</qty>
+					<price>28.36</price>
 				</entry>
 			</entries>
 		</position>
